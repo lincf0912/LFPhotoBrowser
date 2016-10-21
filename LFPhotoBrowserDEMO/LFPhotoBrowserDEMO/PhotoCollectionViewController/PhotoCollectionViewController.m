@@ -1,0 +1,318 @@
+//
+//  PhotoCollectionViewController.m
+//  LFPhotoBrowserDEMO
+//
+//  Created by LamTsanFeng on 2016/10/18.
+//  Copyright © 2016年 GZMiracle. All rights reserved.
+//
+
+#import "PhotoCollectionViewController.h"
+#import "XLPlainFlowLayout.h"
+#import "PhotoHeadView.h"
+#import "PhotoCollectionViewCell.h"
+
+#import "LFPhotoBrowser.h"
+#import "LFPhotoInfo.h"
+
+#define HeadSize CGSizeMake([[UIScreen mainScreen] bounds].size.width, 25)
+#define CellSize CGSizeMake(([[UIScreen mainScreen] bounds].size.width - 30) / 4, ([[UIScreen mainScreen] bounds].size.width - 30) / 4)
+
+@interface PhotoCollectionViewController ()<UICollectionViewDelegate, UICollectionViewDataSource, LFPhotoBrowserDelegate>
+
+@property (strong, nonatomic) UICollectionView *collectionView;
+
+@property (nonatomic, strong) NSMutableDictionary *dataSourcDic;
+
+@property (nonatomic, strong) NSMutableArray *titleArrs;
+
+@end
+
+@implementation PhotoCollectionViewController
+
+static NSString * const reuseIdentifier = @"Cell";
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    // Uncomment the following line to preserve selection between presentations
+    // self.clearsSelectionOnViewWillAppear = NO;
+    
+    // Register cell classes
+    [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:reuseIdentifier];
+    
+    
+    // Do any additional setup after loading the view.
+    [self initDataSource];
+    [self initCollectionView];
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - Private Methods
+#pragma mark 初始化控件
+- (void)initCollectionView{
+    
+    if ([self respondsToSelector:@selector(automaticallyAdjustsScrollViewInsets)]) {
+        self.automaticallyAdjustsScrollViewInsets = NO;
+    }
+    
+    XLPlainFlowLayout *flowLayout = [[XLPlainFlowLayout alloc] init];
+    flowLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    flowLayout.headerReferenceSize = CGSizeMake(0, 30);
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height) collectionViewLayout:flowLayout];
+    _collectionView.contentInset = UIEdgeInsetsMake(64, 0, 0, 0);
+    _collectionView.scrollIndicatorInsets = UIEdgeInsetsMake(64, 0, 0, 0);
+    _collectionView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    _collectionView.delegate = self;
+    _collectionView.dataSource = self;
+    
+    flowLayout.naviHeight = _collectionView.contentInset.top;
+    [self.view addSubview:_collectionView];
+    
+    //注册cell
+    [_collectionView registerClass:[PhotoCollectionViewCell class] forCellWithReuseIdentifier:reuseIdentifier];
+    
+    //注册表头
+    [_collectionView registerClass:[PhotoHeadView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"PhotoHeadView"];
+}
+
+#pragma mark 创建数据源
+- (void)initDataSource{
+    _dataSourcDic = [NSMutableDictionary dictionary];
+    _titleArrs = [[NSMutableArray alloc] init];
+    
+    for (NSInteger i=1; i<22; i++) {
+        if (i<5) {
+            NSMutableArray *array = [self getMutableArrayWithKey:@"1今天"];
+            [array addObject:[NSString stringWithFormat:@"%ld.jpeg", i]];
+        } else if (i < 10) {
+            NSMutableArray *array = [self getMutableArrayWithKey:@"2明天"];
+            [array addObject:[NSString stringWithFormat:@"%ld.jpeg", i]];
+        } else if (i < 15) {
+            NSMutableArray *array = [self getMutableArrayWithKey:@"3一周前"];
+            [array addObject:[NSString stringWithFormat:@"%ld.jpeg", i]];
+        } else if (i < 20) {
+            NSMutableArray *array = [self getMutableArrayWithKey:@"4一个月前"];
+            [array addObject:[NSString stringWithFormat:@"%ld.jpeg", i]];
+        } else {
+            NSMutableArray *array = [self getMutableArrayWithKey:@"5三个月前"];
+            [array addObject:[NSString stringWithFormat:@"%ld.jpeg", i]];
+        }
+    }
+    
+}
+
+- (NSMutableArray *)getMutableArrayWithKey:(NSString *)key
+{
+    NSMutableArray *array = _dataSourcDic[key];
+    if (array == nil) {
+        array = [NSMutableArray array];
+        [_dataSourcDic setObject:array forKey:key];
+        [_titleArrs addObject:key];
+    }
+    
+    return array;
+}
+
+#pragma mark - collectionView data source
+
+-(NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView{
+    return _titleArrs.count;
+}
+
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    NSArray *array;
+    NSString *key = _titleArrs[section];
+    array = _dataSourcDic[key];
+    return array.count;
+}
+
+///自定义cell，展示图片
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    PhotoCollectionViewCell * cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
+    NSString *key = _titleArrs[indexPath.section];
+    NSArray *array = _dataSourcDic[key];
+    NSString *name = array[indexPath.row];
+    cell.imageName = name;
+    
+    return cell;
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    /** 当前点击 */
+    NSString *key = _titleArrs[indexPath.section];
+    NSArray *array = _dataSourcDic[key];
+    NSString *clickName = array[indexPath.row];
+    
+    int index = 0;
+    BOOL isFinded = NO;
+    /** 生成图片数据源 */
+    NSMutableArray *items = [NSMutableArray arrayWithCapacity:10];
+    for (NSString *title in self.titleArrs) {
+        NSArray *array = self.dataSourcDic[title];
+        for (NSString *name in array) {
+            LFPhotoInfo *photo = [LFPhotoInfo photoInfoWithType:PhotoType_image key:title];
+            photo.localImagePath = [[NSBundle mainBundle] pathForResource:name ofType:nil];
+            [items addObject:photo];
+            if ([clickName isEqualToString:name]) {
+                isFinded = YES;
+            }
+            if (isFinded == NO) {
+                index ++;
+            }
+        }
+    }
+    
+    LFPhotoBrowser *pbVC = [[LFPhotoBrowser alloc] initWithImageArray:items currentIndex:index];
+    pbVC.animatedTime = 0.2f;
+    pbVC.delegate = self;
+    pbVC.canPullDown = YES;
+    pbVC.coverViewColor = self.collectionView.backgroundColor;
+    [pbVC showPhotoBrowser];
+    
+    [collectionView deselectItemAtIndexPath:indexPath animated:YES];
+}
+
+//定义每个UICollectionView 的大小
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath{
+    return CellSize; //!<cell的大小;
+}
+
+//定义每个UICollectionView 的纵向间距
+-(CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section{
+    return 0.0f;
+}
+
+- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section{
+    return UIEdgeInsetsMake(5, 5, 5, 5);
+}
+
+//定义每个UICollectionView 的横向间距
+//-(CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section{
+//    return 5.0f;
+//}
+
+//定义表头的大小
+-(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout referenceSizeForHeaderInSection:(NSInteger)section{
+    return HeadSize;
+}
+
+
+//定义表头内容
+-(UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath{
+    PhotoHeadView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"PhotoHeadView" forIndexPath:indexPath];
+    headerView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.8f];
+    ///表头文字
+    NSString *headerTitle = _titleArrs[indexPath.section];
+    [headerView setTitleLabWithText:[headerTitle substringFromIndex:1]];
+    return headerView;
+}
+
+#pragma mark - PhotoBrowserDelegate
+-(CGRect)frameOfPhotoBrowserWithCurrentIndex:(int)currentIndex key:(NSString *)key
+{
+    CGFloat contentOffsetY = self.collectionView.contentOffset.y;
+    //获取导航栏大小
+    CGFloat statusBarHeight = 20;
+    if ([UIApplication sharedApplication].statusBarHidden && [UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationPortrait) {
+        statusBarHeight = 20.f;
+    }
+    CGFloat navigationBarMaxY = CGRectGetHeight(self.navigationController.navigationBar.frame) + statusBarHeight;
+    CGFloat navigationBarMaxX = CGRectGetWidth(self.navigationController.navigationBar.frame);
+    
+    /** 顶部交集+头部高度 */
+    CGRect topRect = CGRectMake(0, 0, navigationBarMaxX, navigationBarMaxY + HeadSize.height);
+    
+    /** 底部交集 */
+    CGRect boomRect = (CGRect){0, CGRectGetMaxY(self.collectionView.frame), CGRectGetWidth(self.collectionView.frame), CellSize.height};
+    
+    
+    /** 获取indexPath */
+    
+    NSInteger section = 0, row = 0, count = 0;
+    for (NSString *title in self.titleArrs) {
+        NSArray *array = self.dataSourcDic[title];
+        if ([title isEqualToString:key]) {
+            row = currentIndex - count;
+            break;
+        }
+        section++;
+        count += array.count;
+    }
+    NSIndexPath *indexPath =[NSIndexPath indexPathForRow:row inSection:section];
+    PhotoCollectionViewCell * cell = (PhotoCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
+    if (cell == nil) { /** indexPath 在屏幕外 无法获取cell */
+        /** 获取当前可见的 头部 与 底部 的代表cell */
+        __weak UICollectionViewCell *topCell, *boomCell;
+        NSArray *visibleCells = [[self.collectionView visibleCells] sortedArrayUsingComparator:^NSComparisonResult(UICollectionViewCell *  _Nonnull obj1, UICollectionViewCell *  _Nonnull obj2) {
+            /** y值排序 */
+            return CGRectGetMinY(obj1.frame) > CGRectGetMinY(obj2.frame);
+        }];
+        for (UICollectionViewCell *vCell in visibleCells) {
+            /** 转换坐标计算 */
+            CGRect vCellRect = [vCell convertRect:vCell.contentView.frame toView:self.view];
+            if (CGRectGetMaxY(vCellRect) >= CGRectGetMaxY(topRect)) {
+                topCell = vCell;
+                break;
+            }
+        }
+        boomCell = visibleCells.lastObject;
+        
+        /** 滚到到当前indexPath */
+        [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
+        /** 刷新数据 */
+        [self.collectionView layoutIfNeeded];
+        /** 获取cell */
+        cell = (PhotoCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
+        
+        /** 重新获取contentOffset */
+        contentOffsetY = self.collectionView.contentOffset.y;
+        
+        /** 到屏幕中心的偏移量 */
+        CGFloat offsetY = (CGRectGetHeight(self.collectionView.frame)/2 - CGRectGetHeight(cell.frame)/2 - navigationBarMaxY);
+        /** 判断超出2行高度，调整到屏幕中心 */
+        if ((CGRectGetMaxY(topCell.frame) - CGRectGetMaxY(cell.frame)) >= CGRectGetHeight(cell.frame) * 2) {
+            contentOffsetY -= offsetY;
+        } else if (CGRectGetMaxY(cell.frame) - (CGRectGetMaxY(boomCell.frame)) >= CGRectGetHeight(cell.frame) * 2) {
+            contentOffsetY += offsetY;
+        }
+    }
+    
+    
+    //转换cell的坐标
+    CGRect cellRect = [cell convertRect:cell.contentView.frame toView:self.view];
+    
+    BOOL isIntersectsTop = CGRectIntersectsRect(topRect, cellRect);
+    BOOL isIntersectsBoom = CGRectIntersectsRect(boomRect, cellRect);
+    if (isIntersectsTop || isIntersectsBoom) {
+        /** 差值 */
+        CGFloat offsetY = (isIntersectsTop ? CGRectGetMaxY(topRect) - cellRect.origin.y : CGRectGetMaxY(cellRect) - boomRect.origin.y);
+        contentOffsetY -= (isIntersectsTop ? offsetY : -offsetY);
+    }
+    
+    CGFloat offsetHeight = self.collectionView.contentSize.height - CGRectGetHeight(self.collectionView.frame);
+    CGFloat minOffsetY = -(self.collectionView.contentInset.top+self.collectionView.contentInset.bottom);
+    /** 判断contentOffset的y值能否到达屏幕中心，否则去最大值 */
+    if ((offsetHeight > 0 && contentOffsetY > offsetHeight) || contentOffsetY < minOffsetY) {
+        contentOffsetY = contentOffsetY < minOffsetY ? minOffsetY : offsetHeight;
+    }
+    
+    /** 滚动到指定位置 */
+    if (contentOffsetY != self.collectionView.contentOffset.y) {
+        [self.collectionView setContentOffset:CGPointMake(self.collectionView.contentOffset.x, contentOffsetY)];
+    }
+    
+    
+    if(cell){
+        return [cell convertRect:cell.contentView.frame toView:self.view];
+    }else{
+        return CGRectZero;
+    }
+}
+
+
+@end

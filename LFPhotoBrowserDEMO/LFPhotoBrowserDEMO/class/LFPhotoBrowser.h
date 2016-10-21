@@ -1,0 +1,97 @@
+//
+//  PhotoBrowser.h
+//  PhotoBrowser
+//
+//  Created by LamTsanFeng on 2016/9/28.
+//  Copyright © 2016年 GZMiracle. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "LFPhotoView.h"
+
+/** ================================长按列表对象===================================== */
+
+typedef NS_ENUM(NSInteger, LFPhotoSheetActionType) {
+    /** 特殊按钮 */
+    LFPhotoSheetActionType_Destructive = -1, //标题为红色,并且置顶（仅只一个）
+    /** 默认显示 */
+    LFPhotoSheetActionType_Default = 0, //普通标题
+    /** 取消按钮 */
+    LFPhotoSheetActionType_Cancel, //普通标题，隔离到最底部（仅只一个）
+};
+
+@class LFPhotoSheetAction;
+typedef void (^LFPhotoSheetActionBlock)(id object);
+@interface LFPhotoSheetAction : NSObject
+/** 标题*/
+@property (nonatomic, copy, readonly) NSString *title;
+/** 响应block*/
+@property (nonatomic, copy, readonly) LFPhotoSheetActionBlock handler;
+/** 创建方法*/
++(LFPhotoSheetAction *)actionWithTitle:(NSString *)title style:(LFPhotoSheetActionType)style handler:(LFPhotoSheetActionBlock)handler;
+@end
+
+
+
+/** ================================图片预览===================================== */
+
+typedef NS_ENUM(NSInteger, SlideDirection) {
+    SlideDirection_Left, //向左滑动
+    SlideDirection_Right, //向右滑动
+};
+
+@class LFPhotoBrowser;
+@protocol LFPhotoBrowserDelegate <NSObject>
+
+@optional
+/** 获取startFrame或者overFrame */
+- (CGRect)frameOfPhotoBrowserWithCurrentIndex:(int)currentIndex key:(NSString *)key;
+/** 重设长按列表 */
+- (NSArray <LFPhotoSheetAction *>*)longPressActionItems:(LFPhotoBrowser *)photoBrowser image:(UIImage *)image;
+/** 滑动(滑动增加数据源，调用 增加数据源方法)[异步回调] 获取数据后执行addDataSourceFormSlideDirection:dataSourceArray:回调数据源 */
+- (void)photoBrowserDidSlide:(LFPhotoBrowser *)photoBrowser slideDirection:(SlideDirection)direction photoInfo:(LFPhotoInfo *)photoInfo;
+
+@end
+
+/** 
+ *  注意：不能使用UITableViewController或者UICollectionViewController上显示，因为这种类型UI整个view都可以滚动，所以滚动之后显示图片预览只能在滚到顶部才能看到，图片预览是加载在UI的view上，可以调整为加载在keyWindow上（showPhotoBrowser方法），但若需要使用图片预览的长按菜单点击事件来推送一个新UI（例如：扫描二维码），会被keyWindow遮挡无法看见推送界面；最好基础UIViewController 添加UITableView 来使用
+ */
+
+@interface LFPhotoBrowser : UIViewController <LFPhotoViewDelegate>
+/** 数据源 */
+@property (nonatomic, strong, readonly) NSArray *imageSources;
+@property (nonatomic, assign, readonly) LFPhotoView *showView;
+@property (nonatomic, assign, readonly) int curr;
+/** 动画时间 default 0.25f */
+@property (nonatomic, assign) NSTimeInterval animatedTime;
+/** 遮盖view的颜色, default is clearColor*/
+@property (nonatomic, strong) UIColor *coverViewColor;
+/** 代理 */
+@property (nonatomic, weak) id<LFPhotoBrowserDelegate> delegate;
+/** 触发photoBrowserDidSlide:slideDirection:photoInfo:代理的范围（距离最后一张）,default is 2 */
+@property (nonatomic, assign) NSUInteger slideRange;
+/** 遮罩的位置,default is MaskPosition_Middle*/
+@property (nonatomic, assign) MaskPosition maskPosition;
+/** 是否可以循环滚动,default is NO */
+@property (nonatomic, assign) BOOL canCirculate;
+/** 是否需要pageControl,default is NO */
+@property (nonatomic, assign) BOOL isNeedPageControl;
+/** 是否需要下拉动画,default is NO */
+@property (nonatomic, assign) BOOL canPullDown;
+/** 是否淡化,default is NO*/
+@property (nonatomic,assign) BOOL isWeaker;
+
+/** 长按列表 */
+@property (nonatomic, readonly) NSArray *actionItems;
+
+/** 初始化 */
+-(id)initWithImageArray:(NSArray <LFPhotoInfo *>*)imageArray;
+-(id)initWithImageArray:(NSArray <LFPhotoInfo *>*)imageArray currentIndex:(int)currentIndex;
+/** 显示相册 需要调用UI 重写childViewControllerForStatusBarHidden方法，返回当前UI才能控制状态栏（return self.childViewControllers.count ? self.childViewControllers.firstObject : nil;） */
+-(void)showPhotoBrowser;
+
+/** =======实现代理滑动 photoBrowserDidSlide:slideDirection:photoInfo: ======= */
+/** 增加数据源[自动切换主线程] */
+-(void)addDataSourceFormSlideDirection:(SlideDirection)direction dataSourceArray:(NSArray *)dataSource;
+
+@end
