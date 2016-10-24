@@ -37,6 +37,7 @@
         _progressView.backgroundTintColor = [UIColor colorWithWhite:0.5 alpha:.8f];
         _progressView.alpha = 0.f;
         [self.contentView addSubview:_progressView];
+        
     }
     return self;
 }
@@ -63,8 +64,10 @@
     _photoView.frame = frame;
     
     __weak typeof(self) weakSelf = self;
+    __weak typeof(self.url) weakURL = self.url;
     _progressView.alpha = 1.f;
     [_photoView sd_setImageWithURL:[NSURL URLWithString:url] placeholderImage:nil options:SDWebImageRetryFailed|SDWebImageLowPriority progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+        if (weakSelf.url != weakURL) return ;
         weakSelf.progressView.progress = (float)receivedSize/(float)expectedSize;
     } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
         weakSelf.progressView.alpha = 0.f;
@@ -77,7 +80,6 @@
 - (void)prepareForReuse
 {
     [super prepareForReuse];
-    [_photoView sd_cancelCurrentImageLoad];
     _photoView.image = nil;
     _progressView.progress = 0.f;
     _progressView.alpha = 0.f;

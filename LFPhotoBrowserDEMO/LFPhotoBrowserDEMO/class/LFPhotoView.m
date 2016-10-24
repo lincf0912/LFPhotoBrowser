@@ -238,12 +238,13 @@
 #pragma mark - 设置图片
 -(void)setPhotoInfo:(LFPhotoInfo *)photoInfo
 {
-    [self cleanData];
-    _photoInfo = photoInfo;
-    
-    //添加kvo
-    [self.photoInfo addObserver:self forKeyPath:@"downloadProgress" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];
-    
+    if (_photoInfo != photoInfo) {
+        [self cleanData];
+        _photoInfo = photoInfo;
+        
+        //添加kvo
+        [self.photoInfo addObserver:self forKeyPath:@"downloadProgress" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];
+    }
     [self reloadPhotoView];
 }
 
@@ -346,11 +347,14 @@
         [self.photoViewDelegate downLoadthumbnailInPhotoView:self];
     }else{//使用SD下载
         if (self.photoInfo.thumbnailUrl) {
-            [_customView sd_setImageWithURL:[NSURL URLWithString:self.photoInfo.thumbnailUrl] placeholderImage:_customView.image options:SDWebImageRetryFailed|SDWebImageLowPriority|SDWebImageAvoidAutoSetImage|SDWebImageDelayPlaceholder completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-                if(image){//下载成功
-                    self.photoInfo.thumbnailImage = image;
-                    if(!self.photoInfo.localImage){//判断是否已经显示原图,没有才显示缩略图
-                        [self setImage:image];
+            __weak typeof(self) weakSelf = self;
+            [_customView sd_setImageWithURL:[NSURL URLWithString:self.photoInfo.thumbnailUrl] placeholderImage:_customView.image options:SDWebImageRetryFailed|SDWebImageLowPriority|SDWebImageAvoidAutoSetImage completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+                if ([imageURL.absoluteString isEqualToString:weakSelf.photoInfo.thumbnailUrl]) {
+                    if(image){//下载成功
+                        weakSelf.photoInfo.thumbnailImage = image;
+                        if(!weakSelf.photoInfo.localImage){//判断是否已经显示原图,没有才显示缩略图
+                            [weakSelf setImage:image];
+                        }
                     }
                 }
             }];
@@ -361,22 +365,28 @@
 #pragma mark - 下载原图
 -(void)loadNormalImage
 {
+    [self photoLoadingViewProgress:self.photoInfo.downloadProgress];
     //代理有实现原图下载方法，优先选择代理下载
     if(self.photoViewDelegate && [self.photoViewDelegate respondsToSelector:@selector(downLoadImageInPhotoView:)]){
         [self.photoViewDelegate downLoadImageInPhotoView:self];
     }else{//使用SD下载原图
         if (self.photoInfo.localImageUrl) {
-            [_customView sd_setImageWithURL:[NSURL URLWithString:self.photoInfo.localImageUrl] placeholderImage:_customView.image options:SDWebImageRetryFailed|SDWebImageLowPriority|SDWebImageAvoidAutoSetImage|SDWebImageDelayPlaceholder progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+            __weak typeof(self) weakSelf = self;
+            __weak typeof(self.photoInfo.localImageUrl) weakURL = self.photoInfo.localImageUrl;
+            [_customView sd_setImageWithURL:[NSURL URLWithString:self.photoInfo.localImageUrl] placeholderImage:_customView.image options:SDWebImageRetryFailed|SDWebImageLowPriority|SDWebImageAvoidAutoSetImage progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+                if (weakSelf.photoInfo.localImageUrl != weakURL) return ;
                 /*设置进度*/
-                self.photoInfo.downloadProgress = (float)receivedSize/expectedSize;
+                weakSelf.photoInfo.downloadProgress = (float)receivedSize/expectedSize;
             } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-                if(image){/*下载成功*/
-                    self.photoInfo.localImage = image;
-                    [self setImage:image];
-                    [self removePhotoLoadingView];
-                }else{/*下载失败*/
-                    self.photoInfo.downloadFail = YES;
-                    [self showPhotoLoadingFailure];//没有缩略图显示烂图
+                if ([imageURL.absoluteString isEqualToString:weakSelf.photoInfo.localImageUrl]) {
+                    if(image){/*下载成功*/
+                        weakSelf.photoInfo.localImage = image;
+                        [weakSelf setImage:image];
+                        [weakSelf removePhotoLoadingView];
+                    }else{/*下载失败*/
+                        weakSelf.photoInfo.downloadFail = YES;
+                        [weakSelf showPhotoLoadingFailure];//没有缩略图显示烂图
+                    }
                 }
             }];
         }
