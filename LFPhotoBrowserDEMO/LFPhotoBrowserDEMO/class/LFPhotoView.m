@@ -110,6 +110,11 @@
     return _customView.frame;
 }
 
+- (void)setPhotoRect:(CGRect)photoRect
+{
+    _customView.frame = photoRect;
+}
+
 -(void)layoutSubviews
 {
     [super layoutSubviews];
@@ -409,6 +414,7 @@
 {
     /** 重置大小 */
     self.contentSize = self.bounds.size;
+    [self setZoomScale:1.f];
     if(_photoInfo){
         //移除kvo
         [_photoInfo removeObserver:self forKeyPath:@"downloadProgress"];

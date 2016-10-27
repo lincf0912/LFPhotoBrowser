@@ -39,7 +39,7 @@
 /** 加载方式*/
 @property (nonatomic, readonly) downLoadType loadType;
 @property (nonatomic, strong) LFPhotoInfo *photoInfo;
-@property (nonatomic, readonly) CGRect photoRect;
+@property (nonatomic, assign) CGRect photoRect;
 /** 代理*/
 @property (nonatomic, weak) id<LFPhotoViewDelegate> photoViewDelegate;
 
