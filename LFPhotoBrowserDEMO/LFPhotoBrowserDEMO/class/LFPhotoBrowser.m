@@ -150,8 +150,6 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     }
     
     [self imageFromSelectItems:_curr withImageView:self.currPhotoView];
-    
-    [self obtainTargetFrame];
     //动画
     [self handleAnimationBegin];
 }
@@ -200,15 +198,22 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 #pragma mark - 处理动画
 - (void)handleAnimationBegin
 {
+    [self obtainTargetFrame];
+    
     _isStatusBarHiden = YES;
     
     [self.currPhotoView calcFrameMaskPosition:self.maskPosition frame:self.targetFrame];
     CGRect currRect = CGRectMake(0, 0, self.currPhotoView.frame.size.width, self.currPhotoView.frame.size.height);
     
     [UIView animateWithDuration:self.animatedTime animations:^{
-        _bgImageView.alpha = 1.f;
-        [self.currPhotoView calcFrameMaskPosition:MaskPosition_None frame:currRect];
+        [_currPhotoView calcFrameMaskPosition:MaskPosition_None frame:currRect];
     }completion:^(BOOL finished) {
+        
+    }];
+    
+    [UIView animateWithDuration:self.animatedTime delay:0.1f options:UIViewAnimationOptionCurveLinear animations:^{
+        _bgImageView.alpha = 1.f;
+    } completion:^(BOOL finished) {
         [self setNeedsStatusBarAppearanceUpdate];
     }];
 }
@@ -659,8 +664,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 #pragma mark - 获取targetFrame
 -(void)obtainTargetFrame
 {
-    if([self.delegate respondsToSelector:@selector(frameOfPhotoBrowserWithCurrentIndex:key:)]){
-        CGRect frame = [self.delegate frameOfPhotoBrowserWithCurrentIndex:_curr key:self.currPhotoView.photoInfo.key];
+    if([self.delegate respondsToSelector:@selector(photoBrowserTargetFrameWithIndex:key:)]){
+        CGRect frame = [self.delegate photoBrowserTargetFrameWithIndex:_curr key:self.currPhotoView.photoInfo.key];
         if(frame.size.width != 0 && frame.size.height != 0){
             self.targetFrame = frame;
         } else {
@@ -671,18 +676,19 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     }
 }
 #pragma mark - photoView手势代理
--(void)photoViewGesture:(LFPhotoView *)photoView singleTapImageView:(UIImageView *)imageView
+-(void)photoViewGesture:(LFPhotoView *)photoView singleTapImage:(UIImage *)image
 {
     [self.movePhotoView removeFromSuperview];
     [self obtainTargetFrame];
     [self handleAnimationEnd];
 }
 
--(void)photoViewGesture:(LFPhotoView *)photoView longPressImageView:(UIImageView *)imageView
+-(void)photoViewGesture:(LFPhotoView *)photoView longPressImage:(UIImage *)image
 {
+    UIImage *clickImage = image;
     __block NSMutableArray *actionItems = [NSMutableArray array];
-    if ([self.delegate respondsToSelector:@selector(longPressActionItems:image:)]) {
-        NSArray *items = [self.delegate longPressActionItems:self image:imageView.image];
+    if ([self.delegate respondsToSelector:@selector(photoBrowserLongPressActionItems:image:)]) {
+        NSArray *items = [self.delegate photoBrowserLongPressActionItems:self image:clickImage];
         if (items) {
             [actionItems addObjectsFromArray:items];
         }
@@ -715,9 +721,11 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     [otherTitles deleteCharactersInRange:NSMakeRange(otherTitles.length - kSeparator.length, kSeparator.length)];
     
     UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil cancelButtonTitle:(cancelTitle.length ? cancelTitle : @"取消") destructiveButtonTitle:destructiveTitle otherButtonTitles:otherTitles block:^(NSInteger buttonIndex) {
-        LFPhotoSheetAction *action = [actionItems objectAtIndex:buttonIndex];
-        if (action.handler) {
-            action.handler(imageView.image);
+        if (actionItems.count > buttonIndex) {            
+            LFPhotoSheetAction *action = [actionItems objectAtIndex:buttonIndex];
+            if (action.handler) {
+                action.handler(clickImage);
+            }
         }
     }];
     [sheet showInView:self.view];
@@ -746,6 +754,29 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 //            self.movePhotoView.hidden = NO;
 //        }
 //    }
+}
+
+#pragma mark - photoView下载代理
+-(BOOL)photoViewDownLoadThumbnail:(LFPhotoView *)photoView
+{
+    if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadThumbnailWithIndex:photoInfo:)]) {
+        LFPhotoInfo *photo = photoView.photoInfo;
+        NSInteger indexNum = [self.imageSources indexOfObject:photo];
+        [self.downloadDelegate photoBrowser:self downloadThumbnailWithIndex:(int)indexNum  photoInfo:photo];
+        return YES;
+    }
+    return NO;
+}
+
+-(BOOL)photoViewDownLoadOriginal:(LFPhotoView *)photoView
+{
+    if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadOriginalWithIndex:photoInfo:)]) {
+        LFPhotoInfo *photo = photoView.photoInfo;
+        NSInteger indexNum = [self.imageSources indexOfObject:photo];
+        [self.downloadDelegate photoBrowser:self downloadOriginalWithIndex:(int)indexNum photoInfo:photo];
+        return YES;
+    }
+    return NO;
 }
 
 #pragma mark - 重写方法,横屏

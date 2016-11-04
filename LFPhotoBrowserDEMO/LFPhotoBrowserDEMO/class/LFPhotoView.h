@@ -23,16 +23,16 @@
 -(void)photoViewDidEndZooming:(LFPhotoView *)photoView;
 
 /** 单击手势代理方法*/
--(void)photoViewGesture:(LFPhotoView *)photoView singleTapImageView:(UIImageView *)imageView;
+-(void)photoViewGesture:(LFPhotoView *)photoView singleTapImage:(UIImage *)image;
 /** 双击手势代理方法(传imageView出去)*/
--(void)photoViewGesture:(LFPhotoView *)photoView doubleTapImageView:(UIImageView *)imageView;
+-(void)photoViewGesture:(LFPhotoView *)photoView doubleTapImage:(UIImage *)image;
 /** 长按手势代理方法*/
--(void)photoViewGesture:(LFPhotoView *)photoView longPressImageView:(UIImageView *)imageView;
+-(void)photoViewGesture:(LFPhotoView *)photoView longPressImage:(UIImage *)image;
 
-/** 下载缩略图代理方法*/
--(void)downLoadthumbnailInPhotoView:(LFPhotoView *)photoView;
-/** 下载原图代理方法*/
--(void)downLoadImageInPhotoView:(LFPhotoView *)photoView;
+/** 下载缩略图代理方法 return YES 自定义下载，改变self.photoInfo对象属性，下载完毕调用reloadPhotoView */
+-(BOOL)photoViewDownLoadThumbnail:(LFPhotoView *)photoView;
+/** 下载原图代理方法 return YES 自定义下载，改变self.photoInfo对象属性，下载完毕调用reloadPhotoView */
+-(BOOL)photoViewDownLoadOriginal:(LFPhotoView *)photoView;
 @end
 
 @interface LFPhotoView : UIScrollView

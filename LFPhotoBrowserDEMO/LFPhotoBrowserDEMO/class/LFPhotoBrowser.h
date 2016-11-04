@@ -45,12 +45,30 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 
 @optional
 /** 获取startFrame或者overFrame */
-- (CGRect)frameOfPhotoBrowserWithCurrentIndex:(int)currentIndex key:(NSString *)key;
+- (CGRect)photoBrowserTargetFrameWithIndex:(int)index key:(NSString *)key;
 /** 重设长按列表 */
-- (NSArray <LFPhotoSheetAction *>*)longPressActionItems:(LFPhotoBrowser *)photoBrowser image:(UIImage *)image;
+- (NSArray <LFPhotoSheetAction *>*)photoBrowserLongPressActionItems:(LFPhotoBrowser *)photoBrowser image:(UIImage *)image;
 /** 滑动(滑动增加数据源，调用 增加数据源方法)[异步回调] 获取数据后执行addDataSourceFormSlideDirection:dataSourceArray:回调数据源 */
 - (void)photoBrowserDidSlide:(LFPhotoBrowser *)photoBrowser slideDirection:(SlideDirection)direction photoInfo:(LFPhotoInfo *)photoInfo;
+@end
 
+/** 内置SD下载图片，需要自定义下载实现下载协议 */
+@protocol LFPhotoBrowserDownloadDelegate <NSObject>
+
+/**
+ *  方案一
+ *  1、实现协议方法即表示关闭内置的SD下载
+ *  2、依靠改变photoInfo的属性触发进度与优先级的调整
+ *  3、下载完成后判断LFPhotoBrowser.showView.photoInfo == photoInfo 对象一致调用reloadPhotoView方法即可
+ *
+ *  方案二
+ *  创建一个业务类继承LFPhotoBrowser，实现LFPhotoView的协议自定义下载
+ */
+@optional
+/** 下载缩略图代理方法*/
+-(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadThumbnailWithIndex:(int)index photoInfo:(LFPhotoInfo *)photoInfo;
+/** 下载原图代理方法*/
+-(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadOriginalWithIndex:(int)index photoInfo:(LFPhotoInfo *)photoInfo;
 @end
 
 /** 
@@ -68,6 +86,7 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 @property (nonatomic, strong) UIColor *coverViewColor;
 /** 代理 */
 @property (nonatomic, weak) id<LFPhotoBrowserDelegate> delegate;
+@property (nonatomic, weak) id<LFPhotoBrowserDownloadDelegate> downloadDelegate;
 /** 触发photoBrowserDidSlide:slideDirection:photoInfo:代理的范围（距离最后一张）,default is 2 */
 @property (nonatomic, assign) NSUInteger slideRange;
 /** 遮罩的位置,default is MaskPosition_Middle*/

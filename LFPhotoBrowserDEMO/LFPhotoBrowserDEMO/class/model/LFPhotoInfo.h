@@ -34,11 +34,11 @@ typedef NS_ENUM(NSInteger, PhotoType) {
 @property (nonatomic, strong) UIImage *thumbnailImage;
 
 /** 原图URLString*/
-@property (nonatomic, copy) NSString *localImageUrl;
+@property (nonatomic, copy) NSString *originalImageUrl;
 /** 图片本地路径*/
-@property (nonatomic, copy) NSString *localImagePath;
+@property (nonatomic, copy) NSString *originalImagePath;
 /** 本地图片、保存下载图片*/
-@property (nonatomic, copy) UIImage *localImage;
+@property (nonatomic, copy) UIImage *originalImage;
 
 /** 唯一识别的key*/
 @property (nonatomic, copy, readonly) NSString *key;

@@ -14,9 +14,6 @@
 		6F148D181DB89A7C0011BAE6 /* MLPhotoLoadingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D0D1DB89A7C0011BAE6 /* MLPhotoLoadingView.m */; };
 		6F148D191DB89A7C0011BAE6 /* MLPhotoProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D0F1DB89A7C0011BAE6 /* MLPhotoProgressView.m */; };
 		6F148D1A1DB89A7C0011BAE6 /* LFPhotoInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D121DB89A7C0011BAE6 /* LFPhotoInfo.m */; };
-		6F148D1E1DB89AE50011BAE6 /* UIActionSheet+Block.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D1D1DB89AE50011BAE6 /* UIActionSheet+Block.m */; };
-		6F148D211DB89CC90011BAE6 /* UIView+CornerRadius.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D201DB89CC90011BAE6 /* UIView+CornerRadius.m */; };
-		6F148D241DB89D4A0011BAE6 /* UIImage+Size.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D231DB89D4A0011BAE6 /* UIImage+Size.m */; };
 		6F148D281DB89DCE0011BAE6 /* UIViewController+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D271DB89DCE0011BAE6 /* UIViewController+Extension.m */; };
 		6F148D631DB8C9450011BAE6 /* MyHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D5F1DB8C9450011BAE6 /* MyHeaderView.m */; };
 		6F148D641DB8C9450011BAE6 /* XLPlainFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D621DB8C9450011BAE6 /* XLPlainFlowLayout.m */; };
@@ -50,6 +47,10 @@
 		6F19F0CF1DB5F3A000BC6149 /* 7.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 6F19F0BA1DB5F3A000BC6149 /* 7.jpeg */; };
 		6F19F0D01DB5F3A000BC6149 /* 8.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 6F19F0BB1DB5F3A000BC6149 /* 8.jpeg */; };
 		6F19F0D11DB5F3A000BC6149 /* 9.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = 6F19F0BC1DB5F3A000BC6149 /* 9.jpeg */; };
+		6F9C62301DCC1A2600024BE0 /* UIActionSheet+Block.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C62291DCC1A2600024BE0 /* UIActionSheet+Block.m */; };
+		6F9C62311DCC1A2600024BE0 /* UIImage+Size.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C622C1DCC1A2600024BE0 /* UIImage+Size.m */; };
+		6F9C62321DCC1A2600024BE0 /* UIView+CornerRadius.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C622F1DCC1A2600024BE0 /* UIView+CornerRadius.m */; };
+		6F9C62381DCC25E000024BE0 /* UIImage+Format.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C62371DCC25E000024BE0 /* UIImage+Format.m */; };
 		B731EC0F634A3745F52C3A15 /* libPods-LFPhotoBrowserDEMO.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C99D3BE2C4FC1032EABDFDE /* libPods-LFPhotoBrowserDEMO.a */; };
 /* End PBXBuildFile section */
 
@@ -72,12 +73,6 @@
 		6F148D111DB89A7C0011BAE6 /* LFPhotoInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFPhotoInfo.h; sourceTree = "<group>"; };
 		6F148D121DB89A7C0011BAE6 /* LFPhotoInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LFPhotoInfo.m; sourceTree = "<group>"; };
 		6F148D141DB89A7C0011BAE6 /* PhotoViewType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoViewType.h; sourceTree = "<group>"; };
-		6F148D1C1DB89AE50011BAE6 /* UIActionSheet+Block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIActionSheet+Block.h"; sourceTree = "<group>"; };
-		6F148D1D1DB89AE50011BAE6 /* UIActionSheet+Block.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIActionSheet+Block.m"; sourceTree = "<group>"; };
-		6F148D1F1DB89CC90011BAE6 /* UIView+CornerRadius.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+CornerRadius.h"; sourceTree = "<group>"; };
-		6F148D201DB89CC90011BAE6 /* UIView+CornerRadius.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+CornerRadius.m"; sourceTree = "<group>"; };
-		6F148D221DB89D4A0011BAE6 /* UIImage+Size.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Size.h"; sourceTree = "<group>"; };
-		6F148D231DB89D4A0011BAE6 /* UIImage+Size.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Size.m"; sourceTree = "<group>"; };
 		6F148D261DB89DCE0011BAE6 /* UIViewController+Extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+Extension.h"; sourceTree = "<group>"; };
 		6F148D271DB89DCE0011BAE6 /* UIViewController+Extension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+Extension.m"; sourceTree = "<group>"; };
 		6F148D5E1DB8C9450011BAE6 /* PhotoHeadView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoHeadView.h; sourceTree = "<group>"; };
@@ -121,6 +116,14 @@
 		6F19F0BA1DB5F3A000BC6149 /* 7.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 7.jpeg; sourceTree = "<group>"; };
 		6F19F0BB1DB5F3A000BC6149 /* 8.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 8.jpeg; sourceTree = "<group>"; };
 		6F19F0BC1DB5F3A000BC6149 /* 9.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 9.jpeg; sourceTree = "<group>"; };
+		6F9C62281DCC1A2600024BE0 /* UIActionSheet+Block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIActionSheet+Block.h"; sourceTree = "<group>"; };
+		6F9C62291DCC1A2600024BE0 /* UIActionSheet+Block.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIActionSheet+Block.m"; sourceTree = "<group>"; };
+		6F9C622B1DCC1A2600024BE0 /* UIImage+Size.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Size.h"; sourceTree = "<group>"; };
+		6F9C622C1DCC1A2600024BE0 /* UIImage+Size.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Size.m"; sourceTree = "<group>"; };
+		6F9C622E1DCC1A2600024BE0 /* UIView+CornerRadius.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+CornerRadius.h"; sourceTree = "<group>"; };
+		6F9C622F1DCC1A2600024BE0 /* UIView+CornerRadius.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+CornerRadius.m"; sourceTree = "<group>"; };
+		6F9C62361DCC25E000024BE0 /* UIImage+Format.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Format.h"; sourceTree = "<group>"; };
+		6F9C62371DCC25E000024BE0 /* UIImage+Format.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Format.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -192,12 +195,9 @@
 			isa = PBXGroup;
 			children = (
 				6F148D251DB89DCE0011BAE6 /* UIViewController */,
-				6F148D1C1DB89AE50011BAE6 /* UIActionSheet+Block.h */,
-				6F148D1D1DB89AE50011BAE6 /* UIActionSheet+Block.m */,
-				6F148D1F1DB89CC90011BAE6 /* UIView+CornerRadius.h */,
-				6F148D201DB89CC90011BAE6 /* UIView+CornerRadius.m */,
-				6F148D221DB89D4A0011BAE6 /* UIImage+Size.h */,
-				6F148D231DB89D4A0011BAE6 /* UIImage+Size.m */,
+				6F9C62271DCC1A2600024BE0 /* UIActionSheet */,
+				6F9C622A1DCC1A2600024BE0 /* UIImage */,
+				6F9C622D1DCC1A2600024BE0 /* UIView */,
 			);
 			path = Category;
 			sourceTree = "<group>";
@@ -326,6 +326,35 @@
 				6F19F0BC1DB5F3A000BC6149 /* 9.jpeg */,
 			);
 			path = source;
+			sourceTree = "<group>";
+		};
+		6F9C62271DCC1A2600024BE0 /* UIActionSheet */ = {
+			isa = PBXGroup;
+			children = (
+				6F9C62281DCC1A2600024BE0 /* UIActionSheet+Block.h */,
+				6F9C62291DCC1A2600024BE0 /* UIActionSheet+Block.m */,
+			);
+			path = UIActionSheet;
+			sourceTree = "<group>";
+		};
+		6F9C622A1DCC1A2600024BE0 /* UIImage */ = {
+			isa = PBXGroup;
+			children = (
+				6F9C62361DCC25E000024BE0 /* UIImage+Format.h */,
+				6F9C62371DCC25E000024BE0 /* UIImage+Format.m */,
+				6F9C622B1DCC1A2600024BE0 /* UIImage+Size.h */,
+				6F9C622C1DCC1A2600024BE0 /* UIImage+Size.m */,
+			);
+			path = UIImage;
+			sourceTree = "<group>";
+		};
+		6F9C622D1DCC1A2600024BE0 /* UIView */ = {
+			isa = PBXGroup;
+			children = (
+				6F9C622E1DCC1A2600024BE0 /* UIView+CornerRadius.h */,
+				6F9C622F1DCC1A2600024BE0 /* UIView+CornerRadius.m */,
+			);
+			path = UIView;
 			sourceTree = "<group>";
 		};
 		989714017A6B971521BF0D85 /* Frameworks */ = {
@@ -482,21 +511,22 @@
 			files = (
 				6F148D1A1DB89A7C0011BAE6 /* LFPhotoInfo.m in Sources */,
 				6F19F0881DB5EF9500BC6149 /* AppDelegate.m in Sources */,
-				6F148D241DB89D4A0011BAE6 /* UIImage+Size.m in Sources */,
 				6F19F08B1DB5EF9500BC6149 /* MasterViewController.m in Sources */,
 				6F148D671DB8C9730011BAE6 /* PhotoCollectionViewCell.m in Sources */,
 				6F148D171DB89A7C0011BAE6 /* LLARingSpinnerView.m in Sources */,
+				6F9C62321DCC1A2600024BE0 /* UIView+CornerRadius.m in Sources */,
 				6F148D151DB89A7C0011BAE6 /* LFPhotoBrowser.m in Sources */,
 				6F148D031DB8917F0011BAE6 /* PhotoTableViewCell.m in Sources */,
-				6F148D1E1DB89AE50011BAE6 /* UIActionSheet+Block.m in Sources */,
 				6F148D191DB89A7C0011BAE6 /* MLPhotoProgressView.m in Sources */,
+				6F9C62311DCC1A2600024BE0 /* UIImage+Size.m in Sources */,
 				6F19F0A61DB5F16400BC6149 /* PhotoCollectionViewController.m in Sources */,
+				6F9C62381DCC25E000024BE0 /* UIImage+Format.m in Sources */,
 				6F19F0A21DB5F13C00BC6149 /* PhotoTableViewController.m in Sources */,
 				6F148D631DB8C9450011BAE6 /* MyHeaderView.m in Sources */,
 				6F19F0851DB5EF9500BC6149 /* main.m in Sources */,
 				6F148D281DB89DCE0011BAE6 /* UIViewController+Extension.m in Sources */,
-				6F148D211DB89CC90011BAE6 /* UIView+CornerRadius.m in Sources */,
 				6F148D161DB89A7C0011BAE6 /* LFPhotoView.m in Sources */,
+				6F9C62301DCC1A2600024BE0 /* UIActionSheet+Block.m in Sources */,
 				6F148D641DB8C9450011BAE6 /* XLPlainFlowLayout.m in Sources */,
 				6F148D181DB89A7C0011BAE6 /* MLPhotoLoadingView.m in Sources */,
 			);

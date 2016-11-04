@@ -156,7 +156,7 @@ static NSString * const reuseIdentifier = @"Cell";
         NSArray *array = self.dataSourcDic[title];
         for (NSString *name in array) {
             LFPhotoInfo *photo = [LFPhotoInfo photoInfoWithType:PhotoType_image key:title];
-            photo.localImagePath = [[NSBundle mainBundle] pathForResource:name ofType:nil];
+            photo.originalImagePath = [[NSBundle mainBundle] pathForResource:name ofType:nil];
             [items addObject:photo];
             if ([clickName isEqualToString:name]) {
                 isFinded = YES;
@@ -213,7 +213,7 @@ static NSString * const reuseIdentifier = @"Cell";
 }
 
 #pragma mark - PhotoBrowserDelegate
--(CGRect)frameOfPhotoBrowserWithCurrentIndex:(int)currentIndex key:(NSString *)key
+- (CGRect)photoBrowserTargetFrameWithIndex:(int)index key:(NSString *)key
 {
     CGFloat contentOffsetY = self.collectionView.contentOffset.y;
     //获取导航栏大小
@@ -237,7 +237,7 @@ static NSString * const reuseIdentifier = @"Cell";
     for (NSString *title in self.titleArrs) {
         NSArray *array = self.dataSourcDic[title];
         if ([title isEqualToString:key]) {
-            row = currentIndex - count;
+            row = index - count;
             break;
         }
         section++;

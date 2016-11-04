@@ -134,7 +134,7 @@
     NSMutableArray *items = [NSMutableArray arrayWithCapacity:self.resources.count];
     for (NSString *url in self.resources) {
         LFPhotoInfo *photo = [LFPhotoInfo photoInfoWithType:PhotoType_image key:nil];
-        photo.localImageUrl = url;
+        photo.originalImageUrl = url;
         [items addObject:photo];
     }
     
@@ -148,9 +148,9 @@
 }
 
 #pragma mark - LFPhotoBrowserDelegate
--(CGRect)frameOfPhotoBrowserWithCurrentIndex:(int)currentIndex key:(NSString *)key
+- (CGRect)photoBrowserTargetFrameWithIndex:(int)index key:(NSString *)key
 {
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:currentIndex inSection:0];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:index inSection:0];
     if([self.tableView.indexPathsForVisibleRows containsObject:indexPath]){
         PhotoTableViewCell *cell = [self.tableView cellForRowAtIndexPath:indexPath];
         
@@ -160,7 +160,7 @@
     }
 }
 
-- (NSArray <LFPhotoSheetAction *>*)longPressActionItems:(LFPhotoBrowser *)photoBrowser image:(UIImage *)image
+- (NSArray <LFPhotoSheetAction *>*)photoBrowserLongPressActionItems:(LFPhotoBrowser *)photoBrowser image:(UIImage *)image
 {
     NSMutableArray *items = [NSMutableArray arrayWithArray:photoBrowser.actionItems];
     LFPhotoSheetAction *action = [LFPhotoSheetAction actionWithTitle:@"识别图中二维码" style:LFPhotoSheetActionType_Default handler:^(id object) {
