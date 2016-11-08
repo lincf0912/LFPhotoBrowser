@@ -59,16 +59,16 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
  *  方案一
  *  1、实现协议方法即表示关闭内置的SD下载
  *  2、依靠改变photoInfo的属性触发进度与优先级的调整
- *  3、下载完成后判断LFPhotoBrowser.showView.photoInfo == photoInfo 对象一致调用reloadPhotoView方法即可
+ *  3、下载完成后判断photoView.photoInfo == photoInfo 对象一致调用reloadPhotoView方法即可
  *
  *  方案二
  *  创建一个业务类继承LFPhotoBrowser，实现LFPhotoView的协议自定义下载
  */
 @optional
 /** 下载缩略图代理方法*/
--(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadThumbnailWithIndex:(int)index photoInfo:(LFPhotoInfo *)photoInfo;
+-(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadThumbnailWithPhotoView:(LFPhotoView *)photoView photoInfo:(LFPhotoInfo *)photoInfo;
 /** 下载原图代理方法*/
--(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadOriginalWithIndex:(int)index photoInfo:(LFPhotoInfo *)photoInfo;
+-(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadOriginalWithPhotoView:(LFPhotoView *)photoView photoInfo:(LFPhotoInfo *)photoInfo;
 @end
 
 /** 
@@ -78,7 +78,7 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 @interface LFPhotoBrowser : UIViewController <LFPhotoViewDelegate>
 /** 数据源 */
 @property (nonatomic, strong, readonly) NSArray *imageSources;
-@property (nonatomic, assign, readonly) LFPhotoView *showView;
+//@property (nonatomic, assign, readonly) LFPhotoView *showView;
 @property (nonatomic, assign, readonly) int curr;
 /** 动画时间 default 0.25f */
 @property (nonatomic, assign) NSTimeInterval animatedTime;
@@ -98,7 +98,9 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 /** 是否需要下拉动画,default is NO */
 @property (nonatomic, assign) BOOL canPullDown;
 /** 是否淡化,default is NO*/
-@property (nonatomic,assign) BOOL isWeaker;
+@property (nonatomic, assign) BOOL isWeaker;
+/** 是否批量下载（数据源所有需要下载的对象进行下载）,default is NO */
+@property (nonatomic, assign) BOOL isBatchDownload;
 
 /** 长按列表 */
 @property (nonatomic, readonly) NSArray *actionItems;
@@ -106,7 +108,8 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 /** 初始化 */
 -(id)initWithImageArray:(NSArray <LFPhotoInfo *>*)imageArray;
 -(id)initWithImageArray:(NSArray <LFPhotoInfo *>*)imageArray currentIndex:(int)currentIndex;
-/** 显示相册 需要调用UI 重写childViewControllerForStatusBarHidden方法，返回当前UI才能控制状态栏（return self.childViewControllers.count ? self.childViewControllers.firstObject : nil;） */
+/** 显示相册 
+ 状态栏隐藏：需要调用UI 重写childViewControllerForStatusBarHidden方法，返回当前UI才能控制状态栏（return self.childViewControllers.count ? self.childViewControllers.firstObject : nil;） */
 -(void)showPhotoBrowser;
 
 /** =======实现代理滑动 photoBrowserDidSlide:slideDirection:photoInfo: ======= */

@@ -17,7 +17,13 @@
 #define SCREEN_WIDTH [[UIScreen mainScreen] bounds].size.width
 #define SCREEN_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
 
-#define kScrollViewMargin 20
+/** 左右滑动的效果显示 */
+#define kScrollAminated 0 //1
+
+/** 方案1 */
+#define kShieldViewW (kScrollAminated ? 0 : 30)
+/** 方案2 */
+#define kScrollViewMargin (kScrollAminated ? 30 : 0)
 #define kScrollViewW (SCREEN_WIDTH+kScrollViewMargin)
 
 #define kAnimatedTime 0.25f
@@ -81,6 +87,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 
 @property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
 
+@property (nonatomic, strong) UIView *shieldView;
 @property (nonatomic, strong) UIView *coverView;
 
 /** 记录触发代理加载数据，避免重复触发 */
@@ -89,7 +96,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 /** 右边 */
 @property (nonatomic, assign) BOOL callRightSlideDataSource;
 
-/** 触发开关，必须代理调用才能回滴数据 */
+/** 触发开关，必须代理调用才能回调数据 */
 @property (nonatomic, assign) BOOL callDataSource;
 
 /** 目标的frame */
@@ -215,6 +222,12 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         _bgImageView.alpha = 1.f;
     } completion:^(BOOL finished) {
         [self setNeedsStatusBarAppearanceUpdate];
+        if (self.isBatchDownload) {
+#warning BatchDownload
+            /** 获取需要下载的对象，排除当前显示页的对象 批量下载 */
+            
+            /** 判断是否使用内置SD下载 */
+        }
     }];
 }
 
@@ -228,6 +241,11 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     
     [UIView animateWithDuration:self.animatedTime animations:^{
         self.bgImageView.alpha = 0.0f;
+    }completion:^(BOOL finished) {
+        
+    }];
+    
+    [UIView animateWithDuration:self.animatedTime delay:0.1f options:0 animations:^{
         if(self.isWeaker){
             self.currPhotoView.alpha = 0.0f;
         }
@@ -236,10 +254,11 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     } completion:^(BOOL finished) {
         [_coverView removeFromSuperview];
         _coverView = nil;
-         self.parentViewController.navigationController.interactivePopGestureRecognizer.enabled = _interactiveEnabled;
+        self.parentViewController.navigationController.interactivePopGestureRecognizer.enabled = _interactiveEnabled;
         [self removeFromParentViewController];
         [self.view removeFromSuperview];
     }];
+
 }
 
 -(NSMutableArray *)images
@@ -294,6 +313,10 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         [_scroll setPagingEnabled:YES];
         [_scroll setScrollEnabled:YES];
         [self.view addSubview:_scroll];
+        
+        _shieldView = [[UIView alloc] initWithFrame:CGRectMake(-kShieldViewW, 0, kShieldViewW, SCREEN_HEIGHT)];
+        _shieldView.backgroundColor = self.bgImageView.backgroundColor;
+        [self.scroll addSubview:_shieldView];
     }
     _scroll.frame = CGRectMake(0, 0, kScrollViewW, SCREEN_HEIGHT);
     
@@ -348,8 +371,13 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     self.parentViewController.navigationController.interactivePopGestureRecognizer.enabled = NO;
     
     /** 首次打开，判断是否在触发代理范围内 */
-    if (self.callDataSource && (self.curr <= self.slideRange || self.curr >= _images.count-1-self.slideRange)) {
-        /** 这个需求不存在 */
+    if (self.callDataSource) {
+        /** 关闭开关，避免触发代理 */
+        if (self.curr <= self.slideRange) {
+            self.callLeftSlideDataSource = NO;
+        } else if (self.curr >= _images.count-1-self.slideRange) {
+            self.callRightSlideDataSource = NO;
+        }
     }
 }
 
@@ -561,12 +589,27 @@ dispatch_sync(dispatch_get_main_queue(), block);\
             [self resetNextImageView:self.movePhotoView];
         } else if (scrollView.contentOffset.x <kScrollViewW && (_curr != 0 || _canCirculate)) {//向右滑动
             [self resetPrevImageView:self.movePhotoView];
-        } else if(scrollView.contentOffset.x <kScrollViewW * 2 && _curr == self.images.count-1 && !_canCirculate){
+        } else if(scrollView.contentOffset.x <kScrollViewW * 2 && _curr == self.images.count-1 && !_canCirculate){ //边缘向右滑动
             if(self.images.count >1)
                 [self resetPrevImageView:self.movePhotoView];
-        }else if(scrollView.contentOffset.x > 0 && _curr == 0 && !_canCirculate){
-            [self resetNextImageView:self.movePhotoView];
+        }else if(scrollView.contentOffset.x > 0 && _curr == 0 && !_canCirculate){ //边缘向左滑动
+            if(self.images.count >1)
+                [self resetNextImageView:self.movePhotoView];
         }
+    }
+    
+    
+    if (self.shieldView) {
+        CGRect frame = self.shieldView.frame;
+        if (scrollView.contentOffset.x > CGRectGetMinX(self.currPhotoView.frame)) {
+            /** 向左滑动 */
+            frame.origin.x = CGRectGetMaxX(self.currPhotoView.frame) - ((scrollView.contentOffset.x-CGRectGetMinX(self.currPhotoView.frame))/CGRectGetWidth(self.currPhotoView.frame))*frame.size.width;
+        } else {
+            /** 向右滑动 */
+            frame.origin.x = CGRectGetMinX(self.currPhotoView.frame) - frame.size.width + ((CGRectGetMinX(self.currPhotoView.frame) - scrollView.contentOffset.x)/CGRectGetWidth(self.currPhotoView.frame))*frame.size.width;
+        }
+        self.shieldView.frame = frame;
+        [self.scroll bringSubviewToFront:self.shieldView];
     }
 }
 
@@ -621,37 +664,52 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 #pragma mark - 增加数据源
 -(void)addDataSourceFormSlideDirection:(SlideDirection)direction dataSourceArray:(NSArray *)dataSource
 {
-    if(self.callDataSource && dataSource.count){
-        if(direction == SlideDirection_Left && self.callLeftSlideDataSource == NO){
-            dispatch_sync_main(^{
+    dispatch_sync_main(^{
+        if(self.callDataSource && dataSource.count){
+            BOOL isUseData = NO;
+            if(direction == SlideDirection_Left && self.callLeftSlideDataSource == NO){
                 self.callLeftSlideDataSource = YES;
                 [self.images addObjectsFromArray:dataSource];
                 _pageControl.numberOfPages = self.images.count;
                 _pageControl.currentPage = _curr;
-            });
-            
-        }else if(direction == SlideDirection_Right && self.callRightSlideDataSource == NO){
-            dispatch_sync_main(^{
+                isUseData = YES;
+            }else if(direction == SlideDirection_Right && self.callRightSlideDataSource == NO){
                 self.callRightSlideDataSource = YES;
                 [self.images insertObjects:dataSource atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, dataSource.count)]];
                 _pageControl.numberOfPages = self.images.count;
                 _curr += dataSource.count;
                 _pageControl.currentPage = _curr;
-            });
-        }
-        
-        /** 判断1个的情况，增加数据源时需要调整contentSize */
-        if (self.scroll.contentSize.width == kScrollViewW) {
-            /** 初始化移动view */
-            if (!_nextPhotoView) {
-                [self createNextPhotoView];
-                /** 置顶当前张 */
-                [self.scroll bringSubviewToFront:self.currPhotoView];
+                isUseData = YES;
             }
-            /** 重置UI */
-            [self resetScrollView];
+            
+            if (isUseData) {
+                if (self.isBatchDownload) {
+#warning BatchDownload
+                    /** 获取需要下载的对象 批量下载 */
+                    
+                    /** 判断是否使用内置SD下载 */
+                }
+                
+                /** 判断1个的情况，增加数据源时需要调整contentSize */
+                if (self.scroll.contentSize.width == kScrollViewW) {
+                    /** 初始化移动view */
+                    if (!_nextPhotoView) {
+                        [self createNextPhotoView];
+                        /** 置顶当前张 */
+                        [self.scroll bringSubviewToFront:self.currPhotoView];
+                    }
+                }
+                /** 当前显示页不再中间，并且非滑动情况下 */
+                if (self.scroll.isDragging || self.scroll.isDecelerating || self.scroll.isTracking) {
+                    return ;
+                }
+                if (self.scroll.contentOffset.x != kScrollViewW) {
+                    /** 重置UI */
+                    [self resetScrollView];
+                }
+            }
         }
-    }
+    });
 }
 
 - (void)loadView
@@ -759,10 +817,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 #pragma mark - photoView下载代理
 -(BOOL)photoViewDownLoadThumbnail:(LFPhotoView *)photoView
 {
-    if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadThumbnailWithIndex:photoInfo:)]) {
-        LFPhotoInfo *photo = photoView.photoInfo;
-        NSInteger indexNum = [self.imageSources indexOfObject:photo];
-        [self.downloadDelegate photoBrowser:self downloadThumbnailWithIndex:(int)indexNum  photoInfo:photo];
+    if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadThumbnailWithPhotoView:photoInfo:)]) {
+        [self.downloadDelegate photoBrowser:self downloadThumbnailWithPhotoView:photoView photoInfo:photoView.photoInfo];
         return YES;
     }
     return NO;
@@ -770,10 +826,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 
 -(BOOL)photoViewDownLoadOriginal:(LFPhotoView *)photoView
 {
-    if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadOriginalWithIndex:photoInfo:)]) {
-        LFPhotoInfo *photo = photoView.photoInfo;
-        NSInteger indexNum = [self.imageSources indexOfObject:photo];
-        [self.downloadDelegate photoBrowser:self downloadOriginalWithIndex:(int)indexNum photoInfo:photo];
+    if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadOriginalWithPhotoView:photoInfo:)]) {
+        [self.downloadDelegate photoBrowser:self downloadOriginalWithPhotoView:photoView photoInfo:photoView.photoInfo];
         return YES;
     }
     return NO;
