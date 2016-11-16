@@ -108,6 +108,11 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 /** 子线程 */
 @property (nonatomic, strong) dispatch_queue_t globalSerialQueue;
 
+/** 批量下载列表 */
+@property (nonatomic, strong) NSHashTable *batchDLHash;
+/** 批量下载记录 */
+@property (nonatomic, assign) BOOL isBatchDLing;
+
 @end
 
 @implementation LFPhotoBrowser
@@ -125,6 +130,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         self.coverViewColor = [UIColor clearColor];
         self.maskPosition = MaskPosition_Middle;
         self.slideRange = 2;
+        self.batchDLHash = [NSHashTable weakObjectsHashTable];
         _globalSerialQueue = dispatch_queue_create("LFPhotoBrowser.SerialQueue", NULL);
     }
     return self;
@@ -223,10 +229,13 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     } completion:^(BOOL finished) {
         [self setNeedsStatusBarAppearanceUpdate];
         if (self.isBatchDownload) {
-#warning BatchDownload
-            /** 获取需要下载的对象，排除当前显示页的对象 批量下载 */
-            
-            /** 判断是否使用内置SD下载 */
+            /** 获取需要下载的对象 批量下载 */
+            for (LFPhotoInfo *info in self.images) {
+                if (info && info.originalImage == nil && info.originalImagePath.length == 0 && info.originalImageUrl.length) {
+                    [self.batchDLHash addObject:info];
+                }
+            }
+            [self batchDownload];
         }
     }];
 }
@@ -625,6 +634,11 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                 dispatch_async(_globalSerialQueue, ^{
                     [self.delegate photoBrowserDidSlide:self slideDirection:SlideDirection_Left photoInfo:self.images.lastObject];
                 });
+            } else if (self.slideBlock) {
+                self.callLeftSlideDataSource = NO;
+                dispatch_async(_globalSerialQueue, ^{
+                    self.slideBlock(SlideDirection_Left, self.images.lastObject);
+                });
             }
         }
     } else if (scrollView.contentOffset.x <= 0 && (_curr != 0 || _canCirculate)) {//向右滑动
@@ -634,6 +648,11 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                 self.callRightSlideDataSource = NO;
                 dispatch_async(_globalSerialQueue, ^{
                     [self.delegate photoBrowserDidSlide:self slideDirection:SlideDirection_Right photoInfo:self.images.firstObject];
+                });
+            } else if (self.slideBlock) {
+                self.callRightSlideDataSource = NO;
+                dispatch_async(_globalSerialQueue, ^{
+                    self.slideBlock(SlideDirection_Right, self.images.firstObject);
                 });
             }
         }
@@ -662,7 +681,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 }
 
 #pragma mark - 增加数据源
--(void)addDataSourceFormSlideDirection:(SlideDirection)direction dataSourceArray:(NSArray *)dataSource
+-(void)addDataSourceFormSlideDirection:(SlideDirection)direction dataSourceArray:(NSArray <LFPhotoInfo *>*)dataSource
 {
     dispatch_sync_main(^{
         if(self.callDataSource && dataSource.count){
@@ -684,10 +703,13 @@ dispatch_sync(dispatch_get_main_queue(), block);\
             
             if (isUseData) {
                 if (self.isBatchDownload) {
-#warning BatchDownload
                     /** 获取需要下载的对象 批量下载 */
-                    
-                    /** 判断是否使用内置SD下载 */
+                    for (LFPhotoInfo *info in dataSource) {
+                        if (info && info.originalImage == nil && info.originalImagePath.length == 0 && info.originalImageUrl.length) {
+                            [self.batchDLHash addObject:info];
+                        }
+                    }
+                    [self batchDownload];
                 }
                 
                 /** 判断1个的情况，增加数据源时需要调整contentSize */
@@ -729,6 +751,13 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         } else {
             self.targetFrame = CGRectMake(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 0);
         }
+    } else if (self.targetFrameBlock) {
+        CGRect frame = self.targetFrameBlock(_curr, self.currPhotoView.photoInfo.key);
+        if(frame.size.width != 0 && frame.size.height != 0){
+            self.targetFrame = frame;
+        } else {
+            self.targetFrame = CGRectMake(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 0);
+        }
     } else {
         self.targetFrame = CGRectMake(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 0);
     }
@@ -747,6 +776,11 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     __block NSMutableArray *actionItems = [NSMutableArray array];
     if ([self.delegate respondsToSelector:@selector(photoBrowserLongPressActionItems:image:)]) {
         NSArray *items = [self.delegate photoBrowserLongPressActionItems:self image:clickImage];
+        if (items) {
+            [actionItems addObjectsFromArray:items];
+        }
+    } else if (self.longPressActionItemsBlock) {
+        NSArray *items = self.longPressActionItemsBlock(clickImage);
         if (items) {
             [actionItems addObjectsFromArray:items];
         }
@@ -826,11 +860,33 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 
 -(BOOL)photoViewDownLoadOriginal:(LFPhotoView *)photoView
 {
+    if (self.isBatchDownload) return YES;
     if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadOriginalWithPhotoView:photoInfo:)]) {
         [self.downloadDelegate photoBrowser:self downloadOriginalWithPhotoView:photoView photoInfo:photoView.photoInfo];
         return YES;
     }
     return NO;
+}
+
+#pragma mark - BatchDownload下载
+- (void)batchDownload
+{
+    if (_isBatchDLing) return;
+    LFPhotoInfo *info = [self.batchDLHash anyObject];
+    /** 对象原图不存在、原图路径不存在、只有原图URL才进行下载 */
+    if (info && info.originalImage == nil && info.originalImagePath.length == 0 && info.originalImageUrl.length) {
+        _isBatchDLing = YES;
+        __weak typeof(self) weakSelf = self;
+        [SDWebImageManager.sharedManager downloadImageWithURL:[NSURL URLWithString:info.originalImageUrl]
+                                                      options:SDWebImageRetryFailed|SDWebImageLowPriority
+                                                     progress:nil
+                                                    completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
+                                                        
+                                                        [weakSelf.batchDLHash removeObject:info];
+                                                        weakSelf.isBatchDLing = NO;
+                                                        [weakSelf batchDownload];
+        }];
+    }
 }
 
 #pragma mark - 重写方法,横屏

@@ -25,6 +25,11 @@
     // Initialization code
 }
 
+- (void)dealloc
+{
+    [_photoView sd_cancelCurrentImageLoad];
+}
+
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier
 {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
@@ -80,6 +85,7 @@
 - (void)prepareForReuse
 {
     [super prepareForReuse];
+    [_photoView sd_cancelCurrentImageLoad];
     _photoView.image = nil;
     _progressView.progress = 0.f;
     _progressView.alpha = 0.f;

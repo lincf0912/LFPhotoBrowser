@@ -31,7 +31,7 @@
 {
     if(_placeholderImage == nil){
 #warning 设置内置默认图片
-        _placeholderImage = [UIImage imageNamed:@"默认图片"];
+//        _placeholderImage = [UIImage imageNamed:@"默认图片"];
     }
     return _placeholderImage;
 }

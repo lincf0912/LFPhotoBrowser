@@ -77,7 +77,7 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 
 @interface LFPhotoBrowser : UIViewController <LFPhotoViewDelegate>
 /** 数据源 */
-@property (nonatomic, strong, readonly) NSArray *imageSources;
+@property (nonatomic, strong, readonly) NSArray <LFPhotoInfo *>*imageSources;
 //@property (nonatomic, assign, readonly) LFPhotoView *showView;
 @property (nonatomic, assign, readonly) int curr;
 /** 动画时间 default 0.25f */
@@ -87,6 +87,10 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 /** 代理 */
 @property (nonatomic, weak) id<LFPhotoBrowserDelegate> delegate;
 @property (nonatomic, weak) id<LFPhotoBrowserDownloadDelegate> downloadDelegate;
+/** block回调 效果等同于 LFPhotoBrowserDelegate代理, 若实现了代理，block将不会回调 */
+@property (nonatomic, copy) CGRect (^targetFrameBlock)(int index, NSString *key);
+@property (nonatomic, copy) NSArray <LFPhotoSheetAction *>* (^longPressActionItemsBlock)(UIImage *image);
+@property (nonatomic, copy) void (^slideBlock)(SlideDirection direction, LFPhotoInfo *photoInfo);
 /** 触发photoBrowserDidSlide:slideDirection:photoInfo:代理的范围（距离最后一张）,default is 2 */
 @property (nonatomic, assign) NSUInteger slideRange;
 /** 遮罩的位置,default is MaskPosition_Middle*/
@@ -99,7 +103,7 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 @property (nonatomic, assign) BOOL canPullDown;
 /** 是否淡化,default is NO*/
 @property (nonatomic, assign) BOOL isWeaker;
-/** 是否批量下载（数据源所有需要下载的对象进行下载）,default is NO */
+/** 是否批量下载（数据源所有的对象进行下载,注意：开启后只会批量下载原图,并且只能使用内置下载 不会再调用downloadDelegate的原图下载方法。）,default is NO */
 @property (nonatomic, assign) BOOL isBatchDownload;
 
 /** 长按列表 */
@@ -114,6 +118,6 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 
 /** =======实现代理滑动 photoBrowserDidSlide:slideDirection:photoInfo: ======= */
 /** 增加数据源[自动切换主线程] */
--(void)addDataSourceFormSlideDirection:(SlideDirection)direction dataSourceArray:(NSArray *)dataSource;
+-(void)addDataSourceFormSlideDirection:(SlideDirection)direction dataSourceArray:(NSArray <LFPhotoInfo *>*)dataSource;
 
 @end
