@@ -336,15 +336,15 @@
 #pragma mark - 下载缩略图
 -(void)loadThumbnailImage
 {
-    BOOL SD_DL = YES;
-    //如果代理实现缩略图下载方法，则优先执行代理的下载方法
-    if(self.photoViewDelegate && [self.photoViewDelegate respondsToSelector:@selector(photoViewDownLoadThumbnail:)]){
-        SD_DL = ![self.photoViewDelegate photoViewDownLoadThumbnail:self];
-    }
-    
-    if (SD_DL) {
-        //使用SD下载
-        if (self.photoInfo.thumbnailUrl) {
+    if (self.photoInfo.thumbnailUrl) {
+        BOOL SD_DL = YES;
+        //如果代理实现缩略图下载方法，则优先执行代理的下载方法
+        if(self.photoViewDelegate && [self.photoViewDelegate respondsToSelector:@selector(photoViewDownLoadThumbnail:)]){
+            SD_DL = ![self.photoViewDelegate photoViewDownLoadThumbnail:self];
+        }
+        
+        if (SD_DL) {
+            //使用SD下载
             __weak typeof(self) weakSelf = self;
             [_customView sd_setImageWithURL:[NSURL URLWithString:self.photoInfo.thumbnailUrl] placeholderImage:_customView.image options:SDWebImageRetryFailed|SDWebImageLowPriority|SDWebImageAvoidAutoSetImage completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                 if ([imageURL.absoluteString isEqualToString:weakSelf.photoInfo.thumbnailUrl]) {
@@ -363,16 +363,16 @@
 #pragma mark - 下载原图
 -(void)loadNormalImage
 {
-    BOOL SD_DL = YES;
-    [self photoLoadingViewProgress:self.photoInfo.downloadProgress];
-    //代理有实现原图下载方法，优先选择代理下载
-    if(self.photoViewDelegate && [self.photoViewDelegate respondsToSelector:@selector(photoViewDownLoadOriginal:)]){
-        SD_DL = ![self.photoViewDelegate photoViewDownLoadOriginal:self];
-    }
-    
-    if (SD_DL) {
-        //使用SD下载原图
-        if (self.photoInfo.originalImageUrl) {
+    if (self.photoInfo.originalImageUrl) {
+        BOOL SD_DL = YES;
+        [self photoLoadingViewProgress:self.photoInfo.downloadProgress];
+        //代理有实现原图下载方法，优先选择代理下载
+        if(self.photoViewDelegate && [self.photoViewDelegate respondsToSelector:@selector(photoViewDownLoadOriginal:)]){
+            SD_DL = ![self.photoViewDelegate photoViewDownLoadOriginal:self];
+        }
+        
+        if (SD_DL) {
+            //使用SD下载原图
             __weak typeof(self) weakSelf = self;
             __weak typeof(self.photoInfo.originalImageUrl) weakURL = self.photoInfo.originalImageUrl;
             [_customView sd_setImageWithURL:[NSURL URLWithString:self.photoInfo.originalImageUrl] placeholderImage:_customView.image options:SDWebImageRetryFailed|SDWebImageLowPriority|SDWebImageAvoidAutoSetImage progress:^(NSInteger receivedSize, NSInteger expectedSize) {

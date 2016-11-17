@@ -21,7 +21,7 @@
 #define kScrollAminated 0 //1
 
 /** 方案1 */
-#define kShieldViewW (kScrollAminated ? 0 : 30)
+#define kShieldViewW (kScrollAminated ? 0 : 50)
 /** 方案2 */
 #define kScrollViewMargin (kScrollAminated ? 30 : 0)
 #define kScrollViewW (SCREEN_WIDTH+kScrollViewMargin)
@@ -462,7 +462,12 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                 moveY /= 2;
                 
                 CGFloat inset = (movePoint.y - _originalPoint.y)/2;
-                CGRect newRect = CGRectInset(currFrame, inset, inset);
+                CGRect newRect = currFrame;//CGRectInset(currFrame, inset, inset);此方法不是绝对比例缩放，导致部分尺寸图片缩放偏小
+                newRect.origin.x += inset/2;
+                newRect.origin.y += inset/2;
+                CGSize oldSize = newRect.size;
+                newRect.size.width -= inset;
+                newRect.size.height = oldSize.height * newRect.size.width / oldSize.width;
                 
                 if (newRect.size.width > self.currPhotoView.bounds.size.width) {
                     CGFloat width = newRect.size.width;
@@ -812,15 +817,17 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     }
     [otherTitles deleteCharactersInRange:NSMakeRange(otherTitles.length - kSeparator.length, kSeparator.length)];
     
-    UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil cancelButtonTitle:(cancelTitle.length ? cancelTitle : @"取消") destructiveButtonTitle:destructiveTitle otherButtonTitles:otherTitles block:^(NSInteger buttonIndex) {
-        if (actionItems.count > buttonIndex) {            
-            LFPhotoSheetAction *action = [actionItems objectAtIndex:buttonIndex];
-            if (action.handler) {
-                action.handler(clickImage);
+    if (destructiveTitle.length || otherTitles.length) {
+        UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil cancelButtonTitle:(cancelTitle.length ? cancelTitle : @"取消") destructiveButtonTitle:destructiveTitle otherButtonTitles:otherTitles block:^(NSInteger buttonIndex) {
+            if (actionItems.count > buttonIndex) {
+                LFPhotoSheetAction *action = [actionItems objectAtIndex:buttonIndex];
+                if (action.handler) {
+                    action.handler(clickImage);
+                }
             }
-        }
-    }];
-    [sheet showInView:self.view];
+        }];
+        [sheet showInView:self.view];
+    }
 }
 
 -(void)photoViewWillBeginZooming:(LFPhotoView *)photoView
