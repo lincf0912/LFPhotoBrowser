@@ -33,8 +33,8 @@
 /** (不实现，自带SD下载)下载原图代理方法 return YES 自定义下载，改变self.photoInfo对象属性，下载完毕调用reloadPhotoView */
 -(BOOL)photoViewDownLoadOriginal:(LFPhotoView *)photoView url:(NSString *)url;
 
-/** 下载视频代理方法 改变self.photoInfo对象属性，下载完毕调用reloadPhotoView */
--(void)photoViewDownLoadVideo:(LFPhotoView *)photoView url:(NSString *)url;
+/** (不实现，在线播放)下载视频代理方法 改变self.photoInfo对象属性，下载完毕调用reloadPhotoView */
+-(BOOL)photoViewDownLoadVideo:(LFPhotoView *)photoView url:(NSString *)url;
 @end
 
 @interface LFPhotoView : LFScrollView

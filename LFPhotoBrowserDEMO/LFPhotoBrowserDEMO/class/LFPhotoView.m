@@ -81,7 +81,7 @@
             _progressView = progressView;
         } else if (self.photoInfo.photoType == PhotoType_video) {
             VideoProgressView *progressView = [[VideoProgressView alloc] init];
-            progressView.center = self.center;
+            progressView.center = CGPointMake(self.center.x-self.frame.origin.x, self.center.y-self.frame.origin.y);
             __weak typeof(self) weakSelf = self;
             [progressView setClickBlock:^{
                 [weakSelf videoPlay];
@@ -374,6 +374,7 @@
             
             /** 下载原图*/
             [self showPhotoLoadingView];
+            
             [self loadNormalImage];
         }
             break;
@@ -386,6 +387,11 @@
 #pragma mark - 加载imageView的video
 -(void)loadPhotoViewVideo
 {
+    if (self.videoPlayer == nil) {
+        self.videoPlayer = [LFPlayer new];
+        self.videoPlayer.delegate = self;
+    }
+    
     switch (_loadType) {
         case downLoadTypeFail:
         {
@@ -395,10 +401,6 @@
         case downLoadTypeLocale:
         {
             [self setThumbnailImage];
-            if (self.videoPlayer == nil) {
-                self.videoPlayer = [LFPlayer new];
-                self.videoPlayer.delegate = self;
-            }
             [_videoPlayer setURL:[NSURL fileURLWithPath:self.photoInfo.videoPath]];
         }
             break;
@@ -613,8 +615,11 @@
         /** 对两边判断，拉伸最小值 */
         imageSize = [UIImage scaleImageSizeBySize:_customView.image.size targetSize:frame.size isBoth:YES];
     }
-
+    if (CGSizeEqualToSize(CGSizeZero, imageSize)) {
+        imageSize = frame.size;
+    }
     imageFrame.size = imageSize;
+
     
     CGFloat offSetX = imageSize.width - frame.size.width;
     CGFloat offSetY = imageSize.height - frame.size.height;
@@ -686,11 +691,17 @@
 - (void)videoPlay
 {
     if (self.loadType == downLoadTypeNetWork) {
+        BOOL isDownLoad = NO;
         /** 下载视频*/
         if(self.photoViewDelegate && [self.photoViewDelegate respondsToSelector:@selector(photoViewDownLoadVideo:url:)]){
             [self photoLoadingViewProgress:0.f];
-            [self.photoViewDelegate photoViewDownLoadVideo:self url:self.photoInfo.videoUrl];
+            isDownLoad = [self.photoViewDelegate photoViewDownLoadVideo:self url:self.photoInfo.videoUrl];
         }
+        if (!isDownLoad) {
+            /** 没有实现代理，执行在线播放 */
+            [_videoPlayer setURL:[NSURL URLWithString:self.photoInfo.videoUrl]];
+        }
+        
     } else if (self.loadType == downLoadTypeLocale){
         [_videoPlayer setURL:[NSURL fileURLWithPath:self.photoInfo.videoPath]];
     } else {
@@ -702,6 +713,7 @@
 /** 画面回调 */
 - (void)LFPlayerLayerDisplay:(LFPlayer *)player avplayer:(AVPlayer *)avplayer
 {
+    [self removePhotoLoadingView];
     [self.customView setPlayer:avplayer];
 }
 /** 可以播放 */

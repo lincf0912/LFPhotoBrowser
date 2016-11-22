@@ -884,11 +884,13 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     return NO;
 }
 
--(void)photoViewDownLoadVideo:(LFPhotoView *)photoView url:(NSString *)url
+-(BOOL)photoViewDownLoadVideo:(LFPhotoView *)photoView url:(NSString *)url
 {
     if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadVideoWithPhotoView:photoInfo:)]) {
         [self.downloadDelegate photoBrowser:self downloadVideoWithPhotoView:photoView photoInfo:photoView.photoInfo];
+        return YES;
     }
+    return NO;
 }
 
 #pragma mark - BatchDownload下载

@@ -14,4 +14,6 @@ pod 'SDWebImage', '3.8.2'
 
 #pod 'SDWebImage/WebP', '3.8.2'
 
+pod 'AFNetworking', '~> 2.6.3'
+
 end

@@ -64,6 +64,7 @@
 		6F5BA4B71DE2DB1A00F26951 /* VideoProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F5BA4B61DE2DB1A00F26951 /* VideoProgressView.m */; };
 		6F5BA4BA1DE2E76000F26951 /* LFVideoSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F5BA4B91DE2E76000F26951 /* LFVideoSlider.m */; };
 		6F5BA4BD1DE3D2AE00F26951 /* LFScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F5BA4BC1DE3D2AE00F26951 /* LFScrollView.m */; };
+		6F5BA4C31DE4368500F26951 /* DownLoadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F5BA4C21DE4368500F26951 /* DownLoadManager.m */; };
 		6F9C62301DCC1A2600024BE0 /* UIActionSheet+Block.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C62291DCC1A2600024BE0 /* UIActionSheet+Block.m */; };
 		6F9C62311DCC1A2600024BE0 /* UIImage+Size.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C622C1DCC1A2600024BE0 /* UIImage+Size.m */; };
 		6F9C62321DCC1A2600024BE0 /* UIView+CornerRadius.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C622F1DCC1A2600024BE0 /* UIView+CornerRadius.m */; };
@@ -156,6 +157,8 @@
 		6F5BA4B91DE2E76000F26951 /* LFVideoSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LFVideoSlider.m; sourceTree = "<group>"; };
 		6F5BA4BB1DE3D2AE00F26951 /* LFScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFScrollView.h; sourceTree = "<group>"; };
 		6F5BA4BC1DE3D2AE00F26951 /* LFScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LFScrollView.m; sourceTree = "<group>"; };
+		6F5BA4C11DE4368500F26951 /* DownLoadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownLoadManager.h; sourceTree = "<group>"; };
+		6F5BA4C21DE4368500F26951 /* DownLoadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownLoadManager.m; sourceTree = "<group>"; };
 		6F9C62281DCC1A2600024BE0 /* UIActionSheet+Block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIActionSheet+Block.h"; sourceTree = "<group>"; };
 		6F9C62291DCC1A2600024BE0 /* UIActionSheet+Block.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIActionSheet+Block.m"; sourceTree = "<group>"; };
 		6F9C622B1DCC1A2600024BE0 /* UIImage+Size.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Size.h"; sourceTree = "<group>"; };
@@ -329,6 +332,8 @@
 				6F19F0A11DB5F13C00BC6149 /* PhotoTableViewController.m */,
 				6F148D011DB8917F0011BAE6 /* PhotoTableViewCell.h */,
 				6F148D021DB8917F0011BAE6 /* PhotoTableViewCell.m */,
+				6F5BA4C11DE4368500F26951 /* DownLoadManager.h */,
+				6F5BA4C21DE4368500F26951 /* DownLoadManager.m */,
 			);
 			path = PhotoTableViewController;
 			sourceTree = "<group>";
@@ -623,6 +628,7 @@
 				6F9C62311DCC1A2600024BE0 /* UIImage+Size.m in Sources */,
 				6F19F0A61DB5F16400BC6149 /* PhotoCollectionViewController.m in Sources */,
 				6F5BA4BD1DE3D2AE00F26951 /* LFScrollView.m in Sources */,
+				6F5BA4C31DE4368500F26951 /* DownLoadManager.m in Sources */,
 				6F9C62381DCC25E000024BE0 /* UIImage+Format.m in Sources */,
 				6F19F0A21DB5F13C00BC6149 /* PhotoTableViewController.m in Sources */,
 				6F5BA4961DE2A5CD00F26951 /* LFAVPlayerLayerView.m in Sources */,

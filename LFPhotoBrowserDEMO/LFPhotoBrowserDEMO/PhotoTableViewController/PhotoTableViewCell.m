@@ -68,18 +68,22 @@
     frame.origin.x = x;
     _photoView.frame = frame;
     
-    __weak typeof(self) weakSelf = self;
-    __weak typeof(self.url) weakURL = self.url;
-    _progressView.alpha = 1.f;
-    [_photoView sd_setImageWithURL:[NSURL URLWithString:url] placeholderImage:nil options:SDWebImageRetryFailed|SDWebImageLowPriority progress:^(NSInteger receivedSize, NSInteger expectedSize) {
-        if (weakSelf.url != weakURL) return ;
-        weakSelf.progressView.progress = (float)receivedSize/(float)expectedSize;
-    } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-        weakSelf.progressView.alpha = 0.f;
-        if (image) {
-            [weakSelf setNeedsLayout];
-        }
-    }];
+    if ([url hasSuffix:@".jpg"]) {
+        __weak typeof(self) weakSelf = self;
+        __weak typeof(self.url) weakURL = self.url;
+        _progressView.alpha = 1.f;
+        [_photoView sd_setImageWithURL:[NSURL URLWithString:url] placeholderImage:nil options:SDWebImageRetryFailed|SDWebImageLowPriority progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+            if (weakSelf.url != weakURL) return ;
+            weakSelf.progressView.progress = (float)receivedSize/(float)expectedSize;
+        } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+            weakSelf.progressView.alpha = 0.f;
+            if (image) {
+                [weakSelf setNeedsLayout];
+            }
+        }];
+    } else {
+        [self.photoView setImage:[UIImage imageNamed:@"default"]];
+    }
 }
 
 - (void)prepareForReuse

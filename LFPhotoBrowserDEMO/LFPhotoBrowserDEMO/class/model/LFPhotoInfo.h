@@ -35,6 +35,7 @@ typedef NS_ENUM(NSInteger, PhotoType) {
 
 
 /** ************LFPhotoProtocol************ */
+
 /** 缩略图URLString*/
 @property (nonatomic, copy) NSString *thumbnailUrl;
 /** 缩略图路径*/
@@ -50,6 +51,7 @@ typedef NS_ENUM(NSInteger, PhotoType) {
 @property (nonatomic, copy) UIImage *originalImage;
 
 /** ************LFVideoProtocol************ */
+
 /** 视频URLString*/
 @property (nonatomic, copy) NSString *videoUrl;
 /** 视频路径*/

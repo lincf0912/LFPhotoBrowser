@@ -9,10 +9,14 @@
 #import "PhotoTableViewController.h"
 #import "PhotoTableViewCell.h"
 
+#import "DownLoadManager.h"
+
 #import "LFPhotoBrowser.h"
 #import "LFPhotoInfo.h"
 
-@interface PhotoTableViewController () <UITableViewDelegate, UITableViewDataSource, LFPhotoBrowserDelegate>
+#import "LFPhotoView.h"
+
+@interface PhotoTableViewController () <UITableViewDelegate, UITableViewDataSource, LFPhotoBrowserDelegate, LFPhotoBrowserDownloadDelegate>
 
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) NSMutableArray *resources;
@@ -49,6 +53,11 @@
 {
     if (_resources == nil) {
         NSMutableArray *array = [NSMutableArray array];
+        [array addObject:@"http://data.vod.itc.cn/?prod=app&new=/194/216/JBUeCIHV4s394vYk3nbgt2.mp4"];
+        [array addObject:@"http://data.vod.itc.cn/?prod=app&new=/5/36/aUe9kB0906IvkI5UCpq11K.mp4"];
+        [array addObject:@"http://data.vod.itc.cn/?prod=app&new=/10/66/eCGPkAewSVqy9P57hvB11D.mp4"];
+        [array addObject:@"http://data.vod.itc.cn/?prod=app&new=/125/206/g586XlZhJQBGTnFDS75cPF.mp4"];
+        
         [array addObject:@"http://superhero.wingzero.tw/wp-content/uploads/2013/11/punisher.jpg"];
         [array addObject:@"http://superhero.wingzero.tw/wp-content/uploads/2015/06/green-lantern.jpg"];
         [array addObject:@"http://superhero.wingzero.tw/wp-content/uploads/2015/06/star-lord.jpg"];
@@ -132,16 +141,28 @@
     
     
     NSMutableArray *items = [NSMutableArray arrayWithCapacity:self.resources.count];
+    int count=0,max = 2;
     for (NSString *url in self.resources) {
-        LFPhotoInfo *photo = [LFPhotoInfo photoInfoWithType:PhotoType_image key:nil];
-        photo.originalImageUrl = url;
-        [items addObject:photo];
+        if ([url hasSuffix:@".mp4"]) {
+            LFPhotoInfo *photo = [LFPhotoInfo photoInfoWithType:PhotoType_video key:nil];
+            if (count++ < max) {
+                photo.isNeedSlider = YES;
+            }
+            photo.videoPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES) objectAtIndex:0] stringByAppendingPathComponent:url.lastPathComponent];
+            photo.videoUrl = url;
+            [items addObject:photo];
+        } else {
+            LFPhotoInfo *photo = [LFPhotoInfo photoInfoWithType:PhotoType_image key:nil];
+            photo.originalImageUrl = url;
+            [items addObject:photo];
+        }
     }
     
     LFPhotoBrowser *pbVC = [[LFPhotoBrowser alloc] initWithImageArray:items currentIndex:(int)indexPath.row];
     //    pbVC.isWeaker = YES;
     pbVC.animatedTime = 0.25f;
     pbVC.delegate = self;
+    pbVC.downloadDelegate = self;
     [pbVC showPhotoBrowser];
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
@@ -170,5 +191,32 @@
     return [items copy];
 }
 
-
+#pragma mark - LFPhotoBrowserDownloadDelegate
+-(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadVideoWithPhotoView:(LFPhotoView *)photoView photoInfo:(LFPhotoInfo *)photoInfo
+{
+    __weak typeof(photoInfo) weakPhotoInfo = photoInfo;
+    
+    NSString *path = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES) objectAtIndex:0] stringByAppendingPathComponent:photoInfo.videoUrl.lastPathComponent];
+    
+    [DownLoadManager basicHttpFileDownloadWithUrlString:weakPhotoInfo.videoUrl
+                                                 offset:0 /** 获取原下载路径续传 */
+                                                 params:nil
+                                                timeout:5.f
+                                               savePath:path
+                                               download:^(long long totalBytes, long long totalBytesExpected) {
+                                                   weakPhotoInfo.downloadProgress = (float)(totalBytes*1.0/totalBytesExpected);
+                                               } success:^{
+                                                   weakPhotoInfo.videoPath = path;
+                                                   if (photoView.photoInfo == weakPhotoInfo) {
+                                                       [photoView reloadPhotoView];
+                                                   }
+                                               } failure:^(NSError *error) {
+                                                   if (photoView.photoInfo == weakPhotoInfo) {
+                                                       /** 更新Model状态 */
+                                                       photoInfo.downloadFail = YES;
+                                                       [photoView reloadPhotoView];
+                                                   }
+                                               }];
+    
+}
 @end

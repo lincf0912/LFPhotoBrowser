@@ -11,6 +11,10 @@ LFPhotoBrowser *pbVC = [[LFPhotoBrowser alloc] initWithImageArray:@[PhotoInfo]];
 
 pbVC.delegate;
 
+图片展示
 ![image](https://github.com/lincf0912/LFPhotoBrowser/raw/master/screenshots/screenshot1.gif)
 
 ![image](https://github.com/lincf0912/LFPhotoBrowser/raw/master/screenshots/screenshot2.gif)
+
+视频展示
+![image](https://github.com/lincf0912/LFPhotoBrowser/raw/master/screenshots/screenshot3.gif)

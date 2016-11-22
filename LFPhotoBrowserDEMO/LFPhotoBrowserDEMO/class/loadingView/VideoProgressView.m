@@ -48,7 +48,9 @@
     [self.backCircle removeFromSuperlayer];
     [self.foreCircle removeFromSuperlayer];
     [self createView];
-    self.progress = progress;
+    if (progress) {
+        self.progress = progress;
+    }
 }
 
 -(void)createView
@@ -57,7 +59,7 @@
     [self addForeCircleWidthSize:self.circlesSize.size.width lineWidth:self.circlesSize.size.height];
     if (self.playButton == nil) {
         self.playButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        self.playButton.frame = CGRectMake(0, 0, 35, 35);
+        self.playButton.frame = CGRectMake(0, 0, 37, 37);
         [self.playButton setImage:[UIImage imageNamed:@"LFPhotoSource.bundle/play"] forState:UIControlStateNormal];
         [self.playButton addTarget:self action:@selector(onClick:) forControlEvents:UIControlEventTouchUpInside];
         self.playButton.hidden = YES;
@@ -65,16 +67,17 @@
     }
     if (self.tipsLabel == nil) {
         self.tipsLabel = [[UILabel alloc] init];
-        self.tipsLabel.frame = CGRectMake(0, 0, 50, 10);
+        self.tipsLabel.frame = CGRectMake(0, 0, 300, 20);
         self.tipsLabel.text = @"轻触载入";
         self.tipsLabel.textColor = [UIColor whiteColor];
         self.tipsLabel.textAlignment = NSTextAlignmentCenter;
         self.tipsLabel.hidden = YES;
+        self.tipsLabel.font = [UIFont systemFontOfSize:13.f];
         [self addSubview:self.tipsLabel];
     }
-    self.tipsLabel.center = self.playButton.center = self.center;
+    self.tipsLabel.center = self.playButton.center = CGPointMake(self.center.x-self.frame.origin.x, self.center.y-self.frame.origin.y);
     CGRect lableFrame = self.tipsLabel.frame;
-    lableFrame.origin.y += CGRectGetHeight(self.playButton.frame)/2 + CGRectGetHeight(lableFrame)/2;
+    lableFrame.origin.y += CGRectGetHeight(self.playButton.frame)/2 + CGRectGetHeight(lableFrame)/2 + 10.f;
     self.tipsLabel.frame = lableFrame;
 }
 
@@ -103,6 +106,7 @@
     layer.strokeEnd = 1;
     self.backCircle = layer;
     [self.layer addSublayer:self.backCircle];
+    self.backCircle.opacity = 0.f;
     
 }
 
@@ -131,24 +135,30 @@
     layer.strokeEnd = 0;
     self.foreCircle = layer;
     [self.layer addSublayer:self.foreCircle];
+    self.foreCircle.opacity = 0.f;
 }
 
 -(void)setProgress:(float)progress
 {
     _progress = progress;
+    if (_progress) {
+        self.playButton.hidden = self.tipsLabel.hidden = YES;
+        self.foreCircle.opacity = self.backCircle.opacity = 1.f;
+    }
+    
     self.foreCircle.strokeEnd = progress;
     if (self.foreCircle.strokeEnd > 0.99)
     {
+        [self startAnimation];
         self.foreCircle.strokeEnd = 0;
         _progress = 0;
-        [self startAnimation];
     } else if(self.foreCircle.strokeEnd > 0)
     {
         [self stopAnimation];
     } else {
+        [self startAnimation];
         self.foreCircle.strokeEnd = 0;
         _progress = 0;
-        [self startAnimation];
     }
 }
 -(void)drawBackCircle:(BOOL)partial
@@ -172,6 +182,9 @@
     if ([self.backCircle animationForKey:@"rotationAnimation"]) {
         return ;
     }
+    [self.foreCircle removeFromSuperlayer];
+    self.playButton.hidden = self.tipsLabel.hidden = YES;
+    self.foreCircle.opacity = self.backCircle.opacity = 1.f;
     [self drawBackCircle:YES];
     CABasicAnimation *rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
     rotationAnimation.toValue = [NSNumber numberWithFloat:M_PI * 2.0];
@@ -184,8 +197,11 @@
 #pragma mark - 停止旋转
 -(void)stopAnimation
 {
-    [self drawBackCircle:NO];
-    [self.backCircle removeAllAnimations];
+    if ([self.backCircle animationForKey:@"rotationAnimation"]) {
+        [self.layer addSublayer:self.foreCircle];
+        [self drawBackCircle:NO];
+        [self.backCircle removeAllAnimations];
+    }
 }
 
 #pragma mark - 重置progressView
