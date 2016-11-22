@@ -84,23 +84,29 @@ static NSString * const reuseIdentifier = @"Cell";
     _dataSourcDic = [NSMutableDictionary dictionary];
     _titleArrs = [[NSMutableArray alloc] init];
     
+    NSArray *keys = @[@"1今天", @"2明天", @"3一周前", @"4一个月前", @"5三个月前"];
+    
     for (NSInteger i=1; i<22; i++) {
         if (i<5) {
-            NSMutableArray *array = [self getMutableArrayWithKey:@"1今天"];
+            NSMutableArray *array = [self getMutableArrayWithKey:keys[0]];
             [array addObject:[NSString stringWithFormat:@"%ld.jpeg", i]];
         } else if (i < 10) {
-            NSMutableArray *array = [self getMutableArrayWithKey:@"2明天"];
+            NSMutableArray *array = [self getMutableArrayWithKey:keys[1]];
             [array addObject:[NSString stringWithFormat:@"%ld.jpeg", i]];
         } else if (i < 15) {
-            NSMutableArray *array = [self getMutableArrayWithKey:@"3一周前"];
+            NSMutableArray *array = [self getMutableArrayWithKey:keys[2]];
             [array addObject:[NSString stringWithFormat:@"%ld.jpeg", i]];
         } else if (i < 20) {
-            NSMutableArray *array = [self getMutableArrayWithKey:@"4一个月前"];
+            NSMutableArray *array = [self getMutableArrayWithKey:keys[3]];
             [array addObject:[NSString stringWithFormat:@"%ld.jpeg", i]];
         } else {
-            NSMutableArray *array = [self getMutableArrayWithKey:@"5三个月前"];
+            NSMutableArray *array = [self getMutableArrayWithKey:keys[4]];
             [array addObject:[NSString stringWithFormat:@"%ld.jpeg", i]];
         }
+    }
+    for (NSInteger k=1; k<7; k++) {
+        NSMutableArray *array = [self getMutableArrayWithKey:keys[arc4random() % (keys.count-1)]];
+        [array addObject:[NSString stringWithFormat:@"%ld00.png", k]];
     }
     
 }
@@ -137,6 +143,10 @@ static NSString * const reuseIdentifier = @"Cell";
     NSArray *array = _dataSourcDic[key];
     NSString *name = array[indexPath.row];
     cell.imageName = name;
+    /** 视频标记 */
+    if ([name containsString:@"00"]) {
+        [cell markVideo];
+    }
     
     return cell;
 }
@@ -155,9 +165,19 @@ static NSString * const reuseIdentifier = @"Cell";
     for (NSString *title in self.titleArrs) {
         NSArray *array = self.dataSourcDic[title];
         for (NSString *name in array) {
-            LFPhotoInfo *photo = [LFPhotoInfo photoInfoWithType:PhotoType_image key:title];
-            photo.originalImagePath = [[NSBundle mainBundle] pathForResource:name ofType:nil];
-            [items addObject:photo];
+            if ([name containsString:@"00"]) {
+                LFPhotoInfo *photo = [LFPhotoInfo photoInfoWithType:PhotoType_video key:title];
+                photo.thumbnailPath = [[NSBundle mainBundle] pathForResource:name ofType:nil];
+                photo.videoPath = [[NSBundle mainBundle] pathForResource:[[name stringByDeletingPathExtension] stringByAppendingPathExtension:@"mp4"] ofType:nil];
+                [items addObject:photo];
+                if ([name compare:@"400"] == NSOrderedAscending) { /** 部分模拟需要进度条 */
+                    photo.isNeedSlider = YES;
+                }
+            } else {
+                LFPhotoInfo *photo = [LFPhotoInfo photoInfoWithType:PhotoType_image key:title];
+                photo.originalImagePath = [[NSBundle mainBundle] pathForResource:name ofType:nil];
+                [items addObject:photo];
+            }
             if ([clickName isEqualToString:name]) {
                 isFinded = YES;
             }

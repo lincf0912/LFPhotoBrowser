@@ -1,30 +1,24 @@
 //
-//  MJPhotoLoadingView.m
+//  ImageProgressView.m
+//  LFPhotoBrowserDEMO
 //
-//  Created by mj on 13-3-4.
-//  Copyright (c) 2013年 itcast. All rights reserved.
+//  Created by LamTsanFeng on 2016/11/21.
+//  Copyright © 2016年 GZMiracle. All rights reserved.
 //
 
-#import "MLPhotoLoadingView.h"
-#import <QuartzCore/QuartzCore.h>
+#import "ImageProgressView.h"
 #import "LLARingSpinnerView.h"
-#import "MLPhotoProgressView.h"
 
-@interface MLPhotoLoadingView ()
+
+@interface ImageProgressView ()
 {
     UIImageView *_failureImageView;
     UILabel *_failureLabel;
     LLARingSpinnerView *_progressView;
 }
-
 @end
 
-@implementation MLPhotoLoadingView
-
-- (void)setFrame:(CGRect)frame
-{
-    [super setFrame:frame];
-}
+@implementation ImageProgressView
 
 - (void)showFailure
 {
@@ -75,5 +69,6 @@
         _progressView.progress = progress;
     }
 }
+
 
 @end

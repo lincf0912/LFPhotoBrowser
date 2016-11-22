@@ -11,4 +11,5 @@
 @interface PhotoCollectionViewCell : UICollectionViewCell
 
 @property (nonatomic, copy) NSString *imageName;
+- (void)markVideo;
 @end

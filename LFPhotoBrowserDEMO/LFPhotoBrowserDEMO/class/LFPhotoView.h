@@ -7,11 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "LFPhotoInfo.h"
+#import "LFScrollView.h"
 #import "PhotoViewType.h"
 
-
-@class LFPhotoView;
+@class LFPhotoView,LFPhotoInfo;
 
 @protocol LFPhotoViewDelegate <NSObject>
 @optional
@@ -29,13 +28,16 @@
 /** 长按手势代理方法*/
 -(void)photoViewGesture:(LFPhotoView *)photoView longPressImage:(UIImage *)image;
 
-/** 下载缩略图代理方法 return YES 自定义下载，改变self.photoInfo对象属性，下载完毕调用reloadPhotoView */
--(BOOL)photoViewDownLoadThumbnail:(LFPhotoView *)photoView;
-/** 下载原图代理方法 return YES 自定义下载，改变self.photoInfo对象属性，下载完毕调用reloadPhotoView */
--(BOOL)photoViewDownLoadOriginal:(LFPhotoView *)photoView;
+/** (不实现，自带SD下载)下载缩略图代理方法 return YES 自定义下载，改变self.photoInfo对象属性，下载完毕调用reloadPhotoView */
+-(BOOL)photoViewDownLoadThumbnail:(LFPhotoView *)photoView url:(NSString *)url;
+/** (不实现，自带SD下载)下载原图代理方法 return YES 自定义下载，改变self.photoInfo对象属性，下载完毕调用reloadPhotoView */
+-(BOOL)photoViewDownLoadOriginal:(LFPhotoView *)photoView url:(NSString *)url;
+
+/** 下载视频代理方法 改变self.photoInfo对象属性，下载完毕调用reloadPhotoView */
+-(void)photoViewDownLoadVideo:(LFPhotoView *)photoView url:(NSString *)url;
 @end
 
-@interface LFPhotoView : UIScrollView
+@interface LFPhotoView : LFScrollView
 /** 加载方式*/
 @property (nonatomic, readonly) downLoadType loadType;
 @property (nonatomic, strong) LFPhotoInfo *photoInfo;
@@ -50,4 +52,7 @@
 -(void)cleanData;
 /** 刷新photoView*/
 -(void)reloadPhotoView;
+
+/** 隐藏附属控件 */
+-(void)setSubControlAlpha:(CGFloat)alpha;
 @end

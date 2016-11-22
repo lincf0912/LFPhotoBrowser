@@ -7,16 +7,28 @@
 //
 
 #import "LFPhotoView.h"
+#import "LFPhotoInfo.h"
+#import "LFPlayer.h"
+#import "LFAVPlayerLayerView.h"
+#import "LFVideoSlider.h"
+
 #import <UIImageView+WebCache.h>
 #import "UIImage+Format.h"
 
-#import "MLPhotoLoadingView.h"
+#import "ImageProgressView.h"
+#import "VideoProgressView.h"
+
 #import "UIView+CornerRadius.h"
 #import "UIImage+Size.h"
 
-@interface LFPhotoView() <UIScrollViewDelegate>
+@interface LFPhotoView() <UIScrollViewDelegate, LFPlayerDelegate, LFVideoSliderDelegate>
 {
-    
+//    单击手势
+    UITapGestureRecognizer *_singleTap;
+//    双击手势
+    UITapGestureRecognizer *_doubleTap;
+//    长按手势
+    UILongPressGestureRecognizer *_longPressGesture;
 }
 
 /** 百分比显示 */
@@ -26,27 +38,32 @@
 @property (nonatomic, strong) UIImageView *imageMaskView;
 
 /** 视图 */
-@property (nonatomic, strong) UIImageView *customView;
+@property (nonatomic, strong) LFAVPlayerLayerView *customView;
 
+/** 视频播放器 */
+@property (nonatomic, strong) LFPlayer *videoPlayer;
+
+/** 播放提示文字 */
+@property (nonatomic, strong) UILabel *tipsLabel;
+/** 底部栏（播放按钮+进度条） */
+@property (nonatomic, strong) LFVideoSlider *videoSlider;
 @end
 
 @implementation LFPhotoView
 
 #pragma mark - 自定义视图
-- (UIImageView *)customView
+- (LFAVPlayerLayerView *)customView
 {
     if (_customView == nil) {
-        if (self.photoInfo.photoType == PhotoType_image) {
-            //初始化imageView 和 遮罩层
-            UIImageView *_imageView = [[UIImageView alloc] initWithFrame:self.bounds];
-            _imageView.contentMode = UIViewContentModeScaleAspectFit;
-            [self addSubview:_imageView];
-            _imageMaskView = [[UIImageView alloc]initWithFrame:_imageView.bounds];
-            _imageMaskView.backgroundColor = [UIColor whiteColor];
-            /** 设置遮罩 */
-            [_imageView setLayerMaskView:_imageMaskView];
-            _customView = _imageView;
-        }
+        //初始化imageView 和 遮罩层
+        LFAVPlayerLayerView *_imageView = [[LFAVPlayerLayerView alloc] initWithFrame:self.bounds];
+        _imageView.contentMode = UIViewContentModeScaleAspectFit;
+        [self addSubview:_imageView];
+        _imageMaskView = [[UIImageView alloc]initWithFrame:_imageView.bounds];
+        _imageMaskView.backgroundColor = [UIColor whiteColor];
+        /** 设置遮罩 */
+        [_imageView setLayerMaskView:_imageMaskView];
+        _customView = _imageView;
         _customView.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
         _imageMaskView.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
     }
@@ -58,11 +75,20 @@
     /** 进度视图*/
     if (_progressView == nil) {
         if (self.photoInfo.photoType == PhotoType_image) {
-            MLPhotoLoadingView *progressView = [[MLPhotoLoadingView alloc] initWithFrame:self.bounds];
+            ImageProgressView *progressView = [[ImageProgressView alloc] initWithFrame:self.bounds];
+            progressView.userInteractionEnabled = NO;
+            [self addSubview:progressView];
+            _progressView = progressView;
+        } else if (self.photoInfo.photoType == PhotoType_video) {
+            VideoProgressView *progressView = [[VideoProgressView alloc] init];
+            progressView.center = self.center;
+            __weak typeof(self) weakSelf = self;
+            [progressView setClickBlock:^{
+                [weakSelf videoPlay];
+            }];
             [self addSubview:progressView];
             _progressView = progressView;
         }
-        _progressView.userInteractionEnabled = NO;
         _progressView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     }
     return _progressView;
@@ -83,8 +109,8 @@
         self.backgroundColor = [UIColor clearColor];
         self.userInteractionEnabled = YES;
         self.autoresizesSubviews = NO;
-        self.scrollEnabled= YES;
-
+        self.scrollEnabled = YES;
+        
 //        self.bouncesZoom = NO;
         self.delegate = self;
         self.maximumZoomScale = 3.5f;
@@ -132,24 +158,40 @@
 -(void)addGesture
 {
     //添加单击手势
-    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
-    singleTap.delaysTouchesBegan = YES;
-    singleTap.numberOfTapsRequired = 1;
-    [self addGestureRecognizer:singleTap];
+    if (_singleTap == nil) {
+        _singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleSingleTap:)];
+        _singleTap.delaysTouchesBegan = YES;
+        _singleTap.numberOfTapsRequired = 1;
+        [self addGestureRecognizer:_singleTap];
+    }
     
     //添加双击手势
-    UITapGestureRecognizer *doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
-    doubleTap.numberOfTapsRequired = 2;
-    [self addGestureRecognizer:doubleTap];
+    if (_doubleTap == nil) {
+        _doubleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleDoubleTap:)];
+        _doubleTap.numberOfTapsRequired = 2;
+        [self addGestureRecognizer:_doubleTap];
+    }
     
-    [singleTap requireGestureRecognizerToFail:doubleTap];
+    [_singleTap requireGestureRecognizerToFail:_doubleTap];
     
     //添加长按手势
-    UILongPressGestureRecognizer *longPressGesture = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(longPressGestureAction:)];
-    [self addGestureRecognizer:longPressGesture];
+    if (_longPressGesture == nil) {
+        _longPressGesture = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(longPressGestureAction:)];
+        [self addGestureRecognizer:_longPressGesture];
+    }
     
     /** 缩放手势-使用原生ScrollView的缩放 */
     
+}
+
+- (void)removeGesture
+{
+    [self removeGestureRecognizer:_singleTap];
+    [self removeGestureRecognizer:_doubleTap];
+    [self removeGestureRecognizer:_longPressGesture];
+    _singleTap = nil;
+    _doubleTap = nil;
+    _longPressGesture = nil;
 }
 
 #pragma mark - 手势处理
@@ -170,7 +212,7 @@
 #pragma mark 双击手势
 - (void)handleDoubleTap:(UIGestureRecognizer *)tap
 {
-    if(!_customView) return;
+    if(!_customView || self.photoInfo.photoType == PhotoType_video) return;
     if (self.zoomScale > 1.0) {//放大时单击缩小
         [self setZoomScale:1.f animated:YES];
     } else {
@@ -199,7 +241,7 @@
 - (nullable UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
 {
     // return a view that will be scaled. if delegate returns nil, nothing happens
-    return _customView;
+    return self.photoInfo.photoType == PhotoType_video ? nil : _customView;
 }
 
 - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(nullable UIView *)view
@@ -256,22 +298,46 @@
     //sd-cancle下载
     [_customView sd_cancelCurrentImageLoad];
     [self selectLoadMethod];
-    [self loadPhotoViewImage];
+    
+    if (self.photoInfo.photoType == PhotoType_image) {
+        [self loadPhotoViewImage];
+    } else if (self.photoInfo.photoType == PhotoType_video) {
+        [self loadPhotoViewVideo];
+    }
+}
+
+#pragma mark - 隐藏附属控件
+-(void)setSubControlAlpha:(CGFloat)alpha
+{
+    self.videoSlider.alpha = alpha;
+    self.tipsLabel.alpha = alpha < 0.9 ? alpha-0.5f : alpha;
 }
 
 #pragma mark - 选择加载方式
 -(void)selectLoadMethod
 {
-    if (self.photoInfo.downloadFail) {
-        _loadType = downLoadTypeFail;
-    }else if(_photoInfo.originalImage){
-        _loadType = downLoadTypeImage;
-    }else if(self.photoInfo.originalImagePath != nil && [[NSFileManager defaultManager] fileExistsAtPath:self.photoInfo.originalImagePath]){//存在路径和URL
-        _loadType = downLoadTypeLocale;
-    }else if(self.photoInfo.originalImageUrl){/*存在下载的URL*/
-        _loadType = downLoadTypeNetWork;
-    }else{
-        _loadType = downLoadTypeUnknown;
+    if (self.photoInfo.photoType == PhotoType_image) {
+        if (self.photoInfo.downloadFail) {
+            _loadType = downLoadTypeFail;
+        }else if(_photoInfo.originalImage){
+            _loadType = downLoadTypeImage;
+        }else if(self.photoInfo.originalImagePath != nil && [[NSFileManager defaultManager] fileExistsAtPath:self.photoInfo.originalImagePath]){//存在路径和URL
+            _loadType = downLoadTypeLocale;
+        }else if(self.photoInfo.originalImageUrl){/*存在下载的URL*/
+            _loadType = downLoadTypeNetWork;
+        }else{
+            _loadType = downLoadTypeUnknown;
+        }
+    } else if (self.photoInfo.photoType == PhotoType_video) {
+        if (self.photoInfo.downloadFail) {
+            _loadType = downLoadTypeFail;
+        }else if(self.photoInfo.videoPath != nil && [[NSFileManager defaultManager] fileExistsAtPath:self.photoInfo.videoPath]){//存在路径和URL
+            _loadType = downLoadTypeLocale;
+        }else if(self.photoInfo.videoUrl){/*存在下载的URL*/
+            _loadType = downLoadTypeNetWork;
+        }else{
+            _loadType = downLoadTypeUnknown;
+        }
     }
 }
 
@@ -317,6 +383,41 @@
     }
 }
 
+#pragma mark - 加载imageView的video
+-(void)loadPhotoViewVideo
+{
+    switch (_loadType) {
+        case downLoadTypeFail:
+        {
+            [self showPhotoLoadingFailure];
+        }
+            break;
+        case downLoadTypeLocale:
+        {
+            [self setThumbnailImage];
+            if (self.videoPlayer == nil) {
+                self.videoPlayer = [LFPlayer new];
+                self.videoPlayer.delegate = self;
+            }
+            [_videoPlayer setURL:[NSURL fileURLWithPath:self.photoInfo.videoPath]];
+        }
+            break;
+        case downLoadTypeNetWork:
+        {
+            /** 加载网络数据，优先判断缩略图 */
+            [self setThumbnailImage];
+            
+            /** 显示播放按钮 */
+            [self showPhotoLoadingView];
+        }
+            break;
+        case downLoadTypeImage:
+        case downLoadTypeUnknown:
+            [self setThumbnailImage];
+            break;
+    }
+}
+
 - (void)setThumbnailImage
 {
     if (_photoInfo.thumbnailImage){
@@ -339,8 +440,8 @@
     if (self.photoInfo.thumbnailUrl) {
         BOOL SD_DL = YES;
         //如果代理实现缩略图下载方法，则优先执行代理的下载方法
-        if(self.photoViewDelegate && [self.photoViewDelegate respondsToSelector:@selector(photoViewDownLoadThumbnail:)]){
-            SD_DL = ![self.photoViewDelegate photoViewDownLoadThumbnail:self];
+        if(self.photoViewDelegate && [self.photoViewDelegate respondsToSelector:@selector(photoViewDownLoadThumbnail:url:)]){
+            SD_DL = ![self.photoViewDelegate photoViewDownLoadThumbnail:self url:self.photoInfo.thumbnailUrl];
         }
         
         if (SD_DL) {
@@ -350,8 +451,14 @@
                 if ([imageURL.absoluteString isEqualToString:weakSelf.photoInfo.thumbnailUrl]) {
                     if(image){//下载成功
                         weakSelf.photoInfo.thumbnailImage = image;
-                        if(!weakSelf.photoInfo.originalImage){//判断是否已经显示原图,没有才显示缩略图
-                            [weakSelf setImage:image];
+                        if (weakSelf.photoInfo.photoType == PhotoType_image) {
+                            if(!weakSelf.photoInfo.originalImage){//判断是否已经显示原图,没有才显示缩略图
+                                [weakSelf setImage:image];
+                            }
+                        } else if (weakSelf.photoInfo.photoType == PhotoType_video) {
+                            if (weakSelf.videoPlayer.isPlaying == NO) {
+                                [weakSelf setImage:image];
+                            }
                         }
                     }
                 }
@@ -365,10 +472,9 @@
 {
     if (self.photoInfo.originalImageUrl) {
         BOOL SD_DL = YES;
-        [self photoLoadingViewProgress:self.photoInfo.downloadProgress];
         //代理有实现原图下载方法，优先选择代理下载
-        if(self.photoViewDelegate && [self.photoViewDelegate respondsToSelector:@selector(photoViewDownLoadOriginal:)]){
-            SD_DL = ![self.photoViewDelegate photoViewDownLoadOriginal:self];
+        if(self.photoViewDelegate && [self.photoViewDelegate respondsToSelector:@selector(photoViewDownLoadOriginal:url:)]){
+            SD_DL = ![self.photoViewDelegate photoViewDownLoadOriginal:self url:self.photoInfo.originalImageUrl];
         }
         
         if (SD_DL) {
@@ -423,25 +529,35 @@
         self.imageMaskView = nil;
         //移除加载视图
         [self removePhotoLoadingView];
+        
+        self.videoPlayer.delegate = nil;
+        self.videoPlayer = nil;
+        [self.tipsLabel removeFromSuperview];
+        self.tipsLabel = nil;
+        [self.videoSlider removeFromSuperview];
+        self.videoSlider = nil;
     }
 }
 
 #pragma mark - 设置图片
 -(void)setImage:(UIImage *)image
 {
-    if (self.photoInfo.photoType == PhotoType_image) {
-        self.customView.image = image;
-        
-        [self calcFrameMaskPosition:MaskPosition_None frame:self.bounds];
-    }
+    self.customView.image = image;
+    
+    [self calcFrameMaskPosition:MaskPosition_None frame:self.bounds];
 }
 
 #pragma mark - 显示进度
 -(void)showPhotoLoadingView
 {
     if (self.photoInfo.photoType == PhotoType_image) {
-        [(MLPhotoLoadingView *)self.progressView showLoading];
-        ((MLPhotoLoadingView *)self.progressView).progress = self.photoInfo.downloadProgress;
+        [(ImageProgressView *)self.progressView showLoading];
+        ((ImageProgressView *)self.progressView).progress = self.photoInfo.downloadProgress;
+    } else if (self.photoInfo.photoType == PhotoType_video) {
+        [(VideoProgressView *)self.progressView showLoading];
+        if (self.photoInfo.downloadProgress > 0) {
+            ((VideoProgressView *)self.progressView).progress = self.photoInfo.downloadProgress;
+        }
     }
 }
 
@@ -449,7 +565,9 @@
 -(void)photoLoadingViewProgress:(float)progress
 {
     if (self.photoInfo.photoType == PhotoType_image) {
-        ((MLPhotoLoadingView *)self.progressView).progress = progress;
+        ((ImageProgressView *)self.progressView).progress = progress;
+    } else if (self.photoInfo.photoType == PhotoType_video) {
+        ((VideoProgressView *)self.progressView).progress = progress;
     }
 }
 
@@ -471,8 +589,10 @@
             [_customView removeFromSuperview];
             _customView = nil;
             self.imageMaskView = nil;
-            [(MLPhotoLoadingView *)self.progressView showFailure];
+            [(ImageProgressView *)self.progressView showFailure];
         }];
+    } else if (self.photoInfo.photoType == PhotoType_video) {
+        [(VideoProgressView *)self.progressView showFailure];
     }
 }
 
@@ -560,6 +680,130 @@
         
         self.contentSize = contentSize;
     }
+}
+
+#pragma mark - 视频操作事件
+- (void)videoPlay
+{
+    if (self.loadType == downLoadTypeNetWork) {
+        /** 下载视频*/
+        if(self.photoViewDelegate && [self.photoViewDelegate respondsToSelector:@selector(photoViewDownLoadVideo:url:)]){
+            [self photoLoadingViewProgress:0.f];
+            [self.photoViewDelegate photoViewDownLoadVideo:self url:self.photoInfo.videoUrl];
+        }
+    } else if (self.loadType == downLoadTypeLocale){
+        [_videoPlayer setURL:[NSURL fileURLWithPath:self.photoInfo.videoPath]];
+    } else {
+        [self showPhotoLoadingFailure];
+    }
+}
+
+#pragma mark - LFPlayerDelegate
+/** 画面回调 */
+- (void)LFPlayerLayerDisplay:(LFPlayer *)player avplayer:(AVPlayer *)avplayer
+{
+    [self.customView setPlayer:avplayer];
+}
+/** 可以播放 */
+- (void)LFPlayerReadyToPlay:(LFPlayer *)player duration:(double)duration
+{
+    if (!self.photoInfo.isNeedSlider) {
+        [self.videoPlayer play];
+    } else {
+        [self.videoSlider setTotalSecond:duration];
+    }
+    
+}
+/** 播放结束 */
+- (void)LFPlayerPlayDidReachEnd:(LFPlayer *)player
+{
+    if (!self.photoInfo.isNeedSlider) {
+        if (self.tipsLabel == nil) {
+            CGFloat height = 30;
+            /** 不能直接使用CGRectGetMaxY(_customView.frame)，有下拉缩放的情况坐标需要重新计算 */
+            CGSize imageSize = [UIImage scaleImageSizeBySize:_customView.image.size targetSize:CGSizeMake(self.frame.size.width, CGFLOAT_MAX) isBoth:NO];
+            CGFloat y = (CGRectGetHeight(self.frame) + imageSize.height)/2;
+            if (CGRectGetHeight(self.frame) < y+height) {
+                y = CGRectGetHeight(self.frame) - height;
+            }
+            self.tipsLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, y, self.bounds.size.width, height)];
+            self.tipsLabel.textColor = [UIColor whiteColor];
+            self.tipsLabel.font = [UIFont boldSystemFontOfSize:13.f];
+            self.tipsLabel.textAlignment = NSTextAlignmentCenter;
+            self.tipsLabel.userInteractionEnabled = NO;
+            self.tipsLabel.text = @"轻触退出";
+            if (!CGSizeEqualToSize(_customView.frame.size, imageSize)) {
+                self.tipsLabel.alpha = 0.f;
+            }
+            [self addSubview:self.tipsLabel];
+        }
+        [self.videoPlayer play];
+    } else {
+        [self.videoPlayer resetDisplay];
+        [self.videoSlider reset];
+    }
+}
+/** 进度回调 */
+- (UISlider *)LFPlayerSyncScrub:(LFPlayer *)player
+{
+    if (self.photoInfo.isNeedSlider) {
+        if (self.videoSlider == nil) {
+            CGFloat height = 40.f;
+            self.videoSlider = [[LFVideoSlider alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(self.frame)-height, CGRectGetWidth(self.frame), height)];
+            self.videoSlider.delegate = self;
+            [self addSubview:self.videoSlider];
+            [self.videoSlider setTotalSecond:0];
+        }
+        return self.videoSlider.slider;
+    }
+    return nil;
+}
+/** 错误回调 */
+- (void)LFPlayerFailedToPrepare:(LFPlayer *)player error:(NSError *)error
+{
+    [self showPhotoLoadingFailure];
+}
+
+#pragma mark - LFVideoSliderDelegate
+/** 是否播放 */
+- (void)LFVideoSlider:(LFVideoSlider *)videoSlider isPlay:(BOOL)isPlay
+{
+    isPlay ? [self.videoPlayer play] : [self.videoPlayer pause];
+}
+/** 开始滑动 */
+- (void)LFVideoSliderBeginChange:(LFVideoSlider *)videoSlider
+{
+    [self.videoPlayer beginScrubbing];
+}
+/** 滑动中 */
+- (void)LFVideoSliderChangedValue:(LFVideoSlider *)videoSlider
+{
+    [self.videoPlayer scrub:videoSlider.slider];
+}
+/** 结束滑动 */
+- (void)LFVideoSliderEndChange:(LFVideoSlider *)videoSlider
+{
+    [self.videoPlayer endScrubbing];
+    /** 添加手势 */
+    [self addGesture];
+}
+
+#pragma mark - 重写父类方法
+- (BOOL)touchesShouldBegin:(NSSet *)touches withEvent:(UIEvent *)event inContentView:(UIView *)view {
+    
+    if ([view isKindOfClass:[LFVideoSlider class]]) { /** 不触发任何事件 */
+        return NO;
+    }
+    if ([view isKindOfClass:[UISlider class]]) {
+        BOOL isTouch = [super touchesShouldBegin:touches withEvent:event inContentView:view];
+        if (isTouch) {
+            /** 移除当前手势 */
+            [self removeGesture];
+        }
+        return isTouch;
+    }
+    
+    return YES;
 }
 
 @end

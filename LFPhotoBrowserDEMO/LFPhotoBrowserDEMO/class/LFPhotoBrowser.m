@@ -7,6 +7,8 @@
 //
 
 #import "LFPhotoBrowser.h"
+#import "LFScrollView.h"
+#import "LFPhotoView.h"
 #import "LFPhotoInfo.h"
 #import "UIImageView+WebCache.h"
 #import "UIActionSheet+Block.h"
@@ -18,12 +20,12 @@
 #define SCREEN_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
 
 /** 左右滑动的效果显示 */
-#define kScrollAminated 0 //1
+#define kScrollAminated 1 //0
 
 /** 方案1 */
-#define kShieldViewW (kScrollAminated ? 0 : 50)
+#define kShieldViewW (kScrollAminated ? 50 : 0)
 /** 方案2 */
-#define kScrollViewMargin (kScrollAminated ? 30 : 0)
+#define kScrollViewMargin (kScrollAminated ? 0 : 30)
 #define kScrollViewW (SCREEN_WIDTH+kScrollViewMargin)
 
 #define kAnimatedTime 0.25f
@@ -62,7 +64,7 @@ block();\
 dispatch_sync(dispatch_get_main_queue(), block);\
 }
 
-@interface LFPhotoBrowser () <UIScrollViewDelegate>
+@interface LFPhotoBrowser () <UIScrollViewDelegate, LFPhotoViewDelegate>
 {
     /** 状态栏隐藏 */
     BOOL _isStatusBarHiden;
@@ -74,7 +76,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     CGPoint _beginPoint;
     CGPoint _endPoint;
 }
-@property (nonatomic, strong) UIScrollView *scroll;
+@property (nonatomic, strong) LFScrollView *scroll;
 @property (nonatomic, strong, readwrite) NSMutableArray *images;
 @property (nonatomic, strong) UIImageView *bgImageView;//背景imageView
 @property (nonatomic, strong) UIPageControl *pageControl;
@@ -219,13 +221,13 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     CGRect currRect = CGRectMake(0, 0, self.currPhotoView.frame.size.width, self.currPhotoView.frame.size.height);
     
     [UIView animateWithDuration:self.animatedTime animations:^{
-        [_currPhotoView calcFrameMaskPosition:MaskPosition_None frame:currRect];
+        _bgImageView.alpha = 1.f;
     }completion:^(BOOL finished) {
         
     }];
     
     [UIView animateWithDuration:self.animatedTime delay:0.1f options:UIViewAnimationOptionCurveLinear animations:^{
-        _bgImageView.alpha = 1.f;
+        [_currPhotoView calcFrameMaskPosition:MaskPosition_None frame:currRect];
     } completion:^(BOOL finished) {
         [self setNeedsStatusBarAppearanceUpdate];
         if (self.isBatchDownload) {
@@ -255,6 +257,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     }];
     
     [UIView animateWithDuration:self.animatedTime delay:0.1f options:0 animations:^{
+        [self.currPhotoView setSubControlAlpha:0.f];
         if(self.isWeaker){
             self.currPhotoView.alpha = 0.0f;
         }
@@ -313,7 +316,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 {
     /** 设置scrollview*/
     if(!_scroll){
-        _scroll = [[UIScrollView alloc]init];
+        _scroll = [[LFScrollView alloc]init];
         _scroll.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
         _scroll.autoresizesSubviews = YES;
         _scroll.backgroundColor = [UIColor clearColor];
@@ -323,9 +326,11 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         [_scroll setScrollEnabled:YES];
         [self.view addSubview:_scroll];
         
-        _shieldView = [[UIView alloc] initWithFrame:CGRectMake(-kShieldViewW, 0, kShieldViewW, SCREEN_HEIGHT)];
-        _shieldView.backgroundColor = self.bgImageView.backgroundColor;
-        [self.scroll addSubview:_shieldView];
+        if (kScrollAminated == 1) {
+            _shieldView = [[UIView alloc] initWithFrame:CGRectMake(-kShieldViewW, 0, kShieldViewW, SCREEN_HEIGHT)];
+            _shieldView.backgroundColor = self.bgImageView.backgroundColor;
+            [self.scroll addSubview:_shieldView];
+        }
     }
     _scroll.frame = CGRectMake(0, 0, kScrollViewW, SCREEN_HEIGHT);
     
@@ -383,128 +388,11 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     if (self.callDataSource) {
         /** 关闭开关，避免触发代理 */
         if (self.curr <= self.slideRange) {
-            self.callLeftSlideDataSource = NO;
-        } else if (self.curr >= _images.count-1-self.slideRange) {
             self.callRightSlideDataSource = NO;
+        } else if (self.curr >= _images.count-1-self.slideRange) {
+            self.callLeftSlideDataSource = NO;
         }
     }
-}
-
-#pragma mark - 手势处理
--(void)panGesture:(id)sender
-{
-    if (self.currPhotoView.photoInfo.downloadFail) return;
-    /** 滑动情况下不能触发 */
-    if (self.currPhotoView.zoomScale > 1.f) return;
-    
-    UIPanGestureRecognizer *panGesture = sender;
-    CGPoint movePoint = [panGesture translationInView:self.currPhotoView];
-    CGRect currFrame = self.currPhotoView.photoRect;
-    switch (panGesture.state)
-    {
-        case UIGestureRecognizerStateBegan:{
-            _beginPoint = movePoint;
-            self.movePhotoView.hidden = YES;
-            [self obtainTargetFrame];
-            /** 转换坐标 */
-            [self.coverView setFrame:CGRectMake(kRound(self.targetFrame.origin.x), kRound(self.targetFrame.origin.y), kRound(self.targetFrame.size.width), kRound(self.targetFrame.size.height))];
-        }
-            break;
-        case UIGestureRecognizerStateEnded:{
-            _originalPoint = _beginPoint = _endPoint = CGPointZero;
-            
-            if(currFrame.size.width > self.currPhotoView.frame.size.width * 0.75)
-            {
-                _isStatusBarHiden = YES;
-                CGRect currRect = self.currPhotoView.bounds;
-                if (CGRectEqualToRect(currFrame, currRect)) {
-                    self.movePhotoView.hidden = NO;
-                    [_coverView removeFromSuperview];
-                    _coverView = nil;
-                    [self setNeedsStatusBarAppearanceUpdate];
-                } else {
-                    [UIView animateWithDuration:0.25 animations:^{
-                        self.bgImageView.alpha = 1.0f;
-                        [self.navigationController.navigationBar setAlpha:0];
-                        [self.currPhotoView calcFrameMaskPosition:MaskPosition_None frame:currRect];
-                    }completion:^(BOOL finished) {
-                        self.movePhotoView.hidden = NO;
-                        [_coverView removeFromSuperview];
-                        _coverView = nil;
-                        [self setNeedsStatusBarAppearanceUpdate];
-                    }];
-                }
-            }else{
-                [self handleAnimationEnd];
-            }
-        }
-            break;
-        case UIGestureRecognizerStateChanged:{
-            
-            BOOL isChanged = NO;
-            /** 当前移动点 大于 起始点 同时 大于 上一次移动点 视为向下滑动 */
-            if(movePoint.y > _beginPoint.y && movePoint.y > _originalPoint.y && currFrame.size.width > self.currPhotoView.frame.size.width/2){ /** 缩小 */
-                isChanged = YES;
-                _endPoint = _originalPoint;
-                if (_isStatusBarHiden) {
-                    _isStatusBarHiden = NO;
-                    [self setNeedsStatusBarAppearanceUpdate];
-                }
-                /** 当前移动点 小于 结束点 视为向上滑动 */
-            }else if(movePoint.y <= _endPoint.y && currFrame.size.width < self.currPhotoView.frame.size.width){ /** 放大 */
-                isChanged = YES;
-            }
-            
-            
-            CGFloat moveX = (movePoint.x - _originalPoint.x) / 1.5;
-            CGFloat moveY = (movePoint.y - _originalPoint.y);
-            if (isChanged) {
-                moveY /= 2;
-                
-                CGFloat inset = (movePoint.y - _originalPoint.y)/2;
-                CGRect newRect = currFrame;//CGRectInset(currFrame, inset, inset);此方法不是绝对比例缩放，导致部分尺寸图片缩放偏小
-                newRect.origin.x += inset/2;
-                newRect.origin.y += inset/2;
-                CGSize oldSize = newRect.size;
-                newRect.size.width -= inset;
-                newRect.size.height = oldSize.height * newRect.size.width / oldSize.width;
-                
-                if (newRect.size.width > self.currPhotoView.bounds.size.width) {
-                    CGFloat width = newRect.size.width;
-                    newRect.size.width = self.currPhotoView.bounds.size.width;
-                    newRect.origin.x += (width - newRect.size.width)/2;
-                }
-                if (newRect.size.height > self.currPhotoView.bounds.size.height) {
-                    CGFloat height = newRect.size.height;
-                    newRect.size.height = self.currPhotoView.bounds.size.height;
-                    newRect.origin.y += (height - newRect.size.height)/2;
-                }
-                currFrame = newRect;
-                
-                //设置透明度
-                CGFloat alpha = 1-((self.currPhotoView.frame.size.width - currFrame.size.width)/(self.currPhotoView.frame.size.width/2));
-                if (alpha > 1.f) {
-                    alpha = 1.f;
-                } else if (alpha < 0.f) {
-                    alpha = 0.f;
-                }
-                _bgImageView.alpha = alpha;
-                
-                [self.navigationController.navigationBar setAlpha:1-alpha];
-            }
-            
-            /** 移动 */
-            currFrame.origin.x += moveX;
-            currFrame.origin.y += moveY;
-            
-            [self.currPhotoView setPhotoRect:currFrame];
-        }
-            break;
-        default:
-            break;
-            
-    }
-    _originalPoint = movePoint;
 }
 
 #pragma mark - 设置imageView的显示模型
@@ -592,11 +480,6 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 #pragma mark 拖动时执行的方法
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-//    if (scrollView.contentOffset.x>=kScrollViewW*2) {
-//        [self scrollViewDidEndDecelerating:scrollView];
-//    } else if (scrollView.contentOffset.x <= 0) {
-//        [self scrollViewDidEndDecelerating:scrollView];
-//    } else
     if (self.images.count > 1) {
         //判断向左拖动 或者 向右拖动
         if (scrollView.contentOffset.x>kScrollViewW && (_curr != self.images.count-1 || _canCirculate)) {//向左滑动
@@ -627,7 +510,13 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     }
 }
 
-# pragma mark 代理方法 拖动完毕后执行的方法
+#pragma mark 代理方法 拖动完毕后执行的方法
+//- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
+//{
+//    if (decelerate) {
+//        
+//    }
+//}
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     BOOL isNextPage = NO;
@@ -767,6 +656,126 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         self.targetFrame = CGRectMake(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 0);
     }
 }
+
+#pragma mark - 下拉手势处理
+-(void)panGesture:(id)sender
+{
+    if (self.currPhotoView.photoInfo.downloadFail) return;
+    /** 滑动情况下不能触发 */
+    if (self.currPhotoView.zoomScale > 1.f) return;
+    
+    UIPanGestureRecognizer *panGesture = sender;
+    CGPoint movePoint = [panGesture translationInView:self.currPhotoView];
+    CGRect currFrame = self.currPhotoView.photoRect;
+    switch (panGesture.state)
+    {
+        case UIGestureRecognizerStateBegan:{
+            _beginPoint = movePoint;
+            self.movePhotoView.hidden = YES;
+            [self obtainTargetFrame];
+            /** 转换坐标 */
+            [self.coverView setFrame:CGRectMake(kRound(self.targetFrame.origin.x), kRound(self.targetFrame.origin.y), kRound(self.targetFrame.size.width), kRound(self.targetFrame.size.height))];
+        }
+            break;
+        case UIGestureRecognizerStateEnded:{
+            _originalPoint = _beginPoint = _endPoint = CGPointZero;
+            
+            if(currFrame.size.width > self.currPhotoView.frame.size.width * 0.75)
+            {
+                _isStatusBarHiden = YES;
+                CGRect currRect = self.currPhotoView.bounds;
+                if (CGRectEqualToRect(currFrame, currRect)) {
+                    self.movePhotoView.hidden = NO;
+                    [_coverView removeFromSuperview];
+                    _coverView = nil;
+                    [self setNeedsStatusBarAppearanceUpdate];
+                } else {
+                    [UIView animateWithDuration:0.25 animations:^{
+                        self.bgImageView.alpha = 1.0f;
+                        [self.navigationController.navigationBar setAlpha:0];
+                        [self.currPhotoView setSubControlAlpha:1.f];
+                        [self.currPhotoView calcFrameMaskPosition:MaskPosition_None frame:currRect];
+                    }completion:^(BOOL finished) {
+                        self.movePhotoView.hidden = NO;
+                        [_coverView removeFromSuperview];
+                        _coverView = nil;
+                        [self setNeedsStatusBarAppearanceUpdate];
+                    }];
+                }
+            }else{
+                [self handleAnimationEnd];
+            }
+        }
+            break;
+        case UIGestureRecognizerStateChanged:{
+            
+            BOOL isChanged = NO;
+            /** 当前移动点 大于 起始点 同时 大于 上一次移动点 视为向下滑动 */
+            if(movePoint.y > _beginPoint.y && movePoint.y > _originalPoint.y && currFrame.size.width > self.currPhotoView.frame.size.width/2){ /** 缩小 */
+                isChanged = YES;
+                _endPoint = _originalPoint;
+                if (_isStatusBarHiden) {
+                    _isStatusBarHiden = NO;
+                    [self setNeedsStatusBarAppearanceUpdate];
+                }
+                /** 当前移动点 小于 结束点 视为向上滑动 */
+            }else if(movePoint.y <= _endPoint.y && currFrame.size.width < self.currPhotoView.frame.size.width){ /** 放大 */
+                isChanged = YES;
+            }
+            
+            
+            CGFloat moveX = (movePoint.x - _originalPoint.x) / 1.5;
+            CGFloat moveY = (movePoint.y - _originalPoint.y);
+            if (isChanged) {
+                moveY /= 2;
+                
+                CGFloat inset = (movePoint.y - _originalPoint.y)/2;
+                CGRect newRect = currFrame;//CGRectInset(currFrame, inset, inset);此方法不是绝对比例缩放，导致部分尺寸图片缩放偏小
+                newRect.origin.x += inset/2;
+                newRect.origin.y += inset/2;
+                CGSize oldSize = newRect.size;
+                newRect.size.width -= inset;
+                newRect.size.height = oldSize.height * newRect.size.width / oldSize.width;
+                
+                if (newRect.size.width > self.currPhotoView.bounds.size.width) {
+                    CGFloat width = newRect.size.width;
+                    newRect.size.width = self.currPhotoView.bounds.size.width;
+                    newRect.origin.x += (width - newRect.size.width)/2;
+                }
+                if (newRect.size.height > self.currPhotoView.bounds.size.height) {
+                    CGFloat height = newRect.size.height;
+                    newRect.size.height = self.currPhotoView.bounds.size.height;
+                    newRect.origin.y += (height - newRect.size.height)/2;
+                }
+                currFrame = newRect;
+                
+                //设置透明度
+                CGFloat alpha = 1-((self.currPhotoView.frame.size.width - currFrame.size.width)/(self.currPhotoView.frame.size.width/2));
+                if (alpha > 1.f) {
+                    alpha = 1.f;
+                } else if (alpha < 0.f) {
+                    alpha = 0.f;
+                }
+                _bgImageView.alpha = alpha;
+                [self.currPhotoView setSubControlAlpha:alpha];
+                
+                [self.navigationController.navigationBar setAlpha:1-alpha];
+            }
+            
+            /** 移动 */
+            currFrame.origin.x += moveX;
+            currFrame.origin.y += moveY;
+            
+            [self.currPhotoView setPhotoRect:currFrame];
+        }
+            break;
+        default:
+            break;
+            
+    }
+    _originalPoint = movePoint;
+}
+
 #pragma mark - photoView手势代理
 -(void)photoViewGesture:(LFPhotoView *)photoView singleTapImage:(UIImage *)image
 {
@@ -856,7 +865,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 }
 
 #pragma mark - photoView下载代理
--(BOOL)photoViewDownLoadThumbnail:(LFPhotoView *)photoView
+-(BOOL)photoViewDownLoadThumbnail:(LFPhotoView *)photoView url:(NSString *)url
 {
     if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadThumbnailWithPhotoView:photoInfo:)]) {
         [self.downloadDelegate photoBrowser:self downloadThumbnailWithPhotoView:photoView photoInfo:photoView.photoInfo];
@@ -865,7 +874,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     return NO;
 }
 
--(BOOL)photoViewDownLoadOriginal:(LFPhotoView *)photoView
+-(BOOL)photoViewDownLoadOriginal:(LFPhotoView *)photoView url:(NSString *)url
 {
     if (self.isBatchDownload) return YES;
     if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadOriginalWithPhotoView:photoInfo:)]) {
@@ -873,6 +882,13 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         return YES;
     }
     return NO;
+}
+
+-(void)photoViewDownLoadVideo:(LFPhotoView *)photoView url:(NSString *)url
+{
+    if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadVideoWithPhotoView:photoInfo:)]) {
+        [self.downloadDelegate photoBrowser:self downloadVideoWithPhotoView:photoView photoInfo:photoView.photoInfo];
+    }
 }
 
 #pragma mark - BatchDownload下载
