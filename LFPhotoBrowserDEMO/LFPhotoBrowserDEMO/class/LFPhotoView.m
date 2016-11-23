@@ -312,11 +312,13 @@
     //sd-cancle下载
     [_customView sd_cancelCurrentImageLoad];
     [self selectLoadMethod];
-    
-    if (self.photoInfo.photoType == PhotoType_image) {
-        [self loadPhotoViewImage];
-    } else if (self.photoInfo.photoType == PhotoType_video) {
-        [self loadPhotoViewVideo];
+    if (self.photoInfo) {
+        
+        if (self.photoInfo.photoType == PhotoType_image) {
+            [self loadPhotoViewImage];
+        } else if (self.photoInfo.photoType == PhotoType_video) {
+            [self loadPhotoViewVideo];
+        }
     }
 }
 

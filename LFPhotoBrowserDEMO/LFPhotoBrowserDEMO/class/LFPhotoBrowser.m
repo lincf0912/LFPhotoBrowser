@@ -8,8 +8,6 @@
 
 #import "LFPhotoBrowser.h"
 #import "LFScrollView.h"
-#import "LFPhotoView.h"
-#import "LFPhotoInfo.h"
 #import "UIImageView+WebCache.h"
 #import "UIActionSheet+Block.h"
 #import "UIViewController+Extension.h"
@@ -64,7 +62,7 @@ block();\
 dispatch_sync(dispatch_get_main_queue(), block);\
 }
 
-@interface LFPhotoBrowser () <UIScrollViewDelegate, LFPhotoViewDelegate>
+@interface LFPhotoBrowser () <UIScrollViewDelegate>
 {
     /** 状态栏隐藏 */
     BOOL _isStatusBarHiden;
@@ -400,6 +398,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 /** 刷新UI */
 - (void)reloadView:(LFPhotoInfo *)photoInfo
 {
+    if (photoInfo == nil) return;
     if (self.currPhotoView.photoInfo == photoInfo) {
         [self.currPhotoView reloadPhotoView];
     } else if (self.movePhotoView.photoInfo == photoInfo) {

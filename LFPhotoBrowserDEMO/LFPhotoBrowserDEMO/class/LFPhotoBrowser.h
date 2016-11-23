@@ -8,8 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import "PhotoViewType.h"
+#import "LFPhotoView.h"
+#import "LFPhotoInfo.h"
 
-@class LFPhotoView, LFPhotoInfo;
+//@class LFPhotoView, LFPhotoInfo;
 
 /** ================================长按列表对象===================================== */
 
@@ -80,7 +82,7 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
  *  注意：不能使用UITableViewController或者UICollectionViewController上显示，因为这种类型UI整个view都可以滚动，所以滚动之后显示图片预览只能在滚到顶部才能看到，图片预览是加载在UI的view上，可以调整为加载在keyWindow上（showPhotoBrowser方法），但若需要使用图片预览的长按菜单点击事件来推送一个新UI（例如：扫描二维码），会被keyWindow遮挡无法看见推送界面；最好基础UIViewController 添加UITableView 来使用
  */
 
-@interface LFPhotoBrowser : UIViewController
+@interface LFPhotoBrowser : UIViewController <LFPhotoViewDelegate>
 /** 数据源 */
 @property (nonatomic, strong, readonly) NSArray <LFPhotoInfo *>*imageSources;
 @property (nonatomic, assign, readonly) int curr;
