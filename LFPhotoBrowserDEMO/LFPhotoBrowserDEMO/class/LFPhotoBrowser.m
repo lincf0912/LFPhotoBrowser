@@ -510,13 +510,38 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     }
 }
 
-#pragma mark 代理方法 拖动完毕后执行的方法
-//- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate
-//{
-//    if (decelerate) {
-//        
-//    }
-//}
+#pragma mark 拖动开始执行的方法
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    /** 在未停止上一次滑动时，再次触发新的滑动 */
+    if (scrollView.isDecelerating) {
+        /** 判断与当前视图是否一致 */
+        if (!CGRectContainsPoint(self.currPhotoView.frame, [scrollView.panGestureRecognizer locationInView:scrollView])) {
+            self.curr = self.scrollIndex;
+            _pageControl.currentPage = _curr;
+            /** 将点击的视图作为当前视图 */
+            LFPhotoView *photoView = self.currPhotoView;
+            self.currPhotoView = self.movePhotoView;
+            self.movePhotoView = photoView;
+            if (self.currPhotoView.frame.origin.x != kScrollViewW) {
+                /** 偏移视图坐标 */
+                CGFloat offset = self.currPhotoView.frame.origin.x >= kScrollViewW ? -kScrollViewW : kScrollViewW;
+                
+                CGRect tmp = self.currPhotoView.frame;
+                tmp.origin.x += offset;
+                self.currPhotoView.frame = tmp;
+                
+                tmp = self.movePhotoView.frame;
+                tmp.origin.x += offset;
+                self.movePhotoView.frame = tmp;
+            }
+            /** 偏移contentOffset */
+            [scrollView setContentOffset:CGPointMake(kScrollViewW, 0)];
+            
+        }
+    }
+}
+#pragma mark 拖动完毕后执行的方法
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     BOOL isNextPage = NO;

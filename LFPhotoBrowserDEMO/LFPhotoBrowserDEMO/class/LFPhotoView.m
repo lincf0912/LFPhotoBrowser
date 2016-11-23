@@ -212,7 +212,7 @@
 #pragma mark 双击手势
 - (void)handleDoubleTap:(UIGestureRecognizer *)tap
 {
-    if(!_customView || self.photoInfo.photoType == PhotoType_video) return;
+    if(!_customView) return;
     if (self.zoomScale > 1.0) {//放大时单击缩小
         [self setZoomScale:1.f animated:YES];
     } else {
@@ -241,7 +241,7 @@
 - (nullable UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
 {
     // return a view that will be scaled. if delegate returns nil, nothing happens
-    return self.photoInfo.photoType == PhotoType_video ? nil : _customView;
+    return _customView;
 }
 
 - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(nullable UIView *)view
@@ -251,6 +251,9 @@
     if([self.photoViewDelegate respondsToSelector:@selector(photoViewWillBeginZooming:)]){
         [self.photoViewDelegate photoViewWillBeginZooming:self];
     }
+    _progressView.alpha = 0.f;
+    _videoSlider.alpha = 0.f;
+    _tipsLabel.alpha = 0.f;
 }
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(nullable UIView *)view atScale:(CGFloat)scale
 {
@@ -258,6 +261,12 @@
     
     if([self.photoViewDelegate respondsToSelector:@selector(photoViewDidEndZooming:)]){
         [self.photoViewDelegate photoViewDidEndZooming:self];
+    }
+    
+    if (scale == 1.f) {
+        _progressView.alpha = 1.f;
+        _videoSlider.alpha = 1.f;
+        _tipsLabel.alpha = 1.f;
     }
 }
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView
@@ -309,8 +318,10 @@
 #pragma mark - 隐藏附属控件
 -(void)setSubControlAlpha:(CGFloat)alpha
 {
-    self.videoSlider.alpha = alpha;
-    self.tipsLabel.alpha = alpha < 0.9 ? alpha-0.5f : alpha;
+    CGFloat newAlpah = alpha < 0.9 ? alpha-0.5f : alpha;
+    _progressView.alpha = newAlpah;
+    self.videoSlider.alpha = newAlpah;
+    self.tipsLabel.alpha = newAlpah;
 }
 
 #pragma mark - 选择加载方式

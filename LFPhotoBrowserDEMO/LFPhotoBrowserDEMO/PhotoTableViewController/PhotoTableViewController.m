@@ -191,6 +191,7 @@
     return [items copy];
 }
 
+#warning 注释以下方法，视频则为在线播放
 #pragma mark - LFPhotoBrowserDownloadDelegate
 -(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadVideoWithPhotoView:(LFPhotoView *)photoView photoInfo:(LFPhotoInfo *)photoInfo
 {
