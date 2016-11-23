@@ -68,12 +68,12 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
  */
 @optional
 /** 下载缩略图代理方法*/
--(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadThumbnailWithPhotoView:(LFPhotoView *)photoView photoInfo:(LFPhotoInfo *)photoInfo;
+-(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadThumbnailWithPhotoInfo:(LFPhotoInfo *)photoInfo;
 /** 下载原图代理方法*/
--(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadOriginalWithPhotoView:(LFPhotoView *)photoView photoInfo:(LFPhotoInfo *)photoInfo;
+-(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadOriginalWithPhotoInfo:(LFPhotoInfo *)photoInfo;
 
 /** 下载视频代理方法*/
--(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadVideoWithPhotoView:(LFPhotoView *)photoView photoInfo:(LFPhotoInfo *)photoInfo;
+-(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadVideoWithPhotoInfo:(LFPhotoInfo *)photoInfo;
 @end
 
 /** 
@@ -119,6 +119,8 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 /** 显示相册 
  状态栏隐藏：需要调用UI 重写childViewControllerForStatusBarHidden方法，返回当前UI才能控制状态栏（return self.childViewControllers.count ? self.childViewControllers.firstObject : nil;） */
 -(void)showPhotoBrowser;
+/** 刷新UI */
+- (void)reloadView:(LFPhotoInfo *)photoInfo;
 
 /** =======实现代理滑动 photoBrowserDidSlide:slideDirection:photoInfo: ======= */
 /** 增加数据源[自动切换主线程] */

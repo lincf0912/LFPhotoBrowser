@@ -226,10 +226,12 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         
     }];
     
+    [_currPhotoView beginUpdate];
     [UIView animateWithDuration:self.animatedTime delay:0.1f options:UIViewAnimationOptionCurveLinear animations:^{
         [_currPhotoView calcFrameMaskPosition:MaskPosition_None frame:currRect];
     } completion:^(BOOL finished) {
         [self setNeedsStatusBarAppearanceUpdate];
+        [_currPhotoView endUpdate];
         if (self.isBatchDownload) {
             /** 获取需要下载的对象 批量下载 */
             for (LFPhotoInfo *info in self.images) {
@@ -392,6 +394,16 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         } else if (self.curr >= _images.count-1-self.slideRange) {
             self.callLeftSlideDataSource = NO;
         }
+    }
+}
+
+/** 刷新UI */
+- (void)reloadView:(LFPhotoInfo *)photoInfo
+{
+    if (self.currPhotoView.photoInfo == photoInfo) {
+        [self.currPhotoView reloadPhotoView];
+    } else if (self.movePhotoView.photoInfo == photoInfo) {
+        [self.movePhotoView reloadPhotoView];
     }
 }
 
@@ -892,8 +904,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 #pragma mark - photoView下载代理
 -(BOOL)photoViewDownLoadThumbnail:(LFPhotoView *)photoView url:(NSString *)url
 {
-    if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadThumbnailWithPhotoView:photoInfo:)]) {
-        [self.downloadDelegate photoBrowser:self downloadThumbnailWithPhotoView:photoView photoInfo:photoView.photoInfo];
+    if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadThumbnailWithPhotoInfo:)]) {
+        [self.downloadDelegate photoBrowser:self downloadThumbnailWithPhotoInfo:photoView.photoInfo];
         return YES;
     }
     return NO;
@@ -902,8 +914,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 -(BOOL)photoViewDownLoadOriginal:(LFPhotoView *)photoView url:(NSString *)url
 {
     if (self.isBatchDownload) return YES;
-    if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadOriginalWithPhotoView:photoInfo:)]) {
-        [self.downloadDelegate photoBrowser:self downloadOriginalWithPhotoView:photoView photoInfo:photoView.photoInfo];
+    if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadOriginalWithPhotoInfo:)]) {
+        [self.downloadDelegate photoBrowser:self downloadOriginalWithPhotoInfo:photoView.photoInfo];
         return YES;
     }
     return NO;
@@ -911,8 +923,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 
 -(BOOL)photoViewDownLoadVideo:(LFPhotoView *)photoView url:(NSString *)url
 {
-    if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadVideoWithPhotoView:photoInfo:)]) {
-        [self.downloadDelegate photoBrowser:self downloadVideoWithPhotoView:photoView photoInfo:photoView.photoInfo];
+    if ([self.downloadDelegate respondsToSelector:@selector(photoBrowser:downloadVideoWithPhotoInfo:)]) {
+        [self.downloadDelegate photoBrowser:self downloadVideoWithPhotoInfo:photoView.photoInfo];
         return YES;
     }
     return NO;

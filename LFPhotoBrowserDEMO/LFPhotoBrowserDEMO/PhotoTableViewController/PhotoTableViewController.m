@@ -16,10 +16,14 @@
 
 #import "LFPhotoView.h"
 
+#define kPhotoBrower @"PhotoBrower"
+
 @interface PhotoTableViewController () <UITableViewDelegate, UITableViewDataSource, LFPhotoBrowserDelegate, LFPhotoBrowserDownloadDelegate>
 
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) NSMutableArray *resources;
+
+@property (nonatomic, strong) NSMapTable *mapTable;
 
 @end
 
@@ -46,6 +50,8 @@
     self.tableView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
+    
+    self.mapTable = [NSMapTable weakToWeakObjectsMapTable];
     
 }
 
@@ -138,8 +144,6 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    
-    
     NSMutableArray *items = [NSMutableArray arrayWithCapacity:self.resources.count];
     int count=0,max = 2;
     for (NSString *url in self.resources) {
@@ -151,10 +155,14 @@
             photo.videoPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES) objectAtIndex:0] stringByAppendingPathComponent:url.lastPathComponent];
             photo.videoUrl = url;
             [items addObject:photo];
+            
+            [self.mapTable setObject:photo forKey:url];
         } else {
             LFPhotoInfo *photo = [LFPhotoInfo photoInfoWithType:PhotoType_image key:nil];
             photo.originalImageUrl = url;
             [items addObject:photo];
+            /** 图片是内置SD下载，没有必要记录数据源 */
+//            [self.mapTable setObject:photo forKey:url];
         }
     }
     
@@ -164,6 +172,8 @@
     pbVC.delegate = self;
     pbVC.downloadDelegate = self;
     [pbVC showPhotoBrowser];
+    
+    [self.mapTable setObject:pbVC forKey:kPhotoBrower];
     
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
@@ -193,31 +203,34 @@
 
 #warning 注释以下方法，视频则为在线播放
 #pragma mark - LFPhotoBrowserDownloadDelegate
--(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadVideoWithPhotoView:(LFPhotoView *)photoView photoInfo:(LFPhotoInfo *)photoInfo
+-(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadVideoWithPhotoInfo:(LFPhotoInfo *)photoInfo
 {
-    __weak typeof(photoInfo) weakPhotoInfo = photoInfo;
-    
     NSString *path = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES) objectAtIndex:0] stringByAppendingPathComponent:photoInfo.videoUrl.lastPathComponent];
     
-    [DownLoadManager basicHttpFileDownloadWithUrlString:weakPhotoInfo.videoUrl
+    [DownLoadManager basicHttpFileDownloadWithUrlString:photoInfo.videoUrl
                                                  offset:0 /** 获取原下载路径续传 */
                                                  params:nil
                                                 timeout:5.f
                                                savePath:path
                                                download:^(long long totalBytes, long long totalBytesExpected) {
-                                                   weakPhotoInfo.downloadProgress = (float)(totalBytes*1.0/totalBytesExpected);
+                                                   
+                                                   LFPhotoInfo *b_phtoInfo = [self.mapTable objectForKey:photoInfo.videoUrl];
+                                                   b_phtoInfo.downloadProgress = (float)(totalBytes*1.0/totalBytesExpected);
+                                                   
                                                } success:^{
-                                                   weakPhotoInfo.videoPath = path;
-                                                   if (photoView.photoInfo == weakPhotoInfo) {
-                                                       [photoView reloadPhotoView];
-                                                   }
+                                                   
+                                                   LFPhotoInfo *b_phtoInfo = [self.mapTable objectForKey:photoInfo.videoUrl];
+                                                   b_phtoInfo.videoPath = path;
+                                                   LFPhotoBrowser *pb = [self.mapTable objectForKey:kPhotoBrower];
+                                                   [pb reloadView:b_phtoInfo];
+                                                   
                                                } failure:^(NSError *error) {
-                                                   if (photoView.photoInfo == weakPhotoInfo) {
-                                                       /** 更新Model状态 */
-                                                       photoInfo.downloadFail = YES;
-                                                       [photoView reloadPhotoView];
-                                                   }
+                                                   
+                                                   LFPhotoInfo *b_phtoInfo = [self.mapTable objectForKey:photoInfo.videoUrl];
+                                                   /** 更新Model状态 */
+                                                   b_phtoInfo.downloadFail = YES;
+                                                   LFPhotoBrowser *pb = [self.mapTable objectForKey:kPhotoBrower];
+                                                   [pb reloadView:b_phtoInfo];
                                                }];
-    
 }
 @end

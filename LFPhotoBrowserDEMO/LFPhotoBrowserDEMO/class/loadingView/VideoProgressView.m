@@ -44,19 +44,30 @@
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    float progress = self.progress;
-    [self.backCircle removeFromSuperlayer];
-    [self.foreCircle removeFromSuperlayer];
-    [self createView];
-    if (progress) {
-        self.progress = progress;
+    if (self.backCircle) {
+        BOOL animated = [self.backCircle animationForKey:@"rotationAnimation"];
+        [self.backCircle removeFromSuperlayer];
+        [self addBackCircleWithSize:self.circlesSize.origin.x lineWidth:self.circlesSize.origin.y];
+        if (animated) {
+            [self startAnimation];
+        }
     }
+    if (self.foreCircle) {
+        [self.foreCircle removeFromSuperlayer];
+        [self addForeCircleWidthSize:self.circlesSize.size.width lineWidth:self.circlesSize.size.height];
+        if (_progress > 0) {
+            self.foreCircle.strokeEnd = _progress;
+        }
+    }
+    
+    self.tipsLabel.center = self.playButton.center = CGPointMake(self.center.x-self.frame.origin.x, self.center.y-self.frame.origin.y);
+    CGRect lableFrame = self.tipsLabel.frame;
+    lableFrame.origin.y += CGRectGetHeight(self.playButton.frame)/2 + CGRectGetHeight(lableFrame)/2 + 10.f;
+    self.tipsLabel.frame = lableFrame;
 }
 
 -(void)createView
 {
-    [self addBackCircleWithSize:self.circlesSize.origin.x lineWidth:self.circlesSize.origin.y];
-    [self addForeCircleWidthSize:self.circlesSize.size.width lineWidth:self.circlesSize.size.height];
     if (self.playButton == nil) {
         self.playButton = [UIButton buttonWithType:UIButtonTypeCustom];
         self.playButton.frame = CGRectMake(0, 0, 37, 37);
@@ -75,10 +86,6 @@
         self.tipsLabel.font = [UIFont systemFontOfSize:13.f];
         [self addSubview:self.tipsLabel];
     }
-    self.tipsLabel.center = self.playButton.center = CGPointMake(self.center.x-self.frame.origin.x, self.center.y-self.frame.origin.y);
-    CGRect lableFrame = self.tipsLabel.frame;
-    lableFrame.origin.y += CGRectGetHeight(self.playButton.frame)/2 + CGRectGetHeight(lableFrame)/2 + 10.f;
-    self.tipsLabel.frame = lableFrame;
 }
 
 #pragma mark - 后圆环
@@ -106,8 +113,7 @@
     layer.strokeEnd = 1;
     self.backCircle = layer;
     [self.layer addSublayer:self.backCircle];
-    self.backCircle.opacity = 0.f;
-    
+    [self stopAnimation];
 }
 
 #pragma mark - 前圆环
@@ -135,30 +141,34 @@
     layer.strokeEnd = 0;
     self.foreCircle = layer;
     [self.layer addSublayer:self.foreCircle];
-    self.foreCircle.opacity = 0.f;
 }
 
 -(void)setProgress:(float)progress
 {
     _progress = progress;
-    if (_progress) {
-        self.playButton.hidden = self.tipsLabel.hidden = YES;
-        self.foreCircle.opacity = self.backCircle.opacity = 1.f;
+    
+    self.playButton.hidden = self.tipsLabel.hidden = YES;
+    
+    if (self.backCircle == nil) {
+        [self addBackCircleWithSize:self.circlesSize.origin.x lineWidth:self.circlesSize.origin.y];
+    }
+    if (self.foreCircle == nil) {
+        [self addForeCircleWidthSize:self.circlesSize.size.width lineWidth:self.circlesSize.size.height];
     }
     
-    self.foreCircle.strokeEnd = progress;
+    if (progress >= 0) {
+        self.foreCircle.strokeEnd = progress;
+    }
     if (self.foreCircle.strokeEnd > 0.99)
     {
         [self startAnimation];
-        self.foreCircle.strokeEnd = 0;
-        _progress = 0;
+        [self.foreCircle removeFromSuperlayer];
+        self.foreCircle = nil;
     } else if(self.foreCircle.strokeEnd > 0)
     {
         [self stopAnimation];
     } else {
         [self startAnimation];
-        self.foreCircle.strokeEnd = 0;
-        _progress = 0;
     }
 }
 -(void)drawBackCircle:(BOOL)partial
@@ -182,9 +192,7 @@
     if ([self.backCircle animationForKey:@"rotationAnimation"]) {
         return ;
     }
-    [self.foreCircle removeFromSuperlayer];
     self.playButton.hidden = self.tipsLabel.hidden = YES;
-    self.foreCircle.opacity = self.backCircle.opacity = 1.f;
     [self drawBackCircle:YES];
     CABasicAnimation *rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
     rotationAnimation.toValue = [NSNumber numberWithFloat:M_PI * 2.0];
@@ -197,18 +205,17 @@
 #pragma mark - 停止旋转
 -(void)stopAnimation
 {
-    if ([self.backCircle animationForKey:@"rotationAnimation"]) {
-        [self.layer addSublayer:self.foreCircle];
-        [self drawBackCircle:NO];
-        [self.backCircle removeAllAnimations];
-    }
+    [self drawBackCircle:NO];
+    [self.backCircle removeAllAnimations];
 }
 
 #pragma mark - 重置progressView
 -(void)resetProgressView
 {
-    [self stopAnimation];
-    self.foreCircle.strokeEnd = 0;
+    [self.backCircle removeFromSuperlayer];
+    [self.foreCircle removeFromSuperlayer];
+    self.backCircle = nil;
+    self.foreCircle = nil;
     _progress = 0;
     self.playButton.hidden = NO;
     self.tipsLabel.hidden = NO;
@@ -216,7 +223,7 @@
 
 - (void)onClick:(id)sender
 {
-    [self startAnimation];
+    self.progress = 0;
     if (self.clickBlock) {
         self.clickBlock();
     }

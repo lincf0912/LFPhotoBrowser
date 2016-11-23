@@ -53,6 +53,11 @@
 /** 刷新photoView*/
 -(void)reloadPhotoView;
 
+/** 触发动画开始 */
+- (void)beginUpdate;
+/** 触发动画结束 */
+- (void)endUpdate;
+
 /** 隐藏附属控件 */
 -(void)setSubControlAlpha:(CGFloat)alpha;
 @end

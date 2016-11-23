@@ -47,6 +47,11 @@
 @property (nonatomic, strong) UILabel *tipsLabel;
 /** 底部栏（播放按钮+进度条） */
 @property (nonatomic, strong) LFVideoSlider *videoSlider;
+
+/** 是否开启动画 */
+@property (nonatomic, assign) BOOL isAminated;
+
+@property (nonatomic, strong) NSMutableArray *delayMotheds;
 @end
 
 @implementation LFPhotoView
@@ -705,7 +710,6 @@
         BOOL isDownLoad = NO;
         /** 下载视频*/
         if(self.photoViewDelegate && [self.photoViewDelegate respondsToSelector:@selector(photoViewDownLoadVideo:url:)]){
-            [self photoLoadingViewProgress:0.f];
             isDownLoad = [self.photoViewDelegate photoViewDownLoadVideo:self url:self.photoInfo.videoUrl];
         }
         if (!isDownLoad) {
@@ -725,15 +729,36 @@
 - (void)LFPlayerLayerDisplay:(LFPlayer *)player avplayer:(AVPlayer *)avplayer
 {
     [self removePhotoLoadingView];
-    [self.customView setPlayer:avplayer];
+    
+    if (self.isAminated) {
+        __block LFAVPlayerLayerView *blockCustomView = _customView;
+        [self addDelayAminateMothed:^{
+            [blockCustomView setPlayer:avplayer];
+        }];
+    } else {
+        [_customView setPlayer:avplayer];
+    }
 }
 /** 可以播放 */
 - (void)LFPlayerReadyToPlay:(LFPlayer *)player duration:(double)duration
 {
-    if (!self.photoInfo.isNeedSlider) {
-        [self.videoPlayer play];
+    if (self.isAminated) {
+        __block LFPlayer *player = self.videoPlayer;
+        __block LFPhotoInfo *photoInfo = self.photoInfo;
+        __block LFVideoSlider *slider = self.videoSlider;
+        [self addDelayAminateMothed:^{
+            if (photoInfo.isNeedSlider) {
+                [slider setTotalSecond:duration];
+            } else {
+                [player play];
+            }
+        }];
     } else {
-        [self.videoSlider setTotalSecond:duration];
+        if (self.photoInfo.isNeedSlider) {
+            [self.videoSlider setTotalSecond:duration];
+        } else {
+            [self.videoPlayer play];
+        }
     }
     
 }
@@ -827,6 +852,30 @@
     }
     
     return YES;
+}
+
+#pragma mark - 更新动画
+- (void)beginUpdate
+{
+    _isAminated = YES;
+}
+
+- (void)endUpdate
+{
+    _isAminated = NO;
+    for (void (^mothed)() in self.delayMotheds) {
+        mothed();
+    }
+    [self.delayMotheds removeAllObjects];
+}
+
+- (void)addDelayAminateMothed:(void (^)())mothed
+{
+    if (mothed == nil) return;
+    if (self.delayMotheds == nil) {
+        self.delayMotheds = [@[] mutableCopy];
+    }
+    [self.delayMotheds addObject:mothed];
 }
 
 @end

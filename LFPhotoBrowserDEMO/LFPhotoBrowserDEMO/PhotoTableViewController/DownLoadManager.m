@@ -11,6 +11,9 @@
 
 #define kFileListTempExtension @".tmp"
 
+/** 单例 */
+const NSMutableArray * downloadLists;
+
 @implementation DownLoadManager
 
 + (void)basicHttpFileDownloadWithUrlString:(NSString*)aUrlString
@@ -22,6 +25,15 @@
                                    success:(SuccessBlock)aSuccess
                                    failure:(FailureBlock)aFailure
 {
+    
+    if (downloadLists == nil) {
+        downloadLists = [@[] mutableCopy];
+    }
+    
+    if ([downloadLists containsObject:aSavePath]) return;
+    
+    [downloadLists addObject:aSavePath];
+    
     NSString *tempPath = [aSavePath stringByAppendingString:kFileListTempExtension]; // 临时保存路径
     
     NSMutableURLRequest *request = [[AFHTTPRequestSerializer serializer] requestWithMethod:@"GET" URLString:aUrlString parameters:aParams error:nil];
@@ -48,6 +60,7 @@
     
     [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject){
         
+        [downloadLists removeObject:aSavePath];
         NSError *err;
         NSFileManager *fileManager = [NSFileManager new];
         [fileManager moveItemAtPath:tempPath toPath:aSavePath error:&err];
@@ -58,14 +71,17 @@
         else if (aSuccess)
             aSuccess();
         
+        
     }failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         
+        [downloadLists removeObject:aSavePath];
         if (![[operation.userInfo objectForKey:@"error"] isEqualToString:@"cancelError"]) {
             if (aFailure)aFailure(error);
         } else {
             /** 暂停 即手动取消 */
             if (aFailure)aFailure(nil);
         }
+        
         
     }];
     
