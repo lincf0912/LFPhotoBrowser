@@ -14,6 +14,11 @@ typedef void(^DownloadBlock)(long long totalBytes,long long totalBytesExpected);
 
 @interface DownLoadManager : NSObject
 
++ (NSString *)getDLTempPathWithSavePath:(NSString *)path;
+
++ (BOOL)isExistsDL:(NSString *)url;
++ (void)cancelDL:(NSString *)url;
++ (void)cancelAllDL;
 + (void)basicHttpFileDownloadWithUrlString:(NSString*)aUrlString
                                     offset:(u_int64_t)offset
                                     params:(NSDictionary*)aParams

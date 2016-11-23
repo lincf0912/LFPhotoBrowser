@@ -147,28 +147,28 @@
 {
     _progress = progress;
     
-    self.playButton.hidden = self.tipsLabel.hidden = YES;
-    
-    if (self.backCircle == nil) {
-        [self addBackCircleWithSize:self.circlesSize.origin.x lineWidth:self.circlesSize.origin.y];
-    }
-    if (self.foreCircle == nil) {
-        [self addForeCircleWidthSize:self.circlesSize.size.width lineWidth:self.circlesSize.size.height];
-    }
-    
     if (progress >= 0) {
+        self.playButton.hidden = self.tipsLabel.hidden = YES;
+        
+        if (self.backCircle == nil) {
+            [self addBackCircleWithSize:self.circlesSize.origin.x lineWidth:self.circlesSize.origin.y];
+        }
+        if (self.foreCircle == nil) {
+            [self addForeCircleWidthSize:self.circlesSize.size.width lineWidth:self.circlesSize.size.height];
+        }
+        
         self.foreCircle.strokeEnd = progress;
-    }
-    if (self.foreCircle.strokeEnd > 0.99)
-    {
-        [self startAnimation];
-        [self.foreCircle removeFromSuperlayer];
-        self.foreCircle = nil;
-    } else if(self.foreCircle.strokeEnd > 0)
-    {
-        [self stopAnimation];
-    } else {
-        [self startAnimation];
+        if (self.foreCircle.strokeEnd > 0.99)
+        {
+            [self startAnimation];
+            [self.foreCircle removeFromSuperlayer];
+            self.foreCircle = nil;
+        } else if(self.foreCircle.strokeEnd > 0)
+        {
+            [self stopAnimation];
+        } else {
+            [self startAnimation];
+        }
     }
 }
 -(void)drawBackCircle:(BOOL)partial

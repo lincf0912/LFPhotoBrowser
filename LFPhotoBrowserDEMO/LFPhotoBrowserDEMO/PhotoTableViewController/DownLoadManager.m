@@ -12,9 +12,34 @@
 #define kFileListTempExtension @".tmp"
 
 /** 单例 */
-const NSMutableArray * downloadLists;
+const NSMutableDictionary * downloadDicts;
 
 @implementation DownLoadManager
+
+
++ (NSString *)getDLTempPathWithSavePath:(NSString *)path
+{
+    NSString *tempPath = [path stringByAppendingString:kFileListTempExtension];
+    return tempPath;
+}
+
++ (BOOL)isExistsDL:(NSString *)url
+{
+    return [downloadDicts objectForKey:url];
+}
+
++ (void)cancelDL:(NSString *)url
+{
+    AFHTTPRequestOperation *operation = [downloadDicts objectForKey:url];
+    [operation cancel];
+}
+
++ (void)cancelAllDL
+{
+    for (NSString *key in downloadDicts) {
+        [self cancelDL:key];
+    }
+}
 
 + (void)basicHttpFileDownloadWithUrlString:(NSString*)aUrlString
                                     offset:(u_int64_t)offset
@@ -26,13 +51,11 @@ const NSMutableArray * downloadLists;
                                    failure:(FailureBlock)aFailure
 {
     
-    if (downloadLists == nil) {
-        downloadLists = [@[] mutableCopy];
+    if (downloadDicts == nil) {
+        downloadDicts = [@{} mutableCopy];
     }
     
-    if ([downloadLists containsObject:aSavePath]) return;
-    
-    [downloadLists addObject:aSavePath];
+    if ([self isExistsDL:aUrlString]) return;
     
     NSString *tempPath = [aSavePath stringByAppendingString:kFileListTempExtension]; // 临时保存路径
     
@@ -60,7 +83,7 @@ const NSMutableArray * downloadLists;
     
     [operation setCompletionBlockWithSuccess:^(AFHTTPRequestOperation *operation, id responseObject){
         
-        [downloadLists removeObject:aSavePath];
+        [downloadDicts removeObjectForKey:aUrlString];
         NSError *err;
         NSFileManager *fileManager = [NSFileManager new];
         [fileManager moveItemAtPath:tempPath toPath:aSavePath error:&err];
@@ -74,7 +97,7 @@ const NSMutableArray * downloadLists;
         
     }failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         
-        [downloadLists removeObject:aSavePath];
+        [downloadDicts removeObjectForKey:aUrlString];
         if (![[operation.userInfo objectForKey:@"error"] isEqualToString:@"cancelError"]) {
             if (aFailure)aFailure(error);
         } else {
@@ -84,6 +107,8 @@ const NSMutableArray * downloadLists;
         
         
     }];
+    
+    [downloadDicts setObject:operation forKey:aUrlString];
     
     [operation start];
 }

@@ -575,6 +575,8 @@
         [(VideoProgressView *)self.progressView showLoading];
         if (self.photoInfo.downloadProgress > 0) {
             ((VideoProgressView *)self.progressView).progress = self.photoInfo.downloadProgress;
+        } else if (self.photoInfo.isLoading) {
+            ((VideoProgressView *)self.progressView).progress = 0;
         }
     }
 }

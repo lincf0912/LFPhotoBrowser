@@ -58,6 +58,8 @@ typedef NS_ENUM(NSInteger, PhotoType) {
 @property (nonatomic, copy) NSString *videoPath;
 /** 是否需要进度条 */
 @property (nonatomic, assign) BOOL isNeedSlider;
+/** 已是下载状态 */
+@property (nonatomic, assign) BOOL isLoading;
 
 
 

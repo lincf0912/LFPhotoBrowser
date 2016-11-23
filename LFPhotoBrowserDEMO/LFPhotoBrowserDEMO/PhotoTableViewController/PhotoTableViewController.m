@@ -55,6 +55,11 @@
     
 }
 
+- (void)dealloc
+{
+    [DownLoadManager cancelAllDL];
+}
+
 - (NSArray *)resources
 {
     if (_resources == nil) {
@@ -154,6 +159,7 @@
             }
             photo.videoPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES) objectAtIndex:0] stringByAppendingPathComponent:url.lastPathComponent];
             photo.videoUrl = url;
+            photo.isLoading = [DownLoadManager isExistsDL:url];
             [items addObject:photo];
             
             [self.mapTable setObject:photo forKey:url];
@@ -205,6 +211,7 @@
 #pragma mark - LFPhotoBrowserDownloadDelegate
 -(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadVideoWithPhotoInfo:(LFPhotoInfo *)photoInfo
 {
+    __weak typeof(self) weakSelf = self;
     NSString *path = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES) objectAtIndex:0] stringByAppendingPathComponent:photoInfo.videoUrl.lastPathComponent];
     
     /** 测试下载失败 */
@@ -215,29 +222,41 @@
 //    
 //    
 //    return;
+    
+    NSString *tempPath = [DownLoadManager getDLTempPathWithSavePath:path];
+    signed long long fileSize = 0;
+    NSFileManager *fileManager = [NSFileManager new]; // default is not thread safe
+    if ([fileManager fileExistsAtPath:tempPath]) {
+        NSError *error = nil;
+        NSDictionary *fileDict = [fileManager attributesOfItemAtPath:tempPath error:&error];
+        if (!error && fileDict) {
+            fileSize = [fileDict fileSize];
+        }
+    }
+    
     [DownLoadManager basicHttpFileDownloadWithUrlString:photoInfo.videoUrl
-                                                 offset:0 /** 获取原下载路径续传 */
+                                                 offset:fileSize /** 获取原下载路径续传 */
                                                  params:nil
                                                 timeout:5.f
                                                savePath:path
                                                download:^(long long totalBytes, long long totalBytesExpected) {
                                                    
-                                                   LFPhotoInfo *b_phtoInfo = [self.mapTable objectForKey:photoInfo.videoUrl];
+                                                   LFPhotoInfo *b_phtoInfo = [weakSelf.mapTable objectForKey:photoInfo.videoUrl];
                                                    b_phtoInfo.downloadProgress = (float)(totalBytes*1.0/totalBytesExpected);
                                                    
                                                } success:^{
                                                    
-                                                   LFPhotoInfo *b_phtoInfo = [self.mapTable objectForKey:photoInfo.videoUrl];
+                                                   LFPhotoInfo *b_phtoInfo = [weakSelf.mapTable objectForKey:photoInfo.videoUrl];
                                                    b_phtoInfo.videoPath = path;
-                                                   LFPhotoBrowser *pb = [self.mapTable objectForKey:kPhotoBrower];
+                                                   LFPhotoBrowser *pb = [weakSelf.mapTable objectForKey:kPhotoBrower];
                                                    [pb reloadView:b_phtoInfo];
                                                    
                                                } failure:^(NSError *error) {
                                                    
-                                                   LFPhotoInfo *b_phtoInfo = [self.mapTable objectForKey:photoInfo.videoUrl];
+                                                   LFPhotoInfo *b_phtoInfo = [weakSelf.mapTable objectForKey:photoInfo.videoUrl];
                                                    /** 更新Model状态 */
                                                    b_phtoInfo.downloadFail = YES;
-                                                   LFPhotoBrowser *pb = [self.mapTable objectForKey:kPhotoBrower];
+                                                   LFPhotoBrowser *pb = [weakSelf.mapTable objectForKey:kPhotoBrower];
                                                    [pb reloadView:b_phtoInfo];
                                                }];
 }
