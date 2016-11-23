@@ -70,7 +70,7 @@
 {
     if (self.playButton == nil) {
         self.playButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        self.playButton.frame = CGRectMake(0, 0, 37, 37);
+        self.playButton.frame = CGRectMake(0, 0, 45, 45);
         [self.playButton setImage:[UIImage imageNamed:@"LFPhotoSource.bundle/play"] forState:UIControlStateNormal];
         [self.playButton addTarget:self action:@selector(onClick:) forControlEvents:UIControlEventTouchUpInside];
         self.playButton.hidden = YES;
@@ -83,7 +83,7 @@
         self.tipsLabel.textColor = [UIColor whiteColor];
         self.tipsLabel.textAlignment = NSTextAlignmentCenter;
         self.tipsLabel.hidden = YES;
-        self.tipsLabel.font = [UIFont systemFontOfSize:13.f];
+        self.tipsLabel.font = [UIFont systemFontOfSize:14.f];
         [self addSubview:self.tipsLabel];
     }
 }

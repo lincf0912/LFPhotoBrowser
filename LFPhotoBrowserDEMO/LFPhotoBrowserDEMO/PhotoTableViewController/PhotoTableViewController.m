@@ -207,6 +207,14 @@
 {
     NSString *path = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES) objectAtIndex:0] stringByAppendingPathComponent:photoInfo.videoUrl.lastPathComponent];
     
+    /** 测试下载失败 */
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//        photoInfo.downloadFail = YES;
+//        [photoBrowser reloadView:photoInfo];
+//    });
+//    
+//    
+//    return;
     [DownLoadManager basicHttpFileDownloadWithUrlString:photoInfo.videoUrl
                                                  offset:0 /** 获取原下载路径续传 */
                                                  params:nil

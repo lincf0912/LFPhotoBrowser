@@ -706,6 +706,11 @@
 #pragma mark - 视频操作事件
 - (void)videoPlay
 {
+    /** 视频失败后，重新下载 */
+    if (self.photoInfo.downloadFail) {
+        self.photoInfo.downloadFail = NO;
+        [self selectLoadMethod];
+    }
     if (self.loadType == downLoadTypeNetWork) {
         BOOL isDownLoad = NO;
         /** 下载视频*/
