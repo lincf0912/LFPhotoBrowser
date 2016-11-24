@@ -151,6 +151,9 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     
     self.view.backgroundColor = [UIColor clearColor];
     
+    /** 监听app返回前台的激活状态，因为self.navigationController.navigationBar.alpha 会再返回前台时，自动重置为默认值1（不隐藏） */
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActive:) name:UIApplicationDidBecomeActiveNotification object:nil];
+    
     [self.view addSubview:self.bgImageView];
     if(self.isNeedPageControl){/* 添加pageControl */
         [self.view addSubview:self.pageControl];
@@ -207,6 +210,13 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     [super setNeedsStatusBarAppearanceUpdate];
     [self.navigationController.navigationBar setAlpha:alpha];
 }
+
+#pragma mark - app返回前台状态
+- (void)appDidBecomeActive:(NSNotification *)notify
+{
+    [self.navigationController.navigationBar setAlpha:0];
+}
+
 
 #pragma mark - 处理动画
 - (void)handleAnimationBegin
