@@ -444,6 +444,25 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     }
 }
 
+#pragma mark - 偏移scrollView到中间位置
+- (void)offsetCenterScrollView
+{
+    if (self.currPhotoView.frame.origin.x != kScrollViewW) {
+        /** 偏移视图坐标 */
+        CGFloat offset = self.currPhotoView.frame.origin.x >= kScrollViewW ? -kScrollViewW : kScrollViewW;
+        
+        CGRect tmp = self.currPhotoView.frame;
+        tmp.origin.x += offset;
+        self.currPhotoView.frame = tmp;
+        
+        tmp = self.movePhotoView.frame;
+        tmp.origin.x += offset;
+        self.movePhotoView.frame = tmp;
+    }
+    /** 偏移contentOffset */
+    [_scroll setContentOffset:CGPointMake(kScrollViewW, 0)];
+}
+
 #pragma mark - 设置self.currPhotoView的位置(0:左边，1：中间，2：右边)
 - (void)setScrollViewPosition:(int)position
 {
@@ -528,27 +547,18 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     if (scrollView.isDecelerating) {
         /** 判断与当前视图是否一致 */
         if (!CGRectContainsPoint(self.currPhotoView.frame, [scrollView.panGestureRecognizer locationInView:scrollView])) {
+            if (!_canCirculate && (self.scrollIndex == 0 || self.scrollIndex == self.images.count - 1)) {
+                /** 跳过边缘张的UI调整 */
+                return;
+            }
             self.curr = self.scrollIndex;
             _pageControl.currentPage = _curr;
             /** 将点击的视图作为当前视图 */
             LFPhotoView *photoView = self.currPhotoView;
             self.currPhotoView = self.movePhotoView;
             self.movePhotoView = photoView;
-            if (self.currPhotoView.frame.origin.x != kScrollViewW) {
-                /** 偏移视图坐标 */
-                CGFloat offset = self.currPhotoView.frame.origin.x >= kScrollViewW ? -kScrollViewW : kScrollViewW;
-                
-                CGRect tmp = self.currPhotoView.frame;
-                tmp.origin.x += offset;
-                self.currPhotoView.frame = tmp;
-                
-                tmp = self.movePhotoView.frame;
-                tmp.origin.x += offset;
-                self.movePhotoView.frame = tmp;
-            }
-            /** 偏移contentOffset */
-            [scrollView setContentOffset:CGPointMake(kScrollViewW, 0)];
             
+            [self offsetCenterScrollView];
         }
     }
 }
@@ -558,7 +568,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     BOOL isNextPage = NO;
     if (scrollView.contentOffset.x >= kScrollViewW*2 && (_curr != self.images.count - 1 || _canCirculate)) {//向左滑动
         isNextPage = YES;
-        if(self.callLeftSlideDataSource && self.curr == _images.count-1-self.slideRange){//滑到右边倒数第二张
+        if(self.callLeftSlideDataSource && self.curr >= _images.count-1-self.slideRange){//滑到右边倒数第二张
             if([self.delegate respondsToSelector:@selector(photoBrowserDidSlide:slideDirection:photoInfo:)]){
                 self.callLeftSlideDataSource = NO;
                 dispatch_async(_globalSerialQueue, ^{
@@ -573,7 +583,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         }
     } else if (scrollView.contentOffset.x <= 0 && (_curr != 0 || _canCirculate)) {//向右滑动
         isNextPage = YES;
-        if(self.callRightSlideDataSource && self.curr == self.slideRange){//滑到左边倒数第二张
+        if(self.callRightSlideDataSource && self.curr <= self.slideRange){//滑到左边倒数第二张
             if([self.delegate respondsToSelector:@selector(photoBrowserDidSlide:slideDirection:photoInfo:)]){
                 self.callRightSlideDataSource = NO;
                 dispatch_async(_globalSerialQueue, ^{
@@ -653,11 +663,12 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                 }
                 /** 当前显示页不再中间，并且非滑动情况下 */
                 if (self.scroll.isDragging || self.scroll.isDecelerating || self.scroll.isTracking) {
-                    return ;
-                }
-                if (self.scroll.contentOffset.x != kScrollViewW) {
-                    /** 重置UI */
-                    [self resetScrollView];
+                    [self offsetCenterScrollView];
+                } else {
+                    if (self.scroll.contentOffset.x != kScrollViewW) {
+                        /** 重置UI */
+                        [self resetScrollView];
+                    }
                 }
             }
         }
