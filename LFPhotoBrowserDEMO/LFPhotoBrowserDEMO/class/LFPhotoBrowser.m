@@ -497,6 +497,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         /** 设置下一张图片 */
         self.scrollIndex = (_curr+1)%_images.count;
         
+        [imageView beginUpdate];
         [self imageFromSelectItems:_scrollIndex withImageView:imageView];
     }
 }
@@ -512,6 +513,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         int imageCount = (int)_images.count;
         self.scrollIndex = (_curr-1+imageCount)%imageCount;
         
+        [imageView beginUpdate];
         [self imageFromSelectItems:_scrollIndex withImageView:imageView];
     }
 }
@@ -623,6 +625,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         self.currPhotoView = self.movePhotoView;
         self.movePhotoView = photoView;
         
+        [self.currPhotoView endUpdate];
         [self.movePhotoView cleanData];
         
         /** 重置全局 */

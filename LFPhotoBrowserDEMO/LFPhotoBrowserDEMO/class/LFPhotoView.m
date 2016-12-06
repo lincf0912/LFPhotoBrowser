@@ -23,11 +23,11 @@
 
 @interface LFPhotoView() <UIScrollViewDelegate, LFPlayerDelegate, LFVideoSliderDelegate>
 {
-//    单击手势
+    //    单击手势
     UITapGestureRecognizer *_singleTap;
-//    双击手势
+    //    双击手势
     UITapGestureRecognizer *_doubleTap;
-//    长按手势
+    //    长按手势
     UILongPressGestureRecognizer *_longPressGesture;
 }
 
@@ -116,7 +116,7 @@
         self.autoresizesSubviews = NO;
         self.scrollEnabled = YES;
         
-//        self.bouncesZoom = NO;
+        //        self.bouncesZoom = NO;
         self.delegate = self;
         self.maximumZoomScale = 3.5f;
         self.minimumZoomScale = 1.f;
@@ -202,7 +202,7 @@
 #pragma mark - 手势处理
 #pragma mark 单击手势
 - (void)handleSingleTap:(UIGestureRecognizer *)tap{
-//    if(!_customView) return;
+    //    if(!_customView) return;
     CGFloat delay = 0.f;
     if (self.zoomScale > 1.0) {//放大时单击缩小
         [self setZoomScale:1.f animated:YES];
@@ -312,8 +312,8 @@
     //sd-cancle下载
     [_customView sd_cancelCurrentImageLoad];
     [self selectLoadMethod];
+    [self removePhotoLoadingView];
     if (self.photoInfo) {
-        
         if (self.photoInfo.photoType == PhotoType_image) {
             [self loadPhotoViewImage];
         } else if (self.photoInfo.photoType == PhotoType_video) {
@@ -419,6 +419,10 @@
         case downLoadTypeLocale:
         {
             [self setThumbnailImage];
+            self.photoInfo.downloadProgress = 1.f;
+            /** 显示播放按钮 */
+            [self showPhotoLoadingView];
+            
             [_videoPlayer setURL:[NSURL fileURLWithPath:self.photoInfo.videoPath]];
         }
             break;
@@ -473,11 +477,11 @@
                         weakSelf.photoInfo.thumbnailImage = image;
                         if (weakSelf.photoInfo.photoType == PhotoType_image) {
                             if(!weakSelf.photoInfo.originalImage){//判断是否已经显示原图,没有才显示缩略图
-                                [weakSelf setImage:image];
+                                [weakSelf reloadPhotoView];
                             }
                         } else if (weakSelf.photoInfo.photoType == PhotoType_video) {
                             if (weakSelf.videoPlayer.isPlaying == NO) {
-                                [weakSelf setImage:image];
+                                [weakSelf reloadPhotoView];
                             }
                         }
                     }
@@ -509,11 +513,10 @@
                 if ([imageURL.absoluteString isEqualToString:weakSelf.photoInfo.originalImageUrl]) {
                     if(image){/*下载成功*/
                         weakSelf.photoInfo.originalImage = image;
-                        [weakSelf setImage:image];
-                        [weakSelf removePhotoLoadingView];
+                        [weakSelf reloadPhotoView];
                     }else{/*下载失败*/
                         weakSelf.photoInfo.downloadFail = YES;
-                        [weakSelf showPhotoLoadingFailure];//没有缩略图显示烂图
+                        [weakSelf reloadPhotoView];
                     }
                 }
             }];
@@ -556,6 +559,9 @@
         self.tipsLabel = nil;
         [self.videoSlider removeFromSuperview];
         self.videoSlider = nil;
+        
+        self.isAminated = NO;
+        [self.delayMotheds removeAllObjects];
     }
 }
 
@@ -578,7 +584,7 @@
         if (self.photoInfo.downloadProgress > 0) {
             ((VideoProgressView *)self.progressView).progress = self.photoInfo.downloadProgress;
         } else if (self.photoInfo.isLoading) {
-            ((VideoProgressView *)self.progressView).progress = 0;
+            ((VideoProgressView *)self.progressView).progress = 1.f;
         }
     }
 }
@@ -639,7 +645,7 @@
         imageSize = frame.size;
     }
     imageFrame.size = imageSize;
-
+    
     
     CGFloat offSetX = imageSize.width - frame.size.width;
     CGFloat offSetY = imageSize.height - frame.size.height;
