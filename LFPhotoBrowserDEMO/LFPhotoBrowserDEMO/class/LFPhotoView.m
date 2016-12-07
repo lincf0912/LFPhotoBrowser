@@ -378,11 +378,11 @@
             UIImage *image = [UIImage LF_imageWithImagePath:self.photoInfo.originalImagePath];
             
             if(image == nil){
-                image = self.photoInfo.placeholderImage;
+                [self showPhotoLoadingFailure];
             } else {
                 self.photoInfo.originalImage = image;
+                [self setImage:image];
             }
-            [self setImage:image];
         }
             break;
         case downLoadTypeNetWork:
