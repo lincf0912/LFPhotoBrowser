@@ -115,6 +115,9 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 /** 长按列表 */
 @property (nonatomic, readonly) NSArray *actionItems;
 
+/** 销毁回调 */
+@property (nonatomic, copy) void (^dismissBlock)();
+
 /** 初始化 */
 -(id)initWithImageArray:(NSArray <LFPhotoInfo *>*)imageArray;
 -(id)initWithImageArray:(NSArray <LFPhotoInfo *>*)imageArray currentIndex:(int)currentIndex;

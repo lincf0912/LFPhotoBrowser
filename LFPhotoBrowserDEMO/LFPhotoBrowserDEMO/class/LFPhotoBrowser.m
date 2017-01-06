@@ -276,6 +276,10 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     } completion:^(BOOL finished) {
         [_coverView removeFromSuperview];
         _coverView = nil;
+        if (self.dismissBlock) {
+            self.dismissBlock();
+            self.dismissBlock = nil;
+        }
         self.parentViewController.navigationController.interactivePopGestureRecognizer.enabled = _interactiveEnabled;
         [self removeFromParentViewController];
         [self.view removeFromSuperview];
