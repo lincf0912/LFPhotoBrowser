@@ -159,6 +159,7 @@
 		6F5BA4BC1DE3D2AE00F26951 /* LFScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LFScrollView.m; sourceTree = "<group>"; };
 		6F5BA4C11DE4368500F26951 /* DownLoadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownLoadManager.h; sourceTree = "<group>"; };
 		6F5BA4C21DE4368500F26951 /* DownLoadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownLoadManager.m; sourceTree = "<group>"; };
+		6F7DDD901E1F917B001B0EE5 /* LFModelProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LFModelProtocol.h; sourceTree = "<group>"; };
 		6F9C62281DCC1A2600024BE0 /* UIActionSheet+Block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIActionSheet+Block.h"; sourceTree = "<group>"; };
 		6F9C62291DCC1A2600024BE0 /* UIActionSheet+Block.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIActionSheet+Block.m"; sourceTree = "<group>"; };
 		6F9C622B1DCC1A2600024BE0 /* UIImage+Size.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Size.h"; sourceTree = "<group>"; };
@@ -395,6 +396,7 @@
 		6F5BA4911DE2A34D00F26951 /* protocol */ = {
 			isa = PBXGroup;
 			children = (
+				6F7DDD901E1F917B001B0EE5 /* LFModelProtocol.h */,
 				6F5BA4921DE2A34D00F26951 /* LFPhotoProtocol.h */,
 				6F5BA4931DE2A34D00F26951 /* LFVideoProtocol.h */,
 			);

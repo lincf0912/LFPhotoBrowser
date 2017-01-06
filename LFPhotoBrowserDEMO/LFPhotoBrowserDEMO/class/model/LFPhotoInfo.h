@@ -8,22 +8,17 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "LFModelProtocol.h"
 #import "LFPhotoProtocol.h"
 #import "LFVideoProtocol.h"
 
-typedef NS_ENUM(NSInteger, PhotoType) {
-    /** 默认 图片 */
-    PhotoType_image,
-    /** 视频 */
-    PhotoType_video,
-};
 
-
-@interface LFPhotoInfo : NSObject <LFPhotoProtocol, LFVideoProtocol>
+@interface LFPhotoInfo : NSObject <LFModelProtocol, LFPhotoProtocol, LFVideoProtocol>
 
 @property (nonatomic, readonly) PhotoType photoType;
 /** 唯一识别的key*/
 @property (nonatomic, copy, readonly) NSString *key;
+
 /** 进度 */
 @property (nonatomic, assign) float downloadProgress;
 /** 下载失败记录，显示另外UI */
@@ -56,6 +51,8 @@ typedef NS_ENUM(NSInteger, PhotoType) {
 @property (nonatomic, copy) NSString *videoUrl;
 /** 视频路径*/
 @property (nonatomic, copy) NSString *videoPath;
+/** 是否自动播放 */
+@property (nonatomic, assign) BOOL isAutoPlay;
 /** 是否需要进度条 */
 @property (nonatomic, assign) BOOL isNeedSlider;
 /** 已是下载状态 */

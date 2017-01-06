@@ -9,6 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "LFScrollView.h"
 #import "PhotoViewType.h"
+#import "LFModelProtocol.h"
+#import "LFPhotoProtocol.h"
+#import "LFVideoProtocol.h"
 
 @class LFPhotoView,LFPhotoInfo;
 
@@ -40,7 +43,7 @@
 @interface LFPhotoView : LFScrollView
 /** 加载方式*/
 @property (nonatomic, readonly) downLoadType loadType;
-@property (nonatomic, strong) LFPhotoInfo *photoInfo;
+@property (nonatomic, strong) id<LFModelProtocol, LFPhotoProtocol, LFVideoProtocol> photoInfo;
 @property (nonatomic, assign) CGRect photoRect;
 /** 代理*/
 @property (nonatomic, weak) id<LFPhotoViewDelegate> photoViewDelegate;

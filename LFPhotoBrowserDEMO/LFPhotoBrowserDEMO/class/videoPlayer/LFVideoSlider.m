@@ -21,6 +21,8 @@ static void *LFVideoSliderValueObservationContext = &LFVideoSliderValueObservati
 {
     BOOL isBeginChange;
     double duration;
+    
+    BOOL isOnClickPlay;
 }
 
 @property (nonatomic, strong) UIButton *play;
@@ -111,6 +113,7 @@ static void *LFVideoSliderValueObservationContext = &LFVideoSliderValueObservati
 
 - (void)playOnClick:(id)sender
 {
+    isOnClickPlay = !isOnClickPlay;
     self.play.selected = !self.play.selected;
     if ([self.delegate respondsToSelector:@selector(LFVideoSlider:isPlay:)]) {
         [self.delegate LFVideoSlider:self isPlay:[self.play isSelected]];
@@ -178,6 +181,12 @@ static void *LFVideoSliderValueObservationContext = &LFVideoSliderValueObservati
 
 - (void)setPlayLabelText
 {
+    if (isBeginChange == NO && self.play.selected == NO) { /** 非手动滑动的情况，即开始播放 */
+        /** 手动停止播放仍然会触发一会KVO */
+        if (isOnClickPlay == NO) {
+            self.play.selected = YES;
+        }
+    }
     if (duration > 0) {
         float minValue = self.slider.minimumValue;
         float maxValue = self.slider.maximumValue;

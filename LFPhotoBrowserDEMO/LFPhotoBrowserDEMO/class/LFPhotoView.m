@@ -7,7 +7,6 @@
 //
 
 #import "LFPhotoView.h"
-#import "LFPhotoInfo.h"
 #import "LFPlayer.h"
 #import "LFAVPlayerLayerView.h"
 #import "LFVideoSlider.h"
@@ -259,6 +258,8 @@
     _progressView.alpha = 0.f;
     _videoSlider.alpha = 0.f;
     _tipsLabel.alpha = 0.f;
+    /** 光栅化会影响图片放大的清晰度，放大将其关闭 */
+    _customView.layer.shouldRasterize = NO;
 }
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(nullable UIView *)view atScale:(CGFloat)scale
 {
@@ -272,6 +273,8 @@
         _progressView.alpha = 1.f;
         _videoSlider.alpha = 1.f;
         _tipsLabel.alpha = 1.f;
+        /** 还原重新恢复光栅化 */
+        _customView.layer.shouldRasterize = YES;
     }
 }
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView
@@ -294,14 +297,13 @@
 }
 
 #pragma mark - 设置图片
--(void)setPhotoInfo:(LFPhotoInfo *)photoInfo
+-(void)setPhotoInfo:(id<LFModelProtocol, LFPhotoProtocol, LFVideoProtocol>)photoInfo
 {
     if (_photoInfo != photoInfo) {
         [self cleanData];
         _photoInfo = photoInfo;
-        
         //添加kvo
-        [self.photoInfo addObserver:self forKeyPath:@"downloadProgress" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];
+        [(NSObject *)self.photoInfo addObserver:self forKeyPath:@"downloadProgress" options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];
     }
     [self reloadPhotoView];
 }
@@ -543,7 +545,7 @@
     [self setZoomScale:1.f];
     if(_photoInfo){
         //移除kvo
-        [_photoInfo removeObserver:self forKeyPath:@"downloadProgress"];
+        [(NSObject *)_photoInfo removeObserver:self forKeyPath:@"downloadProgress"];
         //删除对象
         _photoInfo = nil;
         //图片设置为空
@@ -746,7 +748,7 @@
     [self removePhotoLoadingView];
     
     if (self.isAminated) {
-        __block LFAVPlayerLayerView *blockCustomView = _customView;
+        __weak LFAVPlayerLayerView *blockCustomView = _customView;
         [self addDelayAminateMothed:^{
             [blockCustomView setPlayer:avplayer];
         }];
@@ -758,20 +760,22 @@
 - (void)LFPlayerReadyToPlay:(LFPlayer *)player duration:(double)duration
 {
     if (self.isAminated) {
-        __block LFPlayer *player = self.videoPlayer;
-        __block LFPhotoInfo *photoInfo = self.photoInfo;
-        __block LFVideoSlider *slider = self.videoSlider;
+        __weak LFPlayer *player = self.videoPlayer;
+        __weak id<LFModelProtocol, LFPhotoProtocol, LFVideoProtocol>photoInfo = self.photoInfo;
+        __weak LFVideoSlider *slider = self.videoSlider;
         [self addDelayAminateMothed:^{
             if (photoInfo.isNeedSlider) {
                 [slider setTotalSecond:duration];
-            } else {
+            }
+            if (photoInfo.isAutoPlay) {
                 [player play];
             }
         }];
     } else {
         if (self.photoInfo.isNeedSlider) {
             [self.videoSlider setTotalSecond:duration];
-        } else {
+        }
+        if (self.photoInfo.isAutoPlay) {
             [self.videoPlayer play];
         }
     }

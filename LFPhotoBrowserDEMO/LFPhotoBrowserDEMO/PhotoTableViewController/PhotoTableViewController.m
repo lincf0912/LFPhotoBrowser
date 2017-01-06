@@ -157,6 +157,7 @@
             if (count++ < max) {
                 photo.isNeedSlider = YES;
             }
+            photo.isAutoPlay = YES;
             photo.videoPath = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES) objectAtIndex:0] stringByAppendingPathComponent:url.lastPathComponent];
             photo.videoUrl = url;
             photo.isLoading = [DownLoadManager isExistsDL:url];
