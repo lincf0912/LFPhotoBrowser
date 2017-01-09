@@ -72,6 +72,7 @@
         self.playButton = [UIButton buttonWithType:UIButtonTypeCustom];
         self.playButton.frame = CGRectMake(0, 0, 45, 45);
         [self.playButton setImage:[UIImage imageNamed:@"LFPhotoSource.bundle/play"] forState:UIControlStateNormal];
+        [self.playButton setImage:[UIImage imageNamed:@"LFPhotoSource.bundle/not_play"] forState:UIControlStateSelected];
         [self.playButton addTarget:self action:@selector(onClick:) forControlEvents:UIControlEventTouchUpInside];
         self.playButton.hidden = YES;
         [self addSubview:self.playButton];
@@ -218,6 +219,7 @@
     self.foreCircle = nil;
     _progress = 0;
     self.playButton.hidden = NO;
+    [self.playButton setSelected:NO];
     self.tipsLabel.hidden = NO;
 }
 
@@ -232,12 +234,11 @@
 - (void)showLoading
 {
     [self resetProgressView];
-    
 }
 - (void)showFailure
 {
     [self resetProgressView];
-    [self.playButton setImage:[UIImage imageNamed:@"LFPhotoSource.bundle/not_play"] forState:UIControlStateNormal];
+    [self.playButton setSelected:YES];
     self.tipsLabel.hidden = YES;
 }
 @end
