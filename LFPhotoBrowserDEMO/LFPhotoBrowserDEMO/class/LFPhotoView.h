@@ -51,6 +51,9 @@
 /** 设置View的frame*/
 -(void)calcFrameMaskPosition:(MaskPosition)maskPosition frame:(CGRect)frame;
 
+/** 设置遮罩图片 */
+- (void)setMaskImage:(UIImage *)maskImage;
+
 /** 清除数据*/
 -(void)cleanData;
 /** 刷新photoView*/

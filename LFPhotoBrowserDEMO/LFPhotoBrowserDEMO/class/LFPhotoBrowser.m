@@ -101,6 +101,9 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 
 /** 目标的frame */
 @property (nonatomic, assign) CGRect targetFrame;
+/** 目标遮罩图片 */
+@property (nonatomic, strong) UIImage *targetMaskImage;
+
 
 /** 长按列表 */
 @property (nonatomic, strong) NSMutableArray *lpActionItems;
@@ -225,16 +228,17 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     
     _isStatusBarHiden = YES;
     
+    [_currPhotoView beginUpdate];
     [self.currPhotoView calcFrameMaskPosition:self.maskPosition frame:self.targetFrame];
+    [self.currPhotoView setMaskImage:self.targetMaskImage];
     CGRect currRect = CGRectMake(0, 0, self.currPhotoView.frame.size.width, self.currPhotoView.frame.size.height);
     
     [UIView animateWithDuration:self.animatedTime animations:^{
         _bgImageView.alpha = 1.f;
     }completion:^(BOOL finished) {
-        
+        [self.currPhotoView setMaskImage:nil];
     }];
     
-    [_currPhotoView beginUpdate];
     [UIView animateWithDuration:self.animatedTime delay:0.1f options:UIViewAnimationOptionCurveLinear animations:^{
         [_currPhotoView calcFrameMaskPosition:MaskPosition_None frame:currRect];
     } completion:^(BOOL finished) {
@@ -272,7 +276,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
             self.currPhotoView.alpha = 0.0f;
         }
         [self.currPhotoView calcFrameMaskPosition:self.maskPosition frame:self.targetFrame];
-        
+        [self.currPhotoView setMaskImage:self.targetMaskImage];
     } completion:^(BOOL finished) {
         [_coverView removeFromSuperview];
         _coverView = nil;
@@ -724,6 +728,15 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         }
     } else {
         self.targetFrame = CGRectMake(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 0);
+    }
+    
+    if ([self.delegate respondsToSelector:@selector(photoBrowserTargetMaskImageWithIndex:key:)]) {
+        UIImage *image = [self.delegate photoBrowserTargetMaskImageWithIndex:_curr key:self.currPhotoView.photoInfo.key];
+        self.targetMaskImage = image;
+    } else if (self.targetMaskImageBlock) {
+        self.targetMaskImage = self.targetMaskImageBlock(_curr, self.currPhotoView.photoInfo.key);
+    } else {
+        self.targetMaskImage = nil;
     }
 }
 

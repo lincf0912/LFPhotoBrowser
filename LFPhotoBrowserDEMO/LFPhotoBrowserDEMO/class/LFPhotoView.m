@@ -715,6 +715,19 @@
     }
 }
 
+#pragma mark - 设置遮罩图片
+- (void)setMaskImage:(UIImage *)maskImage
+{
+    /** 修改遮罩图片 */
+    if (maskImage) {
+        self.imageMaskView.image = maskImage;
+        self.imageMaskView.backgroundColor = [UIColor clearColor];
+    } else {
+        self.imageMaskView.backgroundColor = [UIColor whiteColor];
+        self.imageMaskView.image = nil;
+    }
+}
+
 #pragma mark - 视频操作事件
 - (void)videoPlay
 {

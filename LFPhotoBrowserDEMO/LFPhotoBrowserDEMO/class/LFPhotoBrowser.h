@@ -50,6 +50,8 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 @optional
 /** 获取startFrame或者overFrame */
 - (CGRect)photoBrowserTargetFrameWithIndex:(int)index key:(NSString *)key;
+/** 获取遮罩图片 */
+- (UIImage *)photoBrowserTargetMaskImageWithIndex:(int)index key:(NSString *)key;
 /** 重设长按列表 */
 - (NSArray <LFPhotoSheetAction *>*)photoBrowserLongPressActionItems:(LFPhotoBrowser *)photoBrowser image:(UIImage *)image;
 /** 滑动(滑动增加数据源，调用 增加数据源方法)[异步回调] 获取数据后执行addDataSourceFormSlideDirection:dataSourceArray:回调数据源 */
@@ -73,12 +75,11 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 -(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadThumbnailWithPhotoInfo:(LFPhotoInfo *)photoInfo;
 /** 下载原图代理方法*/
 -(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadOriginalWithPhotoInfo:(LFPhotoInfo *)photoInfo;
-
 /** 下载视频代理方法*/
 -(void)photoBrowser:(LFPhotoBrowser *)photoBrowser downloadVideoWithPhotoInfo:(LFPhotoInfo *)photoInfo;
 @end
 
-/** 
+/**
  *  注意：不能使用UITableViewController或者UICollectionViewController上显示，因为这种类型UI整个view都可以滚动，所以滚动之后显示图片预览只能在滚到顶部才能看到，图片预览是加载在UI的view上，可以调整为加载在keyWindow上（showPhotoBrowser方法），但若需要使用图片预览的长按菜单点击事件来推送一个新UI（例如：扫描二维码），会被keyWindow遮挡无法看见推送界面；最好基础UIViewController 添加UITableView 来使用
  */
 
@@ -95,6 +96,7 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 @property (nonatomic, weak) id<LFPhotoBrowserDownloadDelegate> downloadDelegate;
 /** block回调 效果等同于 LFPhotoBrowserDelegate代理, 若实现了代理，block将不会回调 */
 @property (nonatomic, copy) CGRect (^targetFrameBlock)(int index, NSString *key);
+@property (nonatomic, copy) UIImage * (^targetMaskImageBlock)(int index, NSString *key);
 @property (nonatomic, copy) NSArray <LFPhotoSheetAction *>* (^longPressActionItemsBlock)(UIImage *image);
 @property (nonatomic, copy) void (^slideBlock)(SlideDirection direction, LFPhotoInfo *photoInfo);
 /** 触发photoBrowserDidSlide:slideDirection:photoInfo:代理的范围（距离最后一张）,default is 2 */
@@ -121,7 +123,7 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 /** 初始化 */
 -(id)initWithImageArray:(NSArray <LFPhotoInfo *>*)imageArray;
 -(id)initWithImageArray:(NSArray <LFPhotoInfo *>*)imageArray currentIndex:(int)currentIndex;
-/** 显示相册 
+/** 显示相册
  状态栏隐藏：需要调用UI 重写childViewControllerForStatusBarHidden方法，返回当前UI才能控制状态栏（return self.childViewControllers.count ? self.childViewControllers.firstObject : nil;） */
 -(void)showPhotoBrowser;
 /** 刷新UI */
