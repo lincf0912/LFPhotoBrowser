@@ -161,7 +161,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     [self setupView];
     
     if(self.canPullDown){//手势
-         _panGesture = [[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(panGesture:)];
+        _panGesture = [[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(panGesture:)];
         [self.view addGestureRecognizer:_panGesture];
     }
     
@@ -180,7 +180,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-
+    
     [UIView animateWithDuration:self.animatedTime animations:^{
         [self.navigationController.navigationBar setAlpha:0];
     }];
@@ -199,6 +199,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 {
     
 }
+
 - (BOOL)prefersStatusBarHidden
 {
     return _isStatusBarHiden;
@@ -216,7 +217,6 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 {
     [self.navigationController.navigationBar setAlpha:0];
 }
-
 
 #pragma mark - 处理动画
 - (void)handleAnimationBegin
@@ -284,7 +284,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         [self removeFromParentViewController];
         [self.view removeFromSuperview];
     }];
-
+    
 }
 
 -(NSMutableArray *)images
@@ -348,7 +348,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     }
     _scroll.frame = CGRectMake(0, 0, kScrollViewW, SCREEN_HEIGHT);
     
-
+    
     /** 设置两个photoview*/
     if(!_prevPhotoView){
         [self createPrevPhotoView];
@@ -357,7 +357,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     if(!_nextPhotoView && _images.count > 1){ /** 图片数量只有一张时，不初始化移动view */
         [self createNextPhotoView];
     }
-//    [self resetScrollView];
+    //    [self resetScrollView];
     [self setAutomaticallyAdjustsScrollViewInsets:NO];
     
 }
@@ -388,9 +388,9 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 
 -(void)showPhotoBrowser
 {
-//    UIWindow *window = [UIApplication sharedApplication].keyWindow;
-//    [window.rootViewController addChildViewController:self];
-//    [window.rootViewController.view addSubview:self.view];
+    //    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    //    [window.rootViewController addChildViewController:self];
+    //    [window.rootViewController.view addSubview:self.view];
     
     UIViewController *viewController = [UIViewController getCurrentVC];
     [viewController addChildViewController:self];
@@ -459,11 +459,12 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 }
 
 #pragma mark - 偏移scrollView到中间位置
-- (void)offsetCenterScrollView
+- (void)offsetScrollViewPosition:(int)position
 {
-    if (self.currPhotoView.frame.origin.x != kScrollViewW) {
+    CGFloat newPointX = position * kScrollViewW;
+    if (self.currPhotoView.frame.origin.x != newPointX) {
         /** 偏移视图坐标 */
-        CGFloat offset = self.currPhotoView.frame.origin.x >= kScrollViewW ? -kScrollViewW : kScrollViewW;
+        CGFloat offset = self.currPhotoView.frame.origin.x >= newPointX ? -kScrollViewW : kScrollViewW;
         
         CGRect tmp = self.currPhotoView.frame;
         tmp.origin.x += offset;
@@ -474,7 +475,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         self.movePhotoView.frame = tmp;
     }
     /** 偏移contentOffset */
-    [_scroll setContentOffset:CGPointMake(kScrollViewW, 0)];
+    [_scroll setContentOffset:CGPointMake(newPointX, 0)];
 }
 
 #pragma mark - 设置self.currPhotoView的位置(0:左边，1：中间，2：右边)
@@ -564,6 +565,13 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         /** 判断与当前视图是否一致 */
         if (!CGRectContainsPoint(self.currPhotoView.frame, [scrollView.panGestureRecognizer locationInView:scrollView])) {
             if (!_canCirculate && (self.scrollIndex == 0 || self.scrollIndex == self.images.count - 1)) {
+                if (self.images.count == 2) { /** 2张图片特殊情况处理 */
+                    if (self.scrollIndex == 0) { /** 偏移到左侧 */
+                        [self offsetScrollViewPosition:0];
+                    } else { /** 偏移到右侧 */
+                        [self offsetScrollViewPosition:2];
+                    }
+                }
                 /** 跳过边缘张的UI调整 */
                 return;
             }
@@ -574,7 +582,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
             self.currPhotoView = self.movePhotoView;
             self.movePhotoView = photoView;
             
-            [self offsetCenterScrollView];
+            [self offsetScrollViewPosition:1];
         }
     }
 }
@@ -618,7 +626,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     }else if (scrollView.contentOffset.x >= kScrollViewW && _curr == 0 && !_canCirculate){ /** 最后一张向右滑动 */
         isNextPage = YES;
     }
-
+    
     /** 是否已滑动到下一页 */
     if (isNextPage) {
         self.curr = self.scrollIndex;
@@ -678,10 +686,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                         [self.scroll bringSubviewToFront:self.currPhotoView];
                     }
                 }
-                /** 当前显示页不再中间，并且非滑动情况下 */
-                if (self.scroll.isDragging || self.scroll.isDecelerating || self.scroll.isTracking) {
-                    [self offsetCenterScrollView];
-                } else {
+                /** 非滑动情况下 */
+                if (!(self.scroll.isDragging || self.scroll.isDecelerating || self.scroll.isTracking)) {
                     if (self.scroll.contentOffset.x != kScrollViewW) {
                         /** 重置UI */
                         [self resetScrollView];
@@ -865,7 +871,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     } else {
         [actionItems addObjectsFromArray:self.lpActionItems];
     }
-
+    
     /** 列表排序 */
     [actionItems sortUsingComparator:^NSComparisonResult(LFPhotoSheetAction *  _Nonnull obj1, LFPhotoSheetAction *  _Nonnull obj2) {
         return obj1.style > obj2.style;
@@ -876,7 +882,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     for (LFPhotoSheetAction *action in actionItems) {
         switch (action.style) {
             case LFPhotoSheetActionType_Default:
-//                [otherTitles addObject:action.title];
+                //                [otherTitles addObject:action.title];
                 [otherTitles appendString:action.title];
                 [otherTitles appendString:kSeparator];
                 break;
@@ -905,27 +911,27 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 
 -(void)photoViewWillBeginZooming:(LFPhotoView *)photoView
 {
-//    if (_canPullDown) {
-//        [self obtainOverFrame];
-//        self.movePhotoView.hidden = YES;
-//    }
+    //    if (_canPullDown) {
+    //        [self obtainOverFrame];
+    //        self.movePhotoView.hidden = YES;
+    //    }
 }
 -(void)photoViewDidZoom:(LFPhotoView *)photoView
 {
-//    if (_canPullDown) {
-//        _bgImageView.alpha = photoView.zoomScale;
-//    }
+    //    if (_canPullDown) {
+    //        _bgImageView.alpha = photoView.zoomScale;
+    //    }
 }
 -(void)photoViewDidEndZooming:(LFPhotoView *)photoView
 {
-//    if (_canPullDown) {
-//        if (photoView.zoomScale < 1.f) {
-//            [self handleAnimationEnd];
-//        } else {
-//            _bgImageView.alpha = 1.f;
-//            self.movePhotoView.hidden = NO;
-//        }
-//    }
+    //    if (_canPullDown) {
+    //        if (photoView.zoomScale < 1.f) {
+    //            [self handleAnimationEnd];
+    //        } else {
+    //            _bgImageView.alpha = 1.f;
+    //            self.movePhotoView.hidden = NO;
+    //        }
+    //    }
 }
 
 #pragma mark - photoView下载代理
@@ -974,7 +980,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                                                         [weakSelf.batchDLHash removeObject:info];
                                                         weakSelf.isBatchDLing = NO;
                                                         [weakSelf batchDownload];
-        }];
+                                                    }];
     }
 }
 

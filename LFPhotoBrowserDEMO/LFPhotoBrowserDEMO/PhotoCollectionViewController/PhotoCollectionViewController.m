@@ -172,6 +172,7 @@ static NSString * const reuseIdentifier = @"Cell";
                 [items addObject:photo];
                 if ([name compare:@"400"] == NSOrderedAscending) { /** 部分模拟需要进度条 */
                     photo.isNeedSlider = YES;
+//                    photo.isAutoPlay = YES;
                 }
             } else {
                 LFPhotoInfo *photo = [LFPhotoInfo photoInfoWithType:PhotoType_image key:title];

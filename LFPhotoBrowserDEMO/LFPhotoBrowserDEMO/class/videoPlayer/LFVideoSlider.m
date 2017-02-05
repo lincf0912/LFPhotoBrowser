@@ -22,7 +22,7 @@ static void *LFVideoSliderValueObservationContext = &LFVideoSliderValueObservati
     BOOL isBeginChange;
     double duration;
     
-    BOOL isOnClickPlay;
+    BOOL isStopPlay;
 }
 
 @property (nonatomic, strong) UIButton *play;
@@ -113,7 +113,7 @@ static void *LFVideoSliderValueObservationContext = &LFVideoSliderValueObservati
 
 - (void)playOnClick:(id)sender
 {
-    isOnClickPlay = !isOnClickPlay;
+    isStopPlay = self.play.selected;
     self.play.selected = !self.play.selected;
     if ([self.delegate respondsToSelector:@selector(LFVideoSlider:isPlay:)]) {
         [self.delegate LFVideoSlider:self isPlay:[self.play isSelected]];
@@ -183,7 +183,7 @@ static void *LFVideoSliderValueObservationContext = &LFVideoSliderValueObservati
 {
     if (isBeginChange == NO && self.play.selected == NO) { /** 非手动滑动的情况，即开始播放 */
         /** 手动停止播放仍然会触发一会KVO */
-        if (isOnClickPlay == NO) {
+        if (isStopPlay == NO && self.slider.value > self.slider.minimumValue) {
             self.play.selected = YES;
         }
     }

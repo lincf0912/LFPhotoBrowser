@@ -20,7 +20,7 @@
 @property (nonatomic, copy) NSString *videoUrl;
 /** 视频路径*/
 @property (nonatomic, copy) NSString *videoPath;
-/** 是否自动播放 */
+/** 是否自动播放(isNeedSlider == NO 的情况下 忽略该属性，默认自动播放) */
 @property (nonatomic, assign) BOOL isAutoPlay;
 /** 是否需要进度条 */
 @property (nonatomic, assign) BOOL isNeedSlider;

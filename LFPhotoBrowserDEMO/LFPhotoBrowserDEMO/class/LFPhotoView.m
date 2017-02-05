@@ -759,25 +759,27 @@
 /** 可以播放 */
 - (void)LFPlayerReadyToPlay:(LFPlayer *)player duration:(double)duration
 {
-    if (self.isAminated) {
-        __weak LFPlayer *player = self.videoPlayer;
-        __weak id<LFModelProtocol, LFPhotoProtocol, LFVideoProtocol>photoInfo = self.photoInfo;
-        __weak LFVideoSlider *slider = self.videoSlider;
-        [self addDelayAminateMothed:^{
-            if (photoInfo.isNeedSlider) {
-                [slider setTotalSecond:duration];
-            }
+    
+    void (^videoPlay)(id<LFModelProtocol, LFPhotoProtocol, LFVideoProtocol>, LFVideoSlider *, LFPlayer *) = ^(id<LFModelProtocol, LFPhotoProtocol, LFVideoProtocol>photoInfo, LFVideoSlider *slider, LFPlayer *player){
+        if (photoInfo.isNeedSlider) {
+            [slider setTotalSecond:duration];
             if (photoInfo.isAutoPlay) {
                 [player play];
             }
+        } else {
+            [player play];
+        }
+    };
+    
+    __weak id<LFModelProtocol, LFPhotoProtocol, LFVideoProtocol>photoInfo = self.photoInfo;
+    __weak LFVideoSlider *slider = self.videoSlider;
+    __weak LFPlayer *videoPlayer = self.videoPlayer;
+    if (self.isAminated) {
+        [self addDelayAminateMothed:^{
+            videoPlay(photoInfo, slider, videoPlayer);
         }];
     } else {
-        if (self.photoInfo.isNeedSlider) {
-            [self.videoSlider setTotalSecond:duration];
-        }
-        if (self.photoInfo.isAutoPlay) {
-            [self.videoPlayer play];
-        }
+        videoPlay(photoInfo, slider, videoPlayer);
     }
     
 }
