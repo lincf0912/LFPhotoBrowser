@@ -102,7 +102,7 @@
 {
     if(self = [super initWithFrame:frame]){
         self.clipsToBounds = YES;
-        
+//        self.bounces = NO;
         //设置
         self.scrollsToTop = NO;
         self.delaysContentTouches = NO;
@@ -885,6 +885,19 @@
         return isTouch;
     }
     
+    return YES;
+}
+
+/** 响应手势，让长图（超出屏幕长度的图片）触发下拉缩放手势 */
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    /** 不响应2个LFScrollView的响应。 */
+    if (gestureRecognizer.view != self && [gestureRecognizer.view isKindOfClass:[UIScrollView class]]) {
+        return NO;
+    }
+    if (otherGestureRecognizer.view != self && [otherGestureRecognizer.view isKindOfClass:[UIScrollView class]]) {
+        return NO;
+    }
     return YES;
 }
 

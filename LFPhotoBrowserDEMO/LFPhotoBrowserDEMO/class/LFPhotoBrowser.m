@@ -73,6 +73,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     CGPoint _originalPoint;
     CGPoint _beginPoint;
     CGPoint _endPoint;
+    BOOL _isPullBegan;
+    BOOL _isPulling;
 }
 @property (nonatomic, strong) LFScrollView *scroll;
 @property (nonatomic, strong, readwrite) NSMutableArray *images;
@@ -744,15 +746,27 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 -(void)panGesture:(id)sender
 {
     if (self.currPhotoView.photoInfo.downloadFail) return;
-    /** 滑动情况下不能触发 */
+    /** 缩放状态下不触发 */
     if (self.currPhotoView.zoomScale > 1.f) return;
+    /** 滑动情况下不能触发 */
+    BOOL isScroll = self.currPhotoView.isTracking || self.currPhotoView.isDragging || self.currPhotoView.isDecelerating || self.currPhotoView.isZooming || self.currPhotoView.isZoomBouncing;
     
     UIPanGestureRecognizer *panGesture = sender;
     CGPoint movePoint = [panGesture translationInView:self.currPhotoView];
+    
+    /** 优先判断：
+        1、已经开始下拉 无视以下步骤
+        2、是向上滑动 停止
+     */
+    if (!_isPulling) {
+        if ((_beginPoint.y > movePoint.y || self.currPhotoView.contentOffset.y > 0) && isScroll) return;
+    }
+    
     CGRect currFrame = self.currPhotoView.photoRect;
     switch (panGesture.state)
     {
         case UIGestureRecognizerStateBegan:{
+            _isPullBegan = YES;
             _beginPoint = movePoint;
             self.movePhotoView.hidden = YES;
             [self obtainTargetFrame];
@@ -762,17 +776,13 @@ dispatch_sync(dispatch_get_main_queue(), block);\
             break;
         case UIGestureRecognizerStateEnded:{
             _originalPoint = _beginPoint = _endPoint = CGPointZero;
-            
-            if(currFrame.size.width > self.currPhotoView.frame.size.width * 0.75)
-            {
-                _isStatusBarHiden = YES;
-                CGRect currRect = self.currPhotoView.bounds;
-                if (CGRectEqualToRect(currFrame, currRect)) {
-                    self.movePhotoView.hidden = NO;
-                    [_coverView removeFromSuperview];
-                    _coverView = nil;
-                    [self setNeedsStatusBarAppearanceUpdate];
-                } else {
+            if (_isPullBegan && _isPulling) { /** 有触发滑动情况 */
+                _isPullBegan = NO;
+                _isPulling = NO;
+                if(currFrame.size.width > self.currPhotoView.frame.size.width * 0.75)
+                {
+                    _isStatusBarHiden = YES;
+                    CGRect currRect = (CGRect){CGPointZero, self.currPhotoView.bounds.size};
                     [UIView animateWithDuration:0.25 animations:^{
                         self.bgImageView.alpha = 1.0f;
                         [self.navigationController.navigationBar setAlpha:0];
@@ -784,72 +794,75 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                         _coverView = nil;
                         [self setNeedsStatusBarAppearanceUpdate];
                     }];
+                }else{
+                    [self handleAnimationEnd];
                 }
-            }else{
-                [self handleAnimationEnd];
             }
         }
             break;
         case UIGestureRecognizerStateChanged:{
-            
-            BOOL isChanged = NO;
-            /** 当前移动点 大于 起始点 同时 大于 上一次移动点 视为向下滑动 */
-            if(movePoint.y > _beginPoint.y && movePoint.y > _originalPoint.y && currFrame.size.width > self.currPhotoView.frame.size.width/2){ /** 缩小 */
-                isChanged = YES;
-                _endPoint = _originalPoint;
-                if (_isStatusBarHiden) {
-                    _isStatusBarHiden = NO;
-                    [self setNeedsStatusBarAppearanceUpdate];
+            if (_isPullBegan) {
+                _isPulling = YES;
+                BOOL isChanged = NO;
+                /** 当前移动点 大于 起始点 同时 大于 上一次移动点 视为向下滑动 */
+                if(movePoint.y > _beginPoint.y && movePoint.y > _originalPoint.y && currFrame.size.width > self.currPhotoView.frame.size.width/2){ /** 缩小 */
+                    isChanged = YES;
+                    _endPoint = _originalPoint;
+                    if (_isStatusBarHiden) {
+                        _isStatusBarHiden = NO;
+                        [self setNeedsStatusBarAppearanceUpdate];
+                    }
+                    /** 当前移动点 小于 结束点 视为向上滑动 */
+                }else if(movePoint.y <= _endPoint.y && currFrame.size.width < self.currPhotoView.frame.size.width){ /** 放大 */
+                    isChanged = YES;
                 }
-                /** 当前移动点 小于 结束点 视为向上滑动 */
-            }else if(movePoint.y <= _endPoint.y && currFrame.size.width < self.currPhotoView.frame.size.width){ /** 放大 */
-                isChanged = YES;
+                
+                
+                CGFloat moveX = (movePoint.x - _originalPoint.x) / 1.5;
+                CGFloat moveY = (movePoint.y - _originalPoint.y);
+                if (isChanged) {
+                    moveY /= 2;
+                    
+                    CGFloat inset = (movePoint.y - _originalPoint.y)/2;
+                    CGRect newRect = currFrame;//CGRectInset(currFrame, inset, inset);此方法不是绝对比例缩放，导致部分尺寸图片缩放偏小
+                    newRect.origin.x += inset/2;
+                    newRect.origin.y += inset/2;
+                    CGSize oldSize = newRect.size;
+                    newRect.size.width -= inset;
+                    newRect.size.height = oldSize.height * newRect.size.width / oldSize.width;
+                    
+                    /** 拖动大于屏幕时，固定大小 */
+                    if (newRect.size.width > self.currPhotoView.contentSize.width) {
+                        CGFloat width = newRect.size.width;
+                        newRect.size.width = self.currPhotoView.contentSize.width;
+                        newRect.origin.x += (width - newRect.size.width)/2;
+                    }
+                    if (newRect.size.height > self.currPhotoView.contentSize.height) {
+                        CGFloat height = newRect.size.height;
+                        newRect.size.height = self.currPhotoView.contentSize.height;
+                        newRect.origin.y += (height - newRect.size.height)/2;
+                    }
+                    currFrame = newRect;
+                    
+                    //设置透明度
+                    CGFloat alpha = 1-((self.currPhotoView.frame.size.width - currFrame.size.width)/(self.currPhotoView.frame.size.width/2));
+                    if (alpha > 1.f) {
+                        alpha = 1.f;
+                    } else if (alpha < 0.f) {
+                        alpha = 0.f;
+                    }
+                    _bgImageView.alpha = alpha;
+                    [self.currPhotoView setSubControlAlpha:alpha];
+                    
+                    [self.navigationController.navigationBar setAlpha:1-alpha];
+                }
+                
+                /** 移动 */
+                currFrame.origin.x += moveX;
+                currFrame.origin.y += moveY;
+                
+                [self.currPhotoView setPhotoRect:currFrame];
             }
-            
-            
-            CGFloat moveX = (movePoint.x - _originalPoint.x) / 1.5;
-            CGFloat moveY = (movePoint.y - _originalPoint.y);
-            if (isChanged) {
-                moveY /= 2;
-                
-                CGFloat inset = (movePoint.y - _originalPoint.y)/2;
-                CGRect newRect = currFrame;//CGRectInset(currFrame, inset, inset);此方法不是绝对比例缩放，导致部分尺寸图片缩放偏小
-                newRect.origin.x += inset/2;
-                newRect.origin.y += inset/2;
-                CGSize oldSize = newRect.size;
-                newRect.size.width -= inset;
-                newRect.size.height = oldSize.height * newRect.size.width / oldSize.width;
-                
-                if (newRect.size.width > self.currPhotoView.bounds.size.width) {
-                    CGFloat width = newRect.size.width;
-                    newRect.size.width = self.currPhotoView.bounds.size.width;
-                    newRect.origin.x += (width - newRect.size.width)/2;
-                }
-                if (newRect.size.height > self.currPhotoView.bounds.size.height) {
-                    CGFloat height = newRect.size.height;
-                    newRect.size.height = self.currPhotoView.bounds.size.height;
-                    newRect.origin.y += (height - newRect.size.height)/2;
-                }
-                currFrame = newRect;
-                
-                //设置透明度
-                CGFloat alpha = 1-((self.currPhotoView.frame.size.width - currFrame.size.width)/(self.currPhotoView.frame.size.width/2));
-                if (alpha > 1.f) {
-                    alpha = 1.f;
-                } else if (alpha < 0.f) {
-                    alpha = 0.f;
-                }
-                _bgImageView.alpha = alpha;
-                [self.currPhotoView setSubControlAlpha:alpha];
-                
-                [self.navigationController.navigationBar setAlpha:1-alpha];
-            }
-            
-            /** 移动 */
-            currFrame.origin.x += moveX;
-            currFrame.origin.y += moveY;
-            
-            [self.currPhotoView setPhotoRect:currFrame];
         }
             break;
         default:
