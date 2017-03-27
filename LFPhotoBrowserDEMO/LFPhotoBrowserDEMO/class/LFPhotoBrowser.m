@@ -106,10 +106,6 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 /** 目标遮罩图片 */
 @property (nonatomic, strong) UIImage *targetMaskImage;
 
-
-/** 长按列表 */
-@property (nonatomic, strong) NSMutableArray *lpActionItems;
-
 /** 子线程 */
 @property (nonatomic, strong) dispatch_queue_t globalSerialQueue;
 
@@ -873,66 +869,66 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 }
 
 #pragma mark - photoView手势代理
--(void)photoViewGesture:(LFPhotoView *)photoView singleTapImage:(UIImage *)image
+-(void)photoViewGesture:(LFPhotoView *)photoView singleTapPhotoType:(PhotoType)PhotoType object:(id /* UIImage * /NSURL * */)object
 {
     [self.movePhotoView removeFromSuperview];
     [self obtainTargetFrame];
     [self handleAnimationEnd];
 }
 
--(void)photoViewGesture:(LFPhotoView *)photoView longPressImage:(UIImage *)image
+-(void)photoViewGesture:(LFPhotoView *)photoView longPressPhotoType:(PhotoType)PhotoType object:(id /* UIImage * /NSURL * */)object
 {
-    UIImage *clickImage = image;
     __block NSMutableArray *actionItems = [NSMutableArray array];
-    if ([self.delegate respondsToSelector:@selector(photoBrowserLongPressActionItems:image:)]) {
-        NSArray *items = [self.delegate photoBrowserLongPressActionItems:self image:clickImage];
+    if ([self.delegate respondsToSelector:@selector(photoBrowserLongPressActionItems:photoType:object:)]) {
+        NSArray *items = [self.delegate photoBrowserLongPressActionItems:self photoType:PhotoType object:object];
         if (items) {
             [actionItems addObjectsFromArray:items];
         }
     } else if (self.longPressActionItemsBlock) {
-        NSArray *items = self.longPressActionItemsBlock(clickImage);
+        NSArray *items = self.longPressActionItemsBlock(PhotoType, object);
         if (items) {
             [actionItems addObjectsFromArray:items];
         }
-    } else {
-        [actionItems addObjectsFromArray:self.lpActionItems];
     }
     
-    /** 列表排序 */
-    [actionItems sortUsingComparator:^NSComparisonResult(LFPhotoSheetAction *  _Nonnull obj1, LFPhotoSheetAction *  _Nonnull obj2) {
-        return obj1.style > obj2.style;
-    }];
-    
-    NSString *cancelTitle = nil, *destructiveTitle = nil;
-    NSMutableString *otherTitles = [NSMutableString stringWithFormat:@""];
-    for (LFPhotoSheetAction *action in actionItems) {
-        switch (action.style) {
-            case LFPhotoSheetActionType_Default:
-                //                [otherTitles addObject:action.title];
-                [otherTitles appendString:action.title];
-                [otherTitles appendString:kSeparator];
-                break;
-            case LFPhotoSheetActionType_Destructive:
-                destructiveTitle = action.title;
-                break;
-            case LFPhotoSheetActionType_Cancel:
-                cancelTitle = action.title;
-                break;
+    if (actionItems.count) { /** 存在才启动长按菜单 */
+        /** 列表排序 */
+        [actionItems sortUsingComparator:^NSComparisonResult(LFPhotoSheetAction *  _Nonnull obj1, LFPhotoSheetAction *  _Nonnull obj2) {
+            return obj1.style > obj2.style;
+        }];
+        
+        NSString *cancelTitle = nil, *destructiveTitle = nil;
+        NSMutableString *otherTitles = [NSMutableString stringWithFormat:@""];
+        for (LFPhotoSheetAction *action in actionItems) {
+            switch (action.style) {
+                case LFPhotoSheetActionType_Default:
+                    //                [otherTitles addObject:action.title];
+                    [otherTitles appendString:action.title];
+                    [otherTitles appendString:kSeparator];
+                    break;
+                case LFPhotoSheetActionType_Destructive:
+                    destructiveTitle = action.title;
+                    break;
+                case LFPhotoSheetActionType_Cancel:
+                    cancelTitle = action.title;
+                    break;
+            }
+        }
+        [otherTitles deleteCharactersInRange:NSMakeRange(otherTitles.length - kSeparator.length, kSeparator.length)];
+        
+        if (destructiveTitle.length || otherTitles.length) {
+            UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil cancelButtonTitle:(cancelTitle.length ? cancelTitle : @"取消") destructiveButtonTitle:destructiveTitle otherButtonTitles:otherTitles block:^(NSInteger buttonIndex) {
+                if (actionItems.count > buttonIndex) {
+                    LFPhotoSheetAction *action = [actionItems objectAtIndex:buttonIndex];
+                    if (action.handler) {
+                        action.handler(object);
+                    }
+                }
+            }];
+            [sheet showInView:self.view];
         }
     }
-    [otherTitles deleteCharactersInRange:NSMakeRange(otherTitles.length - kSeparator.length, kSeparator.length)];
     
-    if (destructiveTitle.length || otherTitles.length) {
-        UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil cancelButtonTitle:(cancelTitle.length ? cancelTitle : @"取消") destructiveButtonTitle:destructiveTitle otherButtonTitles:otherTitles block:^(NSInteger buttonIndex) {
-            if (actionItems.count > buttonIndex) {
-                LFPhotoSheetAction *action = [actionItems objectAtIndex:buttonIndex];
-                if (action.handler) {
-                    action.handler(clickImage);
-                }
-            }
-        }];
-        [sheet showInView:self.view];
-    }
 }
 
 -(void)photoViewWillBeginZooming:(LFPhotoView *)photoView
@@ -1019,31 +1015,6 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 - (LFPhotoView *)showView
 {
     return self.currPhotoView;
-}
-
-- (NSArray *)actionItems
-{
-    return [self.lpActionItems copy];
-}
-
-#pragma mark - 懒加载 长按列表数据
-- (NSMutableArray *)lpActionItems
-{
-    if (_lpActionItems == nil) {
-        
-        LFPhotoSheetAction *action1 = [LFPhotoSheetAction actionWithTitle:@"保存图片" style:LFPhotoSheetActionType_Default handler:^(id object) {
-            
-            NSLog(@"保存到相册");
-        }];
-        
-        LFPhotoSheetAction *action2 = [LFPhotoSheetAction actionWithTitle:@"取消" style:LFPhotoSheetActionType_Cancel handler:^(id object) {
-            NSLog(@"取消");
-        }];
-        
-        _lpActionItems = [NSMutableArray arrayWithObjects:action1, action2, nil];
-    }
-    
-    return _lpActionItems;
 }
 
 - (void)setSlideRange:(NSUInteger)slideRange

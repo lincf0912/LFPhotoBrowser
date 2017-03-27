@@ -11,6 +11,8 @@
 
 @interface LFAVPlayerLayerView : UIImageView
 
+@property (nonatomic, readonly) AVPlayer *player;
+
 - (void)setPlayer:(AVPlayer*)player;
 
 @end

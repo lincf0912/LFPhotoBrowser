@@ -198,14 +198,22 @@
     }
 }
 
-- (NSArray <LFPhotoSheetAction *>*)photoBrowserLongPressActionItems:(LFPhotoBrowser *)photoBrowser image:(UIImage *)image
+- (NSArray <LFPhotoSheetAction *>*)photoBrowserLongPressActionItems:(LFPhotoBrowser *)photoBrowser photoType:(PhotoType)PhotoType object:(id /* UIImage * /NSURL * */)object;
 {
-    NSMutableArray *items = [NSMutableArray arrayWithArray:photoBrowser.actionItems];
-    LFPhotoSheetAction *action = [LFPhotoSheetAction actionWithTitle:@"识别图中二维码" style:LFPhotoSheetActionType_Default handler:^(id object) {
+    LFPhotoSheetAction *action1 = [LFPhotoSheetAction actionWithTitle:@"保存图片" style:LFPhotoSheetActionType_Default handler:^(id object) {
+        
+        NSLog(@"保存到相册");
+    }];
+    
+    LFPhotoSheetAction *action2 = [LFPhotoSheetAction actionWithTitle:@"取消" style:LFPhotoSheetActionType_Cancel handler:^(id object) {
+        NSLog(@"取消");
+    }];
+
+    LFPhotoSheetAction *action3 = [LFPhotoSheetAction actionWithTitle:@"识别图中二维码" style:LFPhotoSheetActionType_Default handler:^(id object) {
         NSLog(@"新增识别图中二维码");
     }];
-    [items addObject:action];
-    return [items copy];
+    
+    return @[action1, action2, action3];
 }
 
 #warning 注释以下方法，视频则为在线播放

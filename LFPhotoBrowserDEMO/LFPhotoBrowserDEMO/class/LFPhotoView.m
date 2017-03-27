@@ -145,12 +145,8 @@
 -(void)layoutSubviews
 {
     [super layoutSubviews];
-    
-    if (self.photoInfo.photoType == PhotoType_image) {
-        [_progressView setFrame:self.bounds];
-    } else if (self.photoInfo.photoType == PhotoType_video) {
-        
-    }
+
+    [_progressView setFrame:self.bounds];
 }
 
 -(void)dealloc
@@ -199,6 +195,20 @@
 }
 
 #pragma mark - 手势处理
+
+- (id)getSelectObject
+{
+    id object = nil;
+    if (self.photoInfo.photoType == PhotoType_image) {
+        object = _customView.image;
+    } else if (self.photoInfo.photoType == PhotoType_video) {
+        if (self.loadType == downLoadTypeLocale) { /** 本地视频才回调URL */
+            object = self.videoPlayer.URL;
+        }
+    }
+    return object;
+}
+
 #pragma mark 单击手势
 - (void)handleSingleTap:(UIGestureRecognizer *)tap{
     //    if(!_customView) return;
@@ -208,8 +218,8 @@
         delay = .1f;
     }
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        if([self.photoViewDelegate respondsToSelector:@selector(photoViewGesture:singleTapImage:)]){
-            [self.photoViewDelegate photoViewGesture:self singleTapImage:_customView.image];
+        if([self.photoViewDelegate respondsToSelector:@selector(photoViewGesture:singleTapPhotoType:object:)]){
+            [self.photoViewDelegate photoViewGesture:self singleTapPhotoType:self.photoInfo.photoType object:[self getSelectObject]];
         }
     });
 }
@@ -224,8 +234,8 @@
         [self zoomToRect:(CGRect){point,1,1} animated:YES];
     }
     
-    if([self.photoViewDelegate respondsToSelector:@selector(photoViewGesture:doubleTapImage:)]){
-        [self.photoViewDelegate photoViewGesture:self doubleTapImage:_customView.image];
+    if([self.photoViewDelegate respondsToSelector:@selector(photoViewGesture:doubleTapPhotoType:object:)]){
+        [self.photoViewDelegate photoViewGesture:self doubleTapPhotoType:self.photoInfo.photoType object:[self getSelectObject]];
     }
 }
 
@@ -234,8 +244,8 @@
 {
     if(!_customView) return;
     if(longGesture.state == UIGestureRecognizerStateBegan){
-        if([self.photoViewDelegate respondsToSelector:@selector(photoViewGesture:longPressImage:)]){
-            [self.photoViewDelegate photoViewGesture:self longPressImage:_customView.image];
+        if([self.photoViewDelegate respondsToSelector:@selector(photoViewGesture:longPressPhotoType:object:)]){
+            [self.photoViewDelegate photoViewGesture:self longPressPhotoType:self.photoInfo.photoType object:[self getSelectObject]];
         }
     }
 }

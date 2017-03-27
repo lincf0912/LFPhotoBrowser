@@ -29,4 +29,9 @@
     [(AVPlayerLayer*)[self layer] setVideoGravity:AVLayerVideoGravityResizeAspect];
 }
 
+- (AVPlayer *)player
+{
+    return [(AVPlayerLayer*)[self layer] player];
+}
+
 @end

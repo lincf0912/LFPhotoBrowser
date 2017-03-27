@@ -27,8 +27,7 @@
     if (_failureImageView == nil) {
         _failureImageView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, 120, 120)];
         _failureImageView.contentMode = UIViewContentModeScaleAspectFit;
-#warning 设置下载失败的图片
-        _failureImageView.image = [UIImage imageNamed:@"设置下载失败的图片"];
+        _failureImageView.image = [UIImage imageNamed:@"LFPhotoSource.bundle/PhotoDownloadfailedSamll@2x"];
         _failureImageView.center = CGPointMake(self.center.x, self.center.y - 150);
     }
     [self addSubview:_failureImageView];
