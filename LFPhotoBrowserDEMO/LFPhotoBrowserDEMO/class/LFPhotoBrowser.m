@@ -7,10 +7,10 @@
 //
 
 #import "LFPhotoBrowser.h"
-#import "LFScrollView.h"
+#import "LFPhotoScrollView.h"
 #import "UIImageView+WebCache.h"
-#import "UIActionSheet+Block.h"
-#import "UIViewController+Extension.h"
+#import "UIActionSheet+LFPB_Block.h"
+#import "UIViewController+LFPB_Extension.h"
 
 #define kRound(f) round(f*10)/10
 
@@ -76,7 +76,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     BOOL _isPullBegan;
     BOOL _isPulling;
 }
-@property (nonatomic, strong) LFScrollView *scroll;
+@property (nonatomic, strong) LFPhotoScrollView *photoScrollView;
 @property (nonatomic, strong, readwrite) NSMutableArray *images;
 @property (nonatomic, strong) UIImageView *bgImageView;//背景imageView
 @property (nonatomic, strong) UIPageControl *pageControl;
@@ -331,24 +331,24 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 - (void)setupView
 {
     /** 设置scrollview*/
-    if(!_scroll){
-        _scroll = [[LFScrollView alloc]init];
-        _scroll.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
-        _scroll.autoresizesSubviews = YES;
-        _scroll.backgroundColor = [UIColor clearColor];
-        [_scroll setShowsHorizontalScrollIndicator:NO];
-        [_scroll setDelegate:self];
-        [_scroll setPagingEnabled:YES];
-        [_scroll setScrollEnabled:YES];
-        [self.view addSubview:_scroll];
+    if(!_photoScrollView){
+        _photoScrollView = [[LFPhotoScrollView alloc]init];
+        _photoScrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth|UIViewAutoresizingFlexibleHeight;
+        _photoScrollView.autoresizesSubviews = YES;
+        _photoScrollView.backgroundColor = [UIColor clearColor];
+        [_photoScrollView setShowsHorizontalScrollIndicator:NO];
+        [_photoScrollView setDelegate:self];
+        [_photoScrollView setPagingEnabled:YES];
+        [_photoScrollView setScrollEnabled:YES];
+        [self.view addSubview:_photoScrollView];
         
         if (kScrollAminated == 1) {
             _shieldView = [[UIView alloc] initWithFrame:CGRectMake(-kShieldViewW, 0, kShieldViewW, SCREEN_HEIGHT)];
             _shieldView.backgroundColor = self.bgImageView.backgroundColor;
-            [self.scroll addSubview:_shieldView];
+            [self.photoScrollView addSubview:_shieldView];
         }
     }
-    _scroll.frame = CGRectMake(0, 0, kScrollViewW, SCREEN_HEIGHT);
+    self.photoScrollView.frame = CGRectMake(0, 0, kScrollViewW, SCREEN_HEIGHT);
     
     
     /** 设置两个photoview*/
@@ -366,25 +366,25 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 
 - (void)createPrevPhotoView
 {
-    CGFloat scrollViewH = _scroll.frame.size.height;
+    CGFloat scrollViewH = self.photoScrollView.frame.size.height;
     CGRect frame = CGRectMake(kScrollViewW, 0, SCREEN_WIDTH, scrollViewH);
     _prevPhotoView = [[LFPhotoView alloc] initWithFrame:frame];
     _prevPhotoView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     _prevPhotoView.autoresizesSubviews = YES;
     _prevPhotoView.photoViewDelegate = self;
-    [_scroll addSubview:_prevPhotoView];
+    [self.photoScrollView addSubview:_prevPhotoView];
     self.currPhotoView = _prevPhotoView;
 }
 
 - (void)createNextPhotoView
 {
-    CGFloat scrollViewH = _scroll.frame.size.height;
+    CGFloat scrollViewH = self.photoScrollView.frame.size.height;
     CGRect frame = CGRectMake(kScrollViewW, 0, SCREEN_WIDTH, scrollViewH);
     _nextPhotoView = [[LFPhotoView alloc] initWithFrame:frame];
     _nextPhotoView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     _nextPhotoView.autoresizesSubviews = YES;
     _nextPhotoView.photoViewDelegate = self;
-    [_scroll addSubview:_nextPhotoView];
+    [self.photoScrollView addSubview:_nextPhotoView];
     self.movePhotoView = _nextPhotoView;
 }
 
@@ -428,7 +428,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     /*设置图片*/
     LFPhotoInfo *photoInfo = _images[num];
     photoView.photoInfo = photoInfo;
-    [self.scroll bringSubviewToFront:photoView];
+    [self.photoScrollView bringSubviewToFront:photoView];
 }
 
 #pragma mark 重置scrollView的起始位置
@@ -439,8 +439,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     if(_images.count == 1){
         contentSize.width = kScrollViewW;
     }
-    if (self.scroll.contentSize.width != contentSize.width) {
-        [self.scroll setContentSize:contentSize];
+    if (self.photoScrollView.contentSize.width != contentSize.width) {
+        [self.photoScrollView setContentSize:contentSize];
     }
     
     if(self.images.count > 1){
@@ -477,7 +477,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         self.movePhotoView.frame = tmp;
     }
     /** 偏移contentOffset */
-    [_scroll setContentOffset:CGPointMake(newPointX, 0)];
+    [self.photoScrollView setContentOffset:CGPointMake(newPointX, 0)];
 }
 
 #pragma mark - 设置self.currPhotoView的位置(0:左边，1：中间，2：右边)
@@ -490,7 +490,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     /** 移动张永远在当前张后面 */
     self.movePhotoView.frame = tmp;
     
-    [_scroll setContentOffset:CGPointMake(position * kScrollViewW, 0)];
+    [self.photoScrollView setContentOffset:CGPointMake(position * kScrollViewW, 0)];
 }
 
 - (void)resetNextImageView:(LFPhotoView *)imageView
@@ -555,7 +555,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
             frame.origin.x = CGRectGetMinX(self.currPhotoView.frame) - frame.size.width + ((CGRectGetMinX(self.currPhotoView.frame) - scrollView.contentOffset.x)/CGRectGetWidth(self.currPhotoView.frame))*frame.size.width;
         }
         self.shieldView.frame = frame;
-        [self.scroll bringSubviewToFront:self.shieldView];
+        [self.photoScrollView bringSubviewToFront:self.shieldView];
     }
 }
 
@@ -680,17 +680,17 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                 }
                 
                 /** 判断1个的情况，增加数据源时需要调整contentSize */
-                if (self.scroll.contentSize.width == kScrollViewW) {
+                if (self.photoScrollView.contentSize.width == kScrollViewW) {
                     /** 初始化移动view */
                     if (!_nextPhotoView) {
                         [self createNextPhotoView];
                         /** 置顶当前张 */
-                        [self.scroll bringSubviewToFront:self.currPhotoView];
+                        [self.photoScrollView bringSubviewToFront:self.currPhotoView];
                     }
                 }
                 /** 非滑动情况下 */
-                if (!(self.scroll.isDragging || self.scroll.isDecelerating || self.scroll.isTracking)) {
-                    if (self.scroll.contentOffset.x != kScrollViewW) {
+                if (!(self.photoScrollView.isDragging || self.photoScrollView.isDecelerating || self.photoScrollView.isTracking)) {
+                    if (self.photoScrollView.contentOffset.x != kScrollViewW) {
                         /** 重置UI */
                         [self resetScrollView];
                     }

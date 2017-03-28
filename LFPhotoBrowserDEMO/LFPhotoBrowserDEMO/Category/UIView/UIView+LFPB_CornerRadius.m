@@ -6,9 +6,9 @@
 //  Copyright © 2016年 GZMiracle. All rights reserved.
 //
 
-#import "UIView+CornerRadius.h"
+#import "UIView+LFPB_CornerRadius.h"
 
-@implementation UIView (CornerRadius)
+@implementation UIView (LFPB_CornerRadius)
 
 - (void)setCornerRadius:(float)cornerRadius
 {

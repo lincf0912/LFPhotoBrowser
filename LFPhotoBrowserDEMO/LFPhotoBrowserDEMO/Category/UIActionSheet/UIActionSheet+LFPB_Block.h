@@ -15,7 +15,7 @@
 
 typedef void (^UIActionSheetBlock)(NSInteger buttonIndex);
 
-@interface UIActionSheet (Block) <UIActionSheetDelegate>
+@interface UIActionSheet (LFPB_Block) <UIActionSheetDelegate>
 
 - (id)initWithTitle:(NSString *)title cancelButtonTitle:(NSString *)cancelButtonTitle destructiveButtonTitle:(NSString *)destructiveButtonTitle otherButtonTitles:(NSString *)otherButtonTitles block:(UIActionSheetBlock)block;
 

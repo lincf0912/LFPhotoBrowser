@@ -6,9 +6,9 @@
 //  Copyright © 2016年 GZMiracle. All rights reserved.
 //
 
-#import "UIViewController+Extension.h"
+#import "UIViewController+LFPB_Extension.h"
 
-@implementation UIViewController (Extension)
+@implementation UIViewController (LFPB_Extension)
 
 #pragma mark - 获取当前屏幕显示的ViewController
 + (UIViewController *)getCurrentVC

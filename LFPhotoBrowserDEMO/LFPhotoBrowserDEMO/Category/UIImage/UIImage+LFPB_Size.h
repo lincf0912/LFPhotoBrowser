@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface UIImage (Size)
+@interface UIImage (LFPB_Size)
 
 /** 读取图片路径，超过最大宽度后自动缩放，返回图片大小 */
 + (CGSize)imageSizeByFileName:(NSString *)fileName maxWidth:(CGFloat)maxWidth;

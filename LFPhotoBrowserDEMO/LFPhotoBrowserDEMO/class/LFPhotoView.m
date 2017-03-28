@@ -11,14 +11,14 @@
 #import "LFAVPlayerLayerView.h"
 #import "LFVideoSlider.h"
 
-#import <UIImageView+WebCache.h>
-#import "UIImage+Format.h"
+#import "UIImageView+WebCache.h"
+#import "UIImage+LFPB_Format.h"
 
 #import "ImageProgressView.h"
 #import "VideoProgressView.h"
 
-#import "UIView+CornerRadius.h"
-#import "UIImage+Size.h"
+#import "UIView+LFPB_CornerRadius.h"
+#import "UIImage+LFPB_Size.h"
 
 @interface LFPhotoView() <UIScrollViewDelegate, LFPlayerDelegate, LFVideoSliderDelegate>
 {

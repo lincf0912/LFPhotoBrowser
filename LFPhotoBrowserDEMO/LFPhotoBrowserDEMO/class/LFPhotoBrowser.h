@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "PhotoViewType.h"
 #import "LFPhotoView.h"
 #import "LFPhotoInfo.h"
 

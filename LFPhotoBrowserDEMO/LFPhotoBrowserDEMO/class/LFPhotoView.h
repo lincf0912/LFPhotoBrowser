@@ -7,13 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "LFScrollView.h"
+#import "LFPhotoScrollView.h"
 #import "PhotoViewType.h"
 #import "LFModelProtocol.h"
 #import "LFPhotoProtocol.h"
 #import "LFVideoProtocol.h"
 
-@class LFPhotoView,LFPhotoInfo;
+@class LFPhotoView;
 
 @protocol LFPhotoViewDelegate <NSObject>
 @optional
@@ -40,7 +40,7 @@
 -(BOOL)photoViewDownLoadVideo:(LFPhotoView *)photoView url:(NSString *)url;
 @end
 
-@interface LFPhotoView : LFScrollView
+@interface LFPhotoView : LFPhotoScrollView
 /** 加载方式*/
 @property (nonatomic, readonly) downLoadType loadType;
 @property (nonatomic, strong) id<LFModelProtocol, LFPhotoProtocol, LFVideoProtocol> photoInfo;

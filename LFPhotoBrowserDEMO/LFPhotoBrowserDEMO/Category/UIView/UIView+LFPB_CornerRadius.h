@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface UIView (CornerRadius)
+@interface UIView (LFPB_CornerRadius)
 
 /**
  *  @author lincf

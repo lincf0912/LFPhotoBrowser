@@ -6,7 +6,7 @@
 //  Copyright © 2016年 GZMiracle. All rights reserved.
 //
 
-#import "UIImage+Format.h"
+#import "UIImage+LFPB_Format.h"
 #import "UIImage+MultiFormat.h"
 
 #define _FOUR_CC(c1,c2,c3,c4) ((uint32_t)(((c4) << 24) | ((c3) << 16) | ((c2) << 8) | (c1)))
@@ -75,7 +75,7 @@ LFImageType LFImageDetectType(CFDataRef data) {
     return LFImageType_Unknow;
 }
 
-@implementation UIImage (Format)
+@implementation UIImage (LFPB_Format)
 
 + (instancetype)LF_imageWithImagePath:(NSString *)imagePath
 {

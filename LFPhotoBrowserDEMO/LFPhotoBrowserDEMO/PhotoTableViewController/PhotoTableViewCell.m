@@ -8,7 +8,7 @@
 
 #import "PhotoTableViewCell.h"
 #import "UIImageView+WebCache.h"
-#import "UIImage+Size.h"
+#import "UIImage+LFPB_Size.h"
 #import "MBProgressHUD.h"
 
 @interface PhotoTableViewCell ()

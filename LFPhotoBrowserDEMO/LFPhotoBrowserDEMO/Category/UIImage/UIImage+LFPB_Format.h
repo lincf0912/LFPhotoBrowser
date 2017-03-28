@@ -23,7 +23,7 @@ typedef NS_ENUM(NSUInteger, LFImageType) {
 
 CG_EXTERN LFImageType LFImageDetectType(CFDataRef data);
 
-@interface UIImage (Format)
+@interface UIImage (LFPB_Format)
 
 /**
  *  @author lincf, 16-09-23 14:09:47

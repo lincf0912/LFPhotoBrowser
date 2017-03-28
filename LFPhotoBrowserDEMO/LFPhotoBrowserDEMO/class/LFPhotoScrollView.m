@@ -6,13 +6,13 @@
 //  Copyright © 2016年 GZMiracle. All rights reserved.
 //
 
-#import "LFScrollView.h"
+#import "LFPhotoScrollView.h"
 
-@interface LFScrollView ()
+@interface LFPhotoScrollView ()
 
 @end
 
-@implementation LFScrollView
+@implementation LFPhotoScrollView
 
 - (instancetype)init
 {

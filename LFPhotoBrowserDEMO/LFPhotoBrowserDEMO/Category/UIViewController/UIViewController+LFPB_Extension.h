@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface UIViewController (Extension)
+@interface UIViewController (LFPB_Extension)
 
 /** 获取当前屏幕显示的ViewController */
 + (UIViewController *)getCurrentVC;

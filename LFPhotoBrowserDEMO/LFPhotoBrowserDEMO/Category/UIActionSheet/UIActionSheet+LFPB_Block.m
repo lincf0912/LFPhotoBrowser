@@ -6,12 +6,12 @@
 //  Copyright (c) 2015年 GZMiracle. All rights reserved.
 //
 
-#import "UIActionSheet+Block.h"
+#import "UIActionSheet+LFPB_Block.h"
 #import <objc/runtime.h>
 
 static char overActionSheetKey;
 
-@implementation UIActionSheet (Block)
+@implementation UIActionSheet (LFPB_Block)
 
 - (id)initWithTitle:(NSString *)title cancelButtonTitle:(NSString *)cancelButtonTitle destructiveButtonTitle:(NSString *)destructiveButtonTitle otherButtonTitles:(NSString *)otherButtonTitles block:(UIActionSheetBlock)block
 {

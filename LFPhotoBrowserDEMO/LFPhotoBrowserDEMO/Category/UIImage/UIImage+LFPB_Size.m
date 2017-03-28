@@ -6,9 +6,9 @@
 //  Copyright (c) 2015年 Anson. All rights reserved.
 //
 
-#import "UIImage+Size.h"
+#import "UIImage+LFPB_Size.h"
 
-@implementation UIImage (Size)
+@implementation UIImage (LFPB_Size)
 
 + (CGSize)imageSizeByFileName:(NSString *)fileName maxWidth:(CGFloat)maxWidth
 {

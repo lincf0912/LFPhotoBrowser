@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface LFScrollView : UIScrollView
+@interface LFPhotoScrollView : UIScrollView
 
 /** 重写父类方法（对UISlider的滑动判断） */
 - (BOOL)touchesShouldBegin:(NSSet *)touches withEvent:(UIEvent *)event inContentView:(UIView *)view;
