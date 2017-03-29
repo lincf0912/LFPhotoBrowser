@@ -29,9 +29,9 @@
 
 -(UIImage *)placeholderImage
 {
-    if(_placeholderImage == nil){
-#warning 设置内置默认图片
-//        _placeholderImage = [UIImage imageNamed:@"默认图片"];
+    if(_placeholderImage == nil && _photoType == PhotoType_image) {
+        /** 图片内置默认占位图 */
+        _placeholderImage = [UIImage imageNamed:@"LFPhotoSource.bundle/PhotoDownloadDefault@2x"];
     }
     return _placeholderImage;
 }
