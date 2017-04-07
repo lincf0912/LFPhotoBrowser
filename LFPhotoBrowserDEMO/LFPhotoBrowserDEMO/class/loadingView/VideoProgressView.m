@@ -45,7 +45,8 @@
 {
     [super layoutSubviews];
     if (self.backCircle) {
-        BOOL animated = [self.backCircle animationForKey:@"rotationAnimation"];
+        BOOL animated = ([self.backCircle animationForKey:@"rotationAnimation"] != nil);
+        /** 删除前记录是否存在动画 */
         [self.backCircle removeFromSuperlayer];
         [self addBackCircleWithSize:self.circlesSize.origin.x lineWidth:self.circlesSize.origin.y];
         if (animated) {
