@@ -40,6 +40,8 @@
 @property (nonatomic, copy) NSURL* URL;
 /** 代理 */
 @property (nonatomic, weak) id<LFPlayerDelegate> delegate;
+/** 视频大小 */
+@property (nonatomic, readonly) CGSize size;
 
 /** 视频控制 */
 - (void)play;

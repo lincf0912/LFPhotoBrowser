@@ -53,6 +53,21 @@ static void *LFPlayerCurrentItemObservationContext = &LFPlayerCurrentItemObserva
          */
         AVURLAsset *asset = [AVURLAsset URLAssetWithURL:mURL options:nil];
         
+        /** size */
+        CGSize videoSize = CGSizeZero;
+        NSArray *assetVideoTracks = [asset tracksWithMediaType:AVMediaTypeVideo];
+        if (assetVideoTracks.count > 0)
+        {
+            // Insert the tracks in the composition's tracks
+            AVAssetTrack *track = [assetVideoTracks firstObject];
+            
+            CGSize dimensions = CGSizeApplyAffineTransform(track.naturalSize, track.preferredTransform);
+            videoSize = CGSizeMake(fabs(dimensions.width), fabs(dimensions.height));
+        } else {
+            NSLog(@"Error reading the transformed video track");
+        }
+        _size = videoSize;
+        
         NSArray *requestedKeys = @[@"playable"];
         
         /* Tells the asset to load the values of any of the specified keys that are not already loaded. */

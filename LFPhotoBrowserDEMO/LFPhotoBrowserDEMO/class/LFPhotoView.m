@@ -646,12 +646,13 @@
     CGRect imageFrame = frame;
     CGRect maskFrame = (CGRect){CGPointZero, frame.size};
     CGSize imageSize = frame.size;
+    CGSize videoSize = CGSizeEqualToSize(CGSizeZero, _customView.image.size) ? self.videoPlayer.size : _customView.image.size;
     if (maskPosition == MaskPosition_None) {
         /** 判断宽度，拉伸 */
-        imageSize = [UIImage scaleImageSizeBySize:_customView.image.size targetSize:CGSizeMake(frame.size.width, CGFLOAT_MAX) isBoth:NO];
+        imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:CGSizeMake(frame.size.width, CGFLOAT_MAX) isBoth:NO];
     } else {
         /** 对两边判断，拉伸最小值 */
-        imageSize = [UIImage scaleImageSizeBySize:_customView.image.size targetSize:frame.size isBoth:YES];
+        imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:frame.size isBoth:YES];
     }
     if (CGSizeEqualToSize(CGSizeZero, imageSize)) {
         imageSize = frame.size;
@@ -771,12 +772,15 @@
     [self removePhotoLoadingView];
     
     if (self.isAminated) {
+        __weak typeof(self) weakSelf = self;
         __weak LFAVPlayerLayerView *blockCustomView = _customView;
         [self addDelayAminateMothed:^{
             [blockCustomView setPlayer:avplayer];
+            [weakSelf calcFrameMaskPosition:MaskPosition_None frame:weakSelf.bounds];
         }];
     } else {
         [_customView setPlayer:avplayer];
+        [self calcFrameMaskPosition:MaskPosition_None frame:self.bounds];
     }
 }
 /** 可以播放 */
@@ -813,7 +817,8 @@
         if (self.tipsLabel == nil) {
             CGFloat height = 30;
             /** 不能直接使用CGRectGetMaxY(_customView.frame)，有下拉缩放的情况坐标需要重新计算 */
-            CGSize imageSize = [UIImage scaleImageSizeBySize:_customView.image.size targetSize:CGSizeMake(self.frame.size.width, CGFLOAT_MAX) isBoth:NO];
+            CGSize videoSize = CGSizeEqualToSize(CGSizeZero, _customView.image.size) ? self.videoPlayer.size : _customView.image.size;
+            CGSize imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:CGSizeMake(self.frame.size.width, CGFLOAT_MAX) isBoth:NO];
             CGFloat y = (CGRectGetHeight(self.frame) + imageSize.height)/2;
             if (CGRectGetHeight(self.frame) < y+height) {
                 y = CGRectGetHeight(self.frame) - height;
