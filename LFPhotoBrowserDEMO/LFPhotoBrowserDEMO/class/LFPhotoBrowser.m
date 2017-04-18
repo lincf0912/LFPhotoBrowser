@@ -11,6 +11,7 @@
 #import "UIImageView+WebCache.h"
 #import "UIActionSheet+LFPB_Block.h"
 #import "UIViewController+LFPB_Extension.h"
+#import <AVFoundation/AVFoundation.h>
 
 #define kRound(f) round(f*10)/10
 
@@ -198,7 +199,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 
 - (void)dealloc
 {
-    
+    /** 恢复原来的音频 */
+    [[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
 }
 
 - (BOOL)prefersStatusBarHidden
