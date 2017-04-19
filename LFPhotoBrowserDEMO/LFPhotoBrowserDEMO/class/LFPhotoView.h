@@ -45,6 +45,8 @@
 @property (nonatomic, readonly) downLoadType loadType;
 @property (nonatomic, strong) id<LFModelProtocol, LFPhotoProtocol, LFVideoProtocol> photoInfo;
 @property (nonatomic, assign) CGRect photoRect;
+/** 关闭缩放 default is YES */
+@property (nonatomic, assign) BOOL zoomEnable;
 /** 代理*/
 @property (nonatomic, weak) id<LFPhotoViewDelegate> photoViewDelegate;
 

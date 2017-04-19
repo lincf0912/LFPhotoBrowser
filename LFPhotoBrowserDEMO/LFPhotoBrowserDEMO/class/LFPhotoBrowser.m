@@ -770,10 +770,19 @@ dispatch_sync(dispatch_get_main_queue(), block);\
             [self obtainTargetFrame];
             /** 转换坐标 */
             [self.coverView setFrame:CGRectMake(kRound(self.targetFrame.origin.x), kRound(self.targetFrame.origin.y), kRound(self.targetFrame.size.width), kRound(self.targetFrame.size.height))];
+            
+            /** 关闭滑动 */
+            self.photoScrollView.scrollEnabled = NO;
+            /** 关闭缩放 */
+            self.currPhotoView.zoomEnable = NO;
         }
             break;
         case UIGestureRecognizerStateEnded:{
             _originalPoint = _beginPoint = _endPoint = CGPointZero;
+            /** 开放滑动 */
+            self.photoScrollView.scrollEnabled = YES;
+            /** 开放缩放 */
+            self.currPhotoView.zoomEnable = YES;
             if (_isPullBegan && _isPulling) { /** 有触发滑动情况 */
                 _isPullBegan = NO;
                 _isPulling = NO;

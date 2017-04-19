@@ -119,6 +119,8 @@
         self.delegate = self;
         self.maximumZoomScale = 3.5f;
         self.minimumZoomScale = 1.f;
+        
+        _zoomEnable = YES;
     }
     return self;
 }
@@ -255,7 +257,7 @@
 - (nullable UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView
 {
     // return a view that will be scaled. if delegate returns nil, nothing happens
-    return _customView;
+    return self.zoomEnable ? _customView : nil;
 }
 
 - (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(nullable UIView *)view
