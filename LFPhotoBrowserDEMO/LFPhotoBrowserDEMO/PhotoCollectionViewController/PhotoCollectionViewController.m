@@ -254,7 +254,7 @@ static NSString * const reuseIdentifier = @"Cell";
     
     /** 获取indexPath */
     
-    NSInteger section = 0, row = 0, count = 0;
+    NSInteger section = 0, row = NSNotFound, count = 0;
     for (NSString *title in self.titleArrs) {
         NSArray *array = self.dataSourcDic[title];
         if ([title isEqualToString:key]) {
@@ -264,6 +264,9 @@ static NSString * const reuseIdentifier = @"Cell";
         section++;
         count += array.count;
     }
+    /** 防止崩溃 */
+    if (row == NSNotFound) return CGRectZero;
+    
     NSIndexPath *indexPath =[NSIndexPath indexPathForRow:row inSection:section];
     PhotoCollectionViewCell * cell = (PhotoCollectionViewCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     if (cell == nil) { /** indexPath 在屏幕外 无法获取cell */
@@ -335,5 +338,21 @@ static NSString * const reuseIdentifier = @"Cell";
     }
 }
 
+- (BOOL)shouldAutorotate
+{
+    return YES;
+}
+
+
+-(UIInterfaceOrientationMask)supportedInterfaceOrientations
+{
+    /** 交由子界面决定横屏情况 */
+    return self.childViewControllers.count ? [self.childViewControllers.firstObject supportedInterfaceOrientations] : UIInterfaceOrientationMaskPortrait;
+}
+
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation
+{
+    return UIInterfaceOrientationPortrait;
+}
 
 @end

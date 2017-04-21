@@ -41,13 +41,12 @@ static void *LFVideoSliderValueObservationContext = &LFVideoSliderValueObservati
     self = [super initWithFrame:frame];
     if (self) {
         _play = [UIButton buttonWithType:UIButtonTypeCustom];
-        _play.frame = CGRectMake(2*kMargin, (frame.size.height-kPlayButtnWH)/2, kPlayButtnWH, kPlayButtnWH);
         [_play setImage:[UIImage imageNamed:@"LFPhotoSource.bundle/playback_play@2x"] forState:UIControlStateNormal];
         [_play setImage:[UIImage imageNamed:@"LFPhotoSource.bundle/playback_pause@2x"] forState:UIControlStateSelected];
         [_play addTarget:self action:@selector(playOnClick:) forControlEvents:UIControlEventTouchUpInside];
         [self addSubview:_play];
         
-        _slider = [[UISlider alloc] initWithFrame:CGRectMake(CGRectGetMaxX(_play.frame)+kMargin, (frame.size.height-kSliderH)/2, CGRectGetWidth(frame) - CGRectGetMaxX(_play.frame) - 3*kMargin, kSliderH)];
+        _slider = [[UISlider alloc] init];
         [_slider setThumbImage:[UIImage imageNamed:@"LFPhotoSource.bundle/slider_thumb@2x"] forState:UIControlStateNormal];
         
         [_slider setMinimumTrackTintColor:[UIColor whiteColor]];
@@ -67,6 +66,22 @@ static void *LFVideoSliderValueObservationContext = &LFVideoSliderValueObservati
         self.userInteractionEnabled = YES;
     }
     return self;
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    _play.frame = CGRectMake(2*kMargin, (self.frame.size.height-kPlayButtnWH)/2, kPlayButtnWH, kPlayButtnWH);
+    
+    if (_playTimeLabel && _totalTimeLabel) {
+        _playTimeLabel.frame = (CGRect){CGPointMake(CGRectGetMaxX(_play.frame)+kMargin, CGRectGetMinY(_play.frame)), _playTimeLabel.frame.size};
+        _totalTimeLabel.frame = (CGRect){CGPointMake(CGRectGetWidth(self.frame)-CGRectGetWidth(_totalTimeLabel.frame)-kMargin, CGRectGetMinY(_play.frame)), _totalTimeLabel.frame.size};
+        
+        [_slider setFrame:CGRectMake(CGRectGetMaxX(_playTimeLabel.frame)+kMargin, (self.frame.size.height-kSliderH)/2, CGRectGetMinX(_totalTimeLabel.frame) - CGRectGetMaxX(_playTimeLabel.frame) - 2*kMargin, kSliderH)];
+    } else {
+        
+        _slider.frame = CGRectMake(CGRectGetMaxX(_play.frame)+kMargin, (self.frame.size.height-kSliderH)/2, CGRectGetWidth(self.frame) - CGRectGetMaxX(_play.frame) - 3*kMargin, kSliderH);
+    }
 }
 
 - (void)dealloc

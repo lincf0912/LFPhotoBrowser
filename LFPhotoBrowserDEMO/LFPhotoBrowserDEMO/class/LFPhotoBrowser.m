@@ -76,6 +76,11 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     CGPoint _endPoint;
     BOOL _isPullBegan;
     BOOL _isPulling;
+    
+    /** 防止横屏原生属性被重置的问题 */
+    CGFloat _navigationBarAlpha;
+    /** 排除系统自动执行scrollViewDidScroll */
+    BOOL _isMTScroll;
 }
 @property (nonatomic, strong) LFPhotoScrollView *photoScrollView;
 @property (nonatomic, strong, readwrite) NSMutableArray *images;
@@ -184,7 +189,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     [super viewWillAppear:animated];
     
     [UIView animateWithDuration:self.animatedTime animations:^{
-        [self.navigationController.navigationBar setAlpha:0];
+        _navigationBarAlpha = 0;
+        [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
     }];
 }
 
@@ -193,7 +199,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     [super viewWillDisappear:animated];
     
     [UIView animateWithDuration:self.animatedTime animations:^{
-        [self.navigationController.navigationBar setAlpha:1];
+        _navigationBarAlpha = 1;
+        [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
     }];
 }
 
@@ -210,15 +217,15 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 
 - (void)setNeedsStatusBarAppearanceUpdate
 {
-    CGFloat alpha = [self.navigationController.navigationBar alpha];
     [super setNeedsStatusBarAppearanceUpdate];
-    [self.navigationController.navigationBar setAlpha:alpha];
+    [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
 }
 
 #pragma mark - app返回前台状态
 - (void)appDidBecomeActive:(NSNotification *)notify
 {
-    [self.navigationController.navigationBar setAlpha:0];
+    _navigationBarAlpha = 0;
+    [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
 }
 
 #pragma mark - 处理动画
@@ -460,6 +467,10 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     }else{
         [self setScrollViewPosition:0];
     }
+    
+    [self.movePhotoView cleanData];
+    
+    _shieldView.frame = CGRectMake(-kShieldViewW, 0, kShieldViewW, SCREEN_HEIGHT);
 }
 
 #pragma mark - 偏移scrollView到中间位置
@@ -488,6 +499,9 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     CGRect tmp = self.currPhotoView.frame;
     tmp.origin.x = position * kScrollViewW;
     self.currPhotoView.frame = tmp;
+    
+    /** 重新指向当前视图为最顶层 */
+    [self.photoScrollView bringSubviewToFront:self.currPhotoView];
     
     /** 移动张永远在当前张后面 */
     self.movePhotoView.frame = tmp;
@@ -531,39 +545,43 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 #pragma mark 拖动时执行的方法
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    if (self.images.count > 1) {
-        //判断向左拖动 或者 向右拖动
-        if (scrollView.contentOffset.x>kScrollViewW && (_curr != self.images.count-1 || _canCirculate)) {//向左滑动
-            [self resetNextImageView:self.movePhotoView];
-        } else if (scrollView.contentOffset.x <kScrollViewW && (_curr != 0 || _canCirculate)) {//向右滑动
-            [self resetPrevImageView:self.movePhotoView];
-        } else if(scrollView.contentOffset.x <kScrollViewW * 2 && _curr == self.images.count-1 && !_canCirculate){ //边缘向右滑动
-            if(self.images.count >1)
-                [self resetPrevImageView:self.movePhotoView];
-        }else if(scrollView.contentOffset.x > 0 && _curr == 0 && !_canCirculate){ //边缘向左滑动
-            if(self.images.count >1)
+    if (_isMTScroll) {
+        
+        if (self.images.count > 1) {
+            //判断向左拖动 或者 向右拖动
+            if (scrollView.contentOffset.x>kScrollViewW && (_curr != self.images.count-1 || _canCirculate)) {//向左滑动
                 [self resetNextImageView:self.movePhotoView];
+            } else if (scrollView.contentOffset.x <kScrollViewW && (_curr != 0 || _canCirculate)) {//向右滑动
+                [self resetPrevImageView:self.movePhotoView];
+            } else if(scrollView.contentOffset.x <kScrollViewW * 2 && _curr == self.images.count-1 && !_canCirculate){ //边缘向右滑动
+                if(self.images.count >1)
+                    [self resetPrevImageView:self.movePhotoView];
+            }else if(scrollView.contentOffset.x > 0 && _curr == 0 && !_canCirculate){ //边缘向左滑动
+                if(self.images.count >1)
+                    [self resetNextImageView:self.movePhotoView];
+            }
         }
-    }
-    
-    
-    if (self.shieldView) {
-        CGRect frame = self.shieldView.frame;
-        if (scrollView.contentOffset.x > CGRectGetMinX(self.currPhotoView.frame)) {
-            /** 向左滑动 */
-            frame.origin.x = CGRectGetMaxX(self.currPhotoView.frame) - ((scrollView.contentOffset.x-CGRectGetMinX(self.currPhotoView.frame))/CGRectGetWidth(self.currPhotoView.frame))*frame.size.width;
-        } else {
-            /** 向右滑动 */
-            frame.origin.x = CGRectGetMinX(self.currPhotoView.frame) - frame.size.width + ((CGRectGetMinX(self.currPhotoView.frame) - scrollView.contentOffset.x)/CGRectGetWidth(self.currPhotoView.frame))*frame.size.width;
+        
+        
+        if (self.shieldView) {
+            CGRect frame = self.shieldView.frame;
+            if (scrollView.contentOffset.x > CGRectGetMinX(self.currPhotoView.frame)) {
+                /** 向左滑动 */
+                frame.origin.x = CGRectGetMaxX(self.currPhotoView.frame) - ((scrollView.contentOffset.x-CGRectGetMinX(self.currPhotoView.frame))/CGRectGetWidth(self.currPhotoView.frame))*frame.size.width;
+            } else {
+                /** 向右滑动 */
+                frame.origin.x = CGRectGetMinX(self.currPhotoView.frame) - frame.size.width + ((CGRectGetMinX(self.currPhotoView.frame) - scrollView.contentOffset.x)/CGRectGetWidth(self.currPhotoView.frame))*frame.size.width;
+            }
+            self.shieldView.frame = frame;
+            [self.photoScrollView bringSubviewToFront:self.shieldView];
         }
-        self.shieldView.frame = frame;
-        [self.photoScrollView bringSubviewToFront:self.shieldView];
     }
 }
 
 #pragma mark 拖动开始执行的方法
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
+    _isMTScroll = YES;
     /** 在未停止上一次滑动时，再次触发新的滑动 */
     if (scrollView.isDecelerating) {
         /** 判断与当前视图是否一致 */
@@ -593,6 +611,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 #pragma mark 拖动完毕后执行的方法
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
+    _isMTScroll = NO;
     BOOL isNextPage = NO;
     if (scrollView.contentOffset.x >= kScrollViewW*2 && (_curr != self.images.count - 1 || _canCirculate)) {//向左滑动
         isNextPage = YES;
@@ -642,7 +661,6 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         self.movePhotoView = photoView;
         
         [self.currPhotoView endUpdate];
-        [self.movePhotoView cleanData];
         
         /** 重置全局 */
         [self resetScrollView];
@@ -792,7 +810,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                     CGRect currRect = (CGRect){CGPointZero, self.currPhotoView.bounds.size};
                     [UIView animateWithDuration:0.25 animations:^{
                         self.bgImageView.alpha = 1.0f;
-                        [self.navigationController.navigationBar setAlpha:0];
+                        _navigationBarAlpha = 0;
+                        [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
                         [self.currPhotoView setSubControlAlpha:1.f];
                         [self.currPhotoView calcFrameMaskPosition:MaskPosition_None frame:currRect];
                     }completion:^(BOOL finished) {
@@ -861,7 +880,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                     _bgImageView.alpha = alpha;
                     [self.currPhotoView setSubControlAlpha:alpha];
                     
-                    [self.navigationController.navigationBar setAlpha:1-alpha];
+                    _navigationBarAlpha = 1-alpha;
+                    [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
                 }
                 
                 /** 移动 */
@@ -1023,9 +1043,22 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     return UIInterfaceOrientationMaskAllButUpsideDown;
 }
 
-- (LFPhotoView *)showView
+#pragma mark - iOS7
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
-    return self.currPhotoView;
+    self.currPhotoView.orientation = toInterfaceOrientation;
+    self.movePhotoView.orientation = toInterfaceOrientation;
+    
+    _panGesture.enabled = (toInterfaceOrientation == UIInterfaceOrientationPortrait);
+}
+#pragma mark - iOS8 Later
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+{
+    UIInterfaceOrientation orientation = size.width < size.height ? UIInterfaceOrientationPortrait : UIInterfaceOrientationLandscapeLeft;
+    self.currPhotoView.orientation = orientation;//[[UIApplication sharedApplication] statusBarOrientation];
+    self.movePhotoView.orientation = orientation;//[[UIApplication sharedApplication] statusBarOrientation];
+    
+    _panGesture.enabled = (size.width < size.height);
 }
 
 - (void)setSlideRange:(NSUInteger)slideRange

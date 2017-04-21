@@ -20,6 +20,8 @@
 #import "UIView+LFPB_CornerRadius.h"
 #import "UIImage+LFPB_Size.h"
 
+#define kVideoSliderHeight 40.f
+
 @interface LFPhotoView() <UIScrollViewDelegate, LFPlayerDelegate, LFVideoSliderDelegate>
 {
     //    单击手势
@@ -51,6 +53,9 @@
 @property (nonatomic, assign) BOOL isAminated;
 
 @property (nonatomic, strong) NSMutableArray *delayMotheds;
+
+/** 上次屏幕方向，判断方向是否发送变化 */
+@property (nonatomic, assign) UIInterfaceOrientation prevOrientation;
 @end
 
 @implementation LFPhotoView
@@ -121,6 +126,9 @@
         self.minimumZoomScale = 1.f;
         
         _zoomEnable = YES;
+        /** 默认正方向 */
+        _orientation = UIInterfaceOrientationPortrait;
+        _prevOrientation = UIInterfaceOrientationPortrait;
     }
     return self;
 }
@@ -149,6 +157,13 @@
     [super layoutSubviews];
 
     [_progressView setFrame:self.bounds];
+    [_videoSlider setFrame:CGRectMake(0, CGRectGetHeight(self.frame)-kVideoSliderHeight, CGRectGetWidth(self.frame), kVideoSliderHeight)];
+    /** 判断屏幕是否发送变化 */
+    if (self.orientation != self.prevOrientation) {
+        self.prevOrientation = self.orientation;
+        /** 重新排版 */
+        [self calcFrameMaskPosition:MaskPosition_None frame:self.bounds];
+    }
 }
 
 -(void)dealloc
@@ -583,7 +598,6 @@
 -(void)setImage:(UIImage *)image
 {
     self.customView.image = image;
-    
     [self calcFrameMaskPosition:MaskPosition_None frame:self.bounds];
 }
 
@@ -642,20 +656,29 @@
 -(void)calcFrameMaskPosition:(MaskPosition)maskPosition frame:(CGRect)frame
 {
     [self setContentOffset:CGPointZero];
-    
     _progressView.alpha = CGRectEqualToRect(frame, self.bounds) ? 1.f : 0.f;
-    
     CGRect imageFrame = frame;
     CGRect maskFrame = (CGRect){CGPointZero, frame.size};
     CGSize imageSize = frame.size;
     CGSize videoSize = CGSizeEqualToSize(CGSizeZero, _customView.image.size) ? self.videoPlayer.size : _customView.image.size;
-    if (maskPosition == MaskPosition_None) {
-        /** 判断宽度，拉伸 */
-        imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:CGSizeMake(frame.size.width, CGFLOAT_MAX) isBoth:NO];
-    } else {
-        /** 对两边判断，拉伸最小值 */
-        imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:frame.size isBoth:YES];
+    
+    if (self.orientation == UIInterfaceOrientationLandscapeLeft || self.orientation == UIInterfaceOrientationLandscapeRight) { /** 横屏 */
+        CGSize verticalSize = [UIImage scaleImageSizeBySize:videoSize targetSize:CGSizeMake(frame.size.height, CGFLOAT_MAX) isBoth:NO];
+        imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:frame.size isBoth:NO];
+        /** 计算相对宽度 */
+        CGFloat scale = MAX(verticalSize.height/frame.size.width, 1.f);
+        imageSize = CGSizeMake(imageSize.width*scale, imageSize.height*scale);
+    } else { /** 竖屏 */
+        if (maskPosition == MaskPosition_None) {
+            /** 判断宽度，拉伸 */
+            imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:CGSizeMake(frame.size.width, CGFLOAT_MAX) isBoth:NO];
+        } else {
+            /** 对两边判断，拉伸最小值(缩放效果实现) */
+            imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:frame.size isBoth:YES];
+        }
     }
+    
+    
     if (CGSizeEqualToSize(CGSizeZero, imageSize)) {
         imageSize = frame.size;
     }
@@ -725,6 +748,8 @@
         }
         
         self.contentSize = contentSize;
+    } else {
+        self.contentSize = self.bounds.size;
     }
 }
 
@@ -847,9 +872,8 @@
 {
     if (self.photoInfo.isNeedSlider) {
         if (self.videoSlider == nil) {
-            CGFloat height = 40.f;
-            self.videoSlider = [[LFVideoSlider alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(self.frame)-height, CGRectGetWidth(self.frame), height)];
-            self.videoSlider.delegate = self;
+            self.videoSlider = [[LFVideoSlider alloc] initWithFrame:CGRectMake(0, CGRectGetHeight(self.frame)-kVideoSliderHeight, CGRectGetWidth(self.frame), kVideoSliderHeight)];
+            self.videoSlider.delegate = self;;
             [self addSubview:self.videoSlider];
             [self.videoSlider setTotalSecond:0];
         }

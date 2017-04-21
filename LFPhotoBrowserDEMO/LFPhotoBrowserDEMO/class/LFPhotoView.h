@@ -45,10 +45,13 @@
 @property (nonatomic, readonly) downLoadType loadType;
 @property (nonatomic, strong) id<LFModelProtocol, LFPhotoProtocol, LFVideoProtocol> photoInfo;
 @property (nonatomic, assign) CGRect photoRect;
-/** 关闭缩放 default is YES */
+/** 缩放操作 默认打开 default is YES */
 @property (nonatomic, assign) BOOL zoomEnable;
 /** 代理*/
 @property (nonatomic, weak) id<LFPhotoViewDelegate> photoViewDelegate;
+
+/** 横屏适配(在屏幕将要改变方向时，设置orientation=实际屏幕方向) */
+@property (nonatomic, assign) UIInterfaceOrientation orientation;
 
 /** 设置View的frame*/
 -(void)calcFrameMaskPosition:(MaskPosition)maskPosition frame:(CGRect)frame;
