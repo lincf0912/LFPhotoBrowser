@@ -279,11 +279,18 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     
     [UIView animateWithDuration:self.animatedTime delay:0.1f options:0 animations:^{
         [self.currPhotoView setSubControlAlpha:0.f];
-        if(self.isWeaker){
+        
+        /** 竖屏正常处理 */
+        if ([[UIApplication sharedApplication] statusBarOrientation] == UIInterfaceOrientationPortrait) {
+            if(self.isWeaker){
+                self.currPhotoView.alpha = 0.0f;
+            }
+            [self.currPhotoView calcFrameMaskPosition:self.maskPosition frame:self.targetFrame];
+            [self.currPhotoView setMaskImage:self.targetMaskImage];
+        } else { /** 横屏情况下使用淡出效果 */
             self.currPhotoView.alpha = 0.0f;
         }
-        [self.currPhotoView calcFrameMaskPosition:self.maskPosition frame:self.targetFrame];
-        [self.currPhotoView setMaskImage:self.targetMaskImage];
+        
     } completion:^(BOOL finished) {
         [_coverView removeFromSuperview];
         _coverView = nil;
@@ -362,39 +369,31 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     
     /** 设置两个photoview*/
     if(!_prevPhotoView){
-        [self createPrevPhotoView];
+        _prevPhotoView = [self createPhotoView];
+        [self.photoScrollView addSubview:_prevPhotoView];
+        self.currPhotoView = _prevPhotoView;
     }
     
     if(!_nextPhotoView && _images.count > 1){ /** 图片数量只有一张时，不初始化移动view */
-        [self createNextPhotoView];
+        _nextPhotoView = [self createPhotoView];
+        [self.photoScrollView addSubview:_nextPhotoView];
+        self.movePhotoView = _nextPhotoView;
     }
     //    [self resetScrollView];
     [self setAutomaticallyAdjustsScrollViewInsets:NO];
     
 }
 
-- (void)createPrevPhotoView
+- (LFPhotoView *)createPhotoView
 {
     CGFloat scrollViewH = self.photoScrollView.frame.size.height;
     CGRect frame = CGRectMake(kScrollViewW, 0, SCREEN_WIDTH, scrollViewH);
-    _prevPhotoView = [[LFPhotoView alloc] initWithFrame:frame];
-    _prevPhotoView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-    _prevPhotoView.autoresizesSubviews = YES;
-    _prevPhotoView.photoViewDelegate = self;
-    [self.photoScrollView addSubview:_prevPhotoView];
-    self.currPhotoView = _prevPhotoView;
-}
-
-- (void)createNextPhotoView
-{
-    CGFloat scrollViewH = self.photoScrollView.frame.size.height;
-    CGRect frame = CGRectMake(kScrollViewW, 0, SCREEN_WIDTH, scrollViewH);
-    _nextPhotoView = [[LFPhotoView alloc] initWithFrame:frame];
-    _nextPhotoView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-    _nextPhotoView.autoresizesSubviews = YES;
-    _nextPhotoView.photoViewDelegate = self;
-    [self.photoScrollView addSubview:_nextPhotoView];
-    self.movePhotoView = _nextPhotoView;
+    LFPhotoView *photoView = [[LFPhotoView alloc] initWithFrame:frame];
+    photoView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    photoView.autoresizesSubviews = YES;
+    photoView.photoViewDelegate = self;
+    photoView.orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    return photoView;
 }
 
 -(void)showPhotoBrowser
@@ -703,7 +702,9 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                 if (self.photoScrollView.contentSize.width == kScrollViewW) {
                     /** 初始化移动view */
                     if (!_nextPhotoView) {
-                        [self createNextPhotoView];
+                        _nextPhotoView = [self createPhotoView];
+                        [self.photoScrollView addSubview:_nextPhotoView];
+                        self.movePhotoView = _nextPhotoView;
                         /** 置顶当前张 */
                         [self.photoScrollView bringSubviewToFront:self.currPhotoView];
                     }

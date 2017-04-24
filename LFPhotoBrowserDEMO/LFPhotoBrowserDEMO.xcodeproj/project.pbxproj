@@ -69,6 +69,7 @@
 		6F9C62311DCC1A2600024BE0 /* UIImage+LFPB_Size.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C622C1DCC1A2600024BE0 /* UIImage+LFPB_Size.m */; };
 		6F9C62321DCC1A2600024BE0 /* UIView+LFPB_CornerRadius.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C622F1DCC1A2600024BE0 /* UIView+LFPB_CornerRadius.m */; };
 		6F9C62381DCC25E000024BE0 /* UIImage+LFPB_Format.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C62371DCC25E000024BE0 /* UIImage+LFPB_Format.m */; };
+		6FC387AE1EA998ED00284C74 /* NavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FC387AD1EA998ED00284C74 /* NavigationController.m */; };
 		B731EC0F634A3745F52C3A15 /* libPods-LFPhotoBrowserDEMO.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C99D3BE2C4FC1032EABDFDE /* libPods-LFPhotoBrowserDEMO.a */; };
 /* End PBXBuildFile section */
 
@@ -168,6 +169,8 @@
 		6F9C622F1DCC1A2600024BE0 /* UIView+LFPB_CornerRadius.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+LFPB_CornerRadius.m"; sourceTree = "<group>"; };
 		6F9C62361DCC25E000024BE0 /* UIImage+LFPB_Format.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+LFPB_Format.h"; sourceTree = "<group>"; };
 		6F9C62371DCC25E000024BE0 /* UIImage+LFPB_Format.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+LFPB_Format.m"; sourceTree = "<group>"; };
+		6FC387AC1EA998ED00284C74 /* NavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationController.h; sourceTree = "<group>"; };
+		6FC387AD1EA998ED00284C74 /* NavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -307,6 +310,8 @@
 				6F19F0871DB5EF9500BC6149 /* AppDelegate.m */,
 				6F19F0891DB5EF9500BC6149 /* MasterViewController.h */,
 				6F19F08A1DB5EF9500BC6149 /* MasterViewController.m */,
+				6FC387AC1EA998ED00284C74 /* NavigationController.h */,
+				6FC387AD1EA998ED00284C74 /* NavigationController.m */,
 				6F19F08F1DB5EF9500BC6149 /* Main.storyboard */,
 				6F19F0921DB5EF9500BC6149 /* Assets.xcassets */,
 				6F19F0941DB5EF9500BC6149 /* LaunchScreen.storyboard */,
@@ -619,6 +624,7 @@
 				6F148D1A1DB89A7C0011BAE6 /* LFPhotoInfo.m in Sources */,
 				6F19F0881DB5EF9500BC6149 /* AppDelegate.m in Sources */,
 				6F19F08B1DB5EF9500BC6149 /* MasterViewController.m in Sources */,
+				6FC387AE1EA998ED00284C74 /* NavigationController.m in Sources */,
 				6F148D671DB8C9730011BAE6 /* PhotoCollectionViewCell.m in Sources */,
 				6F148D171DB89A7C0011BAE6 /* LLARingSpinnerView.m in Sources */,
 				6F5BA4B41DE2DA2B00F26951 /* ImageProgressView.m in Sources */,
