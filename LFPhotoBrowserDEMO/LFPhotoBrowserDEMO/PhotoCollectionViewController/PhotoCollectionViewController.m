@@ -46,6 +46,16 @@ static NSString * const reuseIdentifier = @"Cell";
     [self initCollectionView];
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    NSNumber *orientationUnknown = [NSNumber numberWithInt:UIInterfaceOrientationUnknown];
+    [[UIDevice currentDevice] setValue:orientationUnknown forKey:@"orientation"];
+    
+    NSNumber *orientationTarget = [NSNumber numberWithInt:UIInterfaceOrientationPortrait];
+    [[UIDevice currentDevice] setValue:orientationTarget forKey:@"orientation"];
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -193,6 +203,7 @@ static NSString * const reuseIdentifier = @"Cell";
     pbVC.delegate = self;
     pbVC.canPullDown = YES;
     pbVC.coverViewColor = self.collectionView.backgroundColor;
+    
     [pbVC showPhotoBrowser];
     
     [collectionView deselectItemAtIndexPath:indexPath animated:YES];

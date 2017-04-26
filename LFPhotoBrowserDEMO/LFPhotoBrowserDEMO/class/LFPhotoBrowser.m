@@ -271,6 +271,12 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     /** 因为调用[self removeFromParentViewController]才会触发viewWillDisappear时，此时self.navigationController 为nil，但不调用[self removeFromParentViewController] 又不会触发viewWillDisappear，手动提前调用 */
     [self viewWillDisappear:YES];
     
+    UIViewController *parentViewController = self.parentViewController;
+    self.parentViewController.navigationController.interactivePopGestureRecognizer.enabled = _interactiveEnabled;
+    [self removeFromParentViewController];
+    UIInterfaceOrientationMask orientation = [parentViewController supportedInterfaceOrientations];
+    [self resetInterfaceOrientation:orientation];
+    
     [UIView animateWithDuration:self.animatedTime animations:^{
         self.bgImageView.alpha = 0.0f;
     }completion:^(BOOL finished) {
@@ -279,27 +285,24 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     
     [UIView animateWithDuration:self.animatedTime delay:0.1f options:0 animations:^{
         [self.currPhotoView setSubControlAlpha:0.f];
-        
-        /** 竖屏正常处理 */
-        if ([[UIApplication sharedApplication] statusBarOrientation] == UIInterfaceOrientationPortrait) {
-            if(self.isWeaker){
-                self.currPhotoView.alpha = 0.0f;
-            }
+        if(self.isWeaker){
+            self.currPhotoView.alpha = 0.0f;
+        }
+        if (CGRectEqualToRect(CGRectZero, self.targetFrame)) {
+            self.currPhotoView.alpha = 0.0f;
+        } else {
             [self.currPhotoView calcFrameMaskPosition:self.maskPosition frame:self.targetFrame];
             [self.currPhotoView setMaskImage:self.targetMaskImage];
-        } else { /** 横屏情况下使用淡出效果 */
-            self.currPhotoView.alpha = 0.0f;
         }
         
     } completion:^(BOOL finished) {
         [_coverView removeFromSuperview];
         _coverView = nil;
+        
         if (self.dismissBlock) {
             self.dismissBlock();
             self.dismissBlock = nil;
         }
-        self.parentViewController.navigationController.interactivePopGestureRecognizer.enabled = _interactiveEnabled;
-        [self removeFromParentViewController];
         [self.view removeFromSuperview];
     }];
     
@@ -904,7 +907,12 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 -(void)photoViewGesture:(LFPhotoView *)photoView singleTapPhotoType:(PhotoType)PhotoType object:(id /* UIImage * /NSURL * */)object
 {
     [self.movePhotoView removeFromSuperview];
-    [self obtainTargetFrame];
+    /** 竖屏正常处理 */
+    if ([[UIApplication sharedApplication] statusBarOrientation] == UIInterfaceOrientationPortrait) {
+        [self obtainTargetFrame];
+    } else { /** 清空坐标 */
+        self.targetFrame = CGRectZero;
+    }
     [self handleAnimationEnd];
 }
 
@@ -1060,6 +1068,48 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     self.movePhotoView.orientation = orientation;//[[UIApplication sharedApplication] statusBarOrientation];
     
     _panGesture.enabled = (size.width < size.height);
+}
+
+#pragma mark - 重置屏幕方向
+- (void)resetInterfaceOrientation:(UIInterfaceOrientationMask)orientationMask
+{
+    UIInterfaceOrientation orientation = UIInterfaceOrientationUnknown;
+    switch (orientationMask) {
+        case UIInterfaceOrientationMaskPortrait:
+            orientation = UIInterfaceOrientationPortrait;
+            break;
+        case UIInterfaceOrientationMaskLandscapeLeft:
+            orientation = UIInterfaceOrientationLandscapeLeft;
+            break;
+        case UIInterfaceOrientationMaskLandscapeRight:
+            orientation = UIInterfaceOrientationLandscapeRight;
+            break;
+        case UIInterfaceOrientationMaskPortraitUpsideDown:
+            orientation = UIInterfaceOrientationPortraitUpsideDown;
+            break;
+        default:
+            break;
+    }
+    if (orientation != UIInterfaceOrientationUnknown) {
+        if ([[UIDevice currentDevice] respondsToSelector:@selector(setOrientation:)]) {
+            SEL selector = NSSelectorFromString(@"setOrientation:");
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:[UIDevice instanceMethodSignatureForSelector:selector]];
+            [invocation setSelector:selector];
+            [invocation setTarget:[UIDevice currentDevice]];
+            int val = UIInterfaceOrientationUnknown;
+            [invocation setArgument:&val atIndex:2];
+            [invocation invoke];
+            
+            NSInvocation *invocation1 = [NSInvocation invocationWithMethodSignature:[UIDevice instanceMethodSignatureForSelector:selector]];
+            [invocation1 setSelector:selector];
+            [invocation1 setTarget:[UIDevice currentDevice]];
+            int val1 = orientation;
+            [invocation1 setArgument:&val1 atIndex:2];
+            [invocation1 invoke];
+            
+//            objc_msgSend([UIDevice currentDevice], @selector(setOrientation:), orientation);
+        }
+    }
 }
 
 - (void)setSlideRange:(NSUInteger)slideRange
