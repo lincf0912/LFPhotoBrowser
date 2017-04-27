@@ -12,7 +12,6 @@
 		6F148D161DB89A7C0011BAE6 /* LFPhotoView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D081DB89A7C0011BAE6 /* LFPhotoView.m */; };
 		6F148D171DB89A7C0011BAE6 /* LLARingSpinnerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D0B1DB89A7C0011BAE6 /* LLARingSpinnerView.m */; };
 		6F148D1A1DB89A7C0011BAE6 /* LFPhotoInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D121DB89A7C0011BAE6 /* LFPhotoInfo.m */; };
-		6F148D281DB89DCE0011BAE6 /* UIViewController+LFPB_Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D271DB89DCE0011BAE6 /* UIViewController+LFPB_Extension.m */; };
 		6F148D631DB8C9450011BAE6 /* MyHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D5F1DB8C9450011BAE6 /* MyHeaderView.m */; };
 		6F148D641DB8C9450011BAE6 /* XLPlainFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D621DB8C9450011BAE6 /* XLPlainFlowLayout.m */; };
 		6F148D671DB8C9730011BAE6 /* PhotoCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D661DB8C9730011BAE6 /* PhotoCollectionViewCell.m */; };
@@ -65,10 +64,14 @@
 		6F5BA4BA1DE2E76000F26951 /* LFVideoSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F5BA4B91DE2E76000F26951 /* LFVideoSlider.m */; };
 		6F5BA4BD1DE3D2AE00F26951 /* LFPhotoScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F5BA4BC1DE3D2AE00F26951 /* LFPhotoScrollView.m */; };
 		6F5BA4C31DE4368500F26951 /* DownLoadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F5BA4C21DE4368500F26951 /* DownLoadManager.m */; };
-		6F9C62301DCC1A2600024BE0 /* UIActionSheet+LFPB_Block.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C62291DCC1A2600024BE0 /* UIActionSheet+LFPB_Block.m */; };
-		6F9C62311DCC1A2600024BE0 /* UIImage+LFPB_Size.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C622C1DCC1A2600024BE0 /* UIImage+LFPB_Size.m */; };
-		6F9C62321DCC1A2600024BE0 /* UIView+LFPB_CornerRadius.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C622F1DCC1A2600024BE0 /* UIView+LFPB_CornerRadius.m */; };
-		6F9C62381DCC25E000024BE0 /* UIImage+LFPB_Format.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F9C62371DCC25E000024BE0 /* UIImage+LFPB_Format.m */; };
+		6F796D201EB1DDDD00CECB02 /* NSString+LFActionSheetAttributed.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F796D181EB1DDDD00CECB02 /* NSString+LFActionSheetAttributed.m */; };
+		6F796D211EB1DDDD00CECB02 /* UIView+LFFindTopView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F796D1A1EB1DDDD00CECB02 /* UIView+LFFindTopView.m */; };
+		6F796D221EB1DDDD00CECB02 /* LFActionSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F796D1C1EB1DDDD00CECB02 /* LFActionSheet.m */; };
+		6F796D231EB1DDDD00CECB02 /* LFActionSheetCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F796D1F1EB1DDDD00CECB02 /* LFActionSheetCell.m */; };
+		6F796D7A1EB1E08C00CECB02 /* UIImage+LFPB_Format.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F796D711EB1E08C00CECB02 /* UIImage+LFPB_Format.m */; };
+		6F796D7B1EB1E08C00CECB02 /* UIImage+LFPB_Size.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F796D731EB1E08C00CECB02 /* UIImage+LFPB_Size.m */; };
+		6F796D7C1EB1E08C00CECB02 /* UIView+LFPB_CornerRadius.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F796D761EB1E08C00CECB02 /* UIView+LFPB_CornerRadius.m */; };
+		6F796D7D1EB1E08C00CECB02 /* UIViewController+LFPB_Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F796D791EB1E08C00CECB02 /* UIViewController+LFPB_Extension.m */; };
 		6FC387AE1EA998ED00284C74 /* NavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FC387AD1EA998ED00284C74 /* NavigationController.m */; };
 		B731EC0F634A3745F52C3A15 /* libPods-LFPhotoBrowserDEMO.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C99D3BE2C4FC1032EABDFDE /* libPods-LFPhotoBrowserDEMO.a */; };
 /* End PBXBuildFile section */
@@ -88,8 +91,6 @@
 		6F148D111DB89A7C0011BAE6 /* LFPhotoInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFPhotoInfo.h; sourceTree = "<group>"; };
 		6F148D121DB89A7C0011BAE6 /* LFPhotoInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LFPhotoInfo.m; sourceTree = "<group>"; };
 		6F148D141DB89A7C0011BAE6 /* PhotoViewType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoViewType.h; sourceTree = "<group>"; };
-		6F148D261DB89DCE0011BAE6 /* UIViewController+LFPB_Extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+LFPB_Extension.h"; sourceTree = "<group>"; };
-		6F148D271DB89DCE0011BAE6 /* UIViewController+LFPB_Extension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+LFPB_Extension.m"; sourceTree = "<group>"; };
 		6F148D5E1DB8C9450011BAE6 /* PhotoHeadView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoHeadView.h; sourceTree = "<group>"; };
 		6F148D5F1DB8C9450011BAE6 /* MyHeaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyHeaderView.m; sourceTree = "<group>"; };
 		6F148D611DB8C9450011BAE6 /* XLPlainFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLPlainFlowLayout.h; sourceTree = "<group>"; };
@@ -160,15 +161,23 @@
 		6F5BA4BC1DE3D2AE00F26951 /* LFPhotoScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LFPhotoScrollView.m; sourceTree = "<group>"; };
 		6F5BA4C11DE4368500F26951 /* DownLoadManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownLoadManager.h; sourceTree = "<group>"; };
 		6F5BA4C21DE4368500F26951 /* DownLoadManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownLoadManager.m; sourceTree = "<group>"; };
+		6F796D171EB1DDDD00CECB02 /* NSString+LFActionSheetAttributed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+LFActionSheetAttributed.h"; sourceTree = "<group>"; };
+		6F796D181EB1DDDD00CECB02 /* NSString+LFActionSheetAttributed.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+LFActionSheetAttributed.m"; sourceTree = "<group>"; };
+		6F796D191EB1DDDD00CECB02 /* UIView+LFFindTopView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+LFFindTopView.h"; sourceTree = "<group>"; };
+		6F796D1A1EB1DDDD00CECB02 /* UIView+LFFindTopView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+LFFindTopView.m"; sourceTree = "<group>"; };
+		6F796D1B1EB1DDDD00CECB02 /* LFActionSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFActionSheet.h; sourceTree = "<group>"; };
+		6F796D1C1EB1DDDD00CECB02 /* LFActionSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LFActionSheet.m; sourceTree = "<group>"; };
+		6F796D1E1EB1DDDD00CECB02 /* LFActionSheetCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFActionSheetCell.h; sourceTree = "<group>"; };
+		6F796D1F1EB1DDDD00CECB02 /* LFActionSheetCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LFActionSheetCell.m; sourceTree = "<group>"; };
+		6F796D701EB1E08C00CECB02 /* UIImage+LFPB_Format.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+LFPB_Format.h"; sourceTree = "<group>"; };
+		6F796D711EB1E08C00CECB02 /* UIImage+LFPB_Format.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+LFPB_Format.m"; sourceTree = "<group>"; };
+		6F796D721EB1E08C00CECB02 /* UIImage+LFPB_Size.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+LFPB_Size.h"; sourceTree = "<group>"; };
+		6F796D731EB1E08C00CECB02 /* UIImage+LFPB_Size.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+LFPB_Size.m"; sourceTree = "<group>"; };
+		6F796D751EB1E08C00CECB02 /* UIView+LFPB_CornerRadius.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+LFPB_CornerRadius.h"; sourceTree = "<group>"; };
+		6F796D761EB1E08C00CECB02 /* UIView+LFPB_CornerRadius.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+LFPB_CornerRadius.m"; sourceTree = "<group>"; };
+		6F796D781EB1E08C00CECB02 /* UIViewController+LFPB_Extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+LFPB_Extension.h"; sourceTree = "<group>"; };
+		6F796D791EB1E08C00CECB02 /* UIViewController+LFPB_Extension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+LFPB_Extension.m"; sourceTree = "<group>"; };
 		6F7DDD901E1F917B001B0EE5 /* LFModelProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LFModelProtocol.h; sourceTree = "<group>"; };
-		6F9C62281DCC1A2600024BE0 /* UIActionSheet+LFPB_Block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIActionSheet+LFPB_Block.h"; sourceTree = "<group>"; };
-		6F9C62291DCC1A2600024BE0 /* UIActionSheet+LFPB_Block.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIActionSheet+LFPB_Block.m"; sourceTree = "<group>"; };
-		6F9C622B1DCC1A2600024BE0 /* UIImage+LFPB_Size.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+LFPB_Size.h"; sourceTree = "<group>"; };
-		6F9C622C1DCC1A2600024BE0 /* UIImage+LFPB_Size.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+LFPB_Size.m"; sourceTree = "<group>"; };
-		6F9C622E1DCC1A2600024BE0 /* UIView+LFPB_CornerRadius.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+LFPB_CornerRadius.h"; sourceTree = "<group>"; };
-		6F9C622F1DCC1A2600024BE0 /* UIView+LFPB_CornerRadius.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+LFPB_CornerRadius.m"; sourceTree = "<group>"; };
-		6F9C62361DCC25E000024BE0 /* UIImage+LFPB_Format.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+LFPB_Format.h"; sourceTree = "<group>"; };
-		6F9C62371DCC25E000024BE0 /* UIImage+LFPB_Format.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+LFPB_Format.m"; sourceTree = "<group>"; };
 		6FC387AC1EA998ED00284C74 /* NavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationController.h; sourceTree = "<group>"; };
 		6FC387AD1EA998ED00284C74 /* NavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -205,6 +214,8 @@
 				6F5BA4BC1DE3D2AE00F26951 /* LFPhotoScrollView.m */,
 				6F5BA48A1DE2A0C100F26951 /* videoPlayer */,
 				6F148D091DB89A7C0011BAE6 /* loadingView */,
+				6F796D6E1EB1E08C00CECB02 /* category */,
+				6F796D141EB1DDDD00CECB02 /* vendors */,
 				6F148D101DB89A7C0011BAE6 /* model */,
 				6F148D131DB89A7C0011BAE6 /* type */,
 				6F5BA4B01DE2D36300F26951 /* LFPhotoSource.bundle */,
@@ -241,26 +252,6 @@
 				6F148D141DB89A7C0011BAE6 /* PhotoViewType.h */,
 			);
 			path = type;
-			sourceTree = "<group>";
-		};
-		6F148D1B1DB89ADE0011BAE6 /* Category */ = {
-			isa = PBXGroup;
-			children = (
-				6F148D251DB89DCE0011BAE6 /* UIViewController */,
-				6F9C62271DCC1A2600024BE0 /* UIActionSheet */,
-				6F9C622A1DCC1A2600024BE0 /* UIImage */,
-				6F9C622D1DCC1A2600024BE0 /* UIView */,
-			);
-			path = Category;
-			sourceTree = "<group>";
-		};
-		6F148D251DB89DCE0011BAE6 /* UIViewController */ = {
-			isa = PBXGroup;
-			children = (
-				6F148D261DB89DCE0011BAE6 /* UIViewController+LFPB_Extension.h */,
-				6F148D271DB89DCE0011BAE6 /* UIViewController+LFPB_Extension.m */,
-			);
-			path = UIViewController;
 			sourceTree = "<group>";
 		};
 		6F148D5D1DB8C9450011BAE6 /* PhotoHeadView */ = {
@@ -302,7 +293,6 @@
 		6F19F0821DB5EF9500BC6149 /* LFPhotoBrowserDEMO */ = {
 			isa = PBXGroup;
 			children = (
-				6F148D1B1DB89ADE0011BAE6 /* Category */,
 				6F148D041DB89A7C0011BAE6 /* class */,
 				6F19F0A31DB5F15A00BC6149 /* PhotoCollectionViewController */,
 				6F19F09F1DB5F12F00BC6149 /* PhotoTableViewController */,
@@ -427,33 +417,82 @@
 			path = videoSource;
 			sourceTree = "<group>";
 		};
-		6F9C62271DCC1A2600024BE0 /* UIActionSheet */ = {
+		6F796D141EB1DDDD00CECB02 /* vendors */ = {
 			isa = PBXGroup;
 			children = (
-				6F9C62281DCC1A2600024BE0 /* UIActionSheet+LFPB_Block.h */,
-				6F9C62291DCC1A2600024BE0 /* UIActionSheet+LFPB_Block.m */,
+				6F796D151EB1DDDD00CECB02 /* LFActionSheet */,
 			);
-			path = UIActionSheet;
+			path = vendors;
 			sourceTree = "<group>";
 		};
-		6F9C622A1DCC1A2600024BE0 /* UIImage */ = {
+		6F796D151EB1DDDD00CECB02 /* LFActionSheet */ = {
 			isa = PBXGroup;
 			children = (
-				6F9C62361DCC25E000024BE0 /* UIImage+LFPB_Format.h */,
-				6F9C62371DCC25E000024BE0 /* UIImage+LFPB_Format.m */,
-				6F9C622B1DCC1A2600024BE0 /* UIImage+LFPB_Size.h */,
-				6F9C622C1DCC1A2600024BE0 /* UIImage+LFPB_Size.m */,
+				6F796D161EB1DDDD00CECB02 /* Category */,
+				6F796D1B1EB1DDDD00CECB02 /* LFActionSheet.h */,
+				6F796D1C1EB1DDDD00CECB02 /* LFActionSheet.m */,
+				6F796D1D1EB1DDDD00CECB02 /* View */,
+			);
+			path = LFActionSheet;
+			sourceTree = "<group>";
+		};
+		6F796D161EB1DDDD00CECB02 /* Category */ = {
+			isa = PBXGroup;
+			children = (
+				6F796D171EB1DDDD00CECB02 /* NSString+LFActionSheetAttributed.h */,
+				6F796D181EB1DDDD00CECB02 /* NSString+LFActionSheetAttributed.m */,
+				6F796D191EB1DDDD00CECB02 /* UIView+LFFindTopView.h */,
+				6F796D1A1EB1DDDD00CECB02 /* UIView+LFFindTopView.m */,
+			);
+			path = Category;
+			sourceTree = "<group>";
+		};
+		6F796D1D1EB1DDDD00CECB02 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				6F796D1E1EB1DDDD00CECB02 /* LFActionSheetCell.h */,
+				6F796D1F1EB1DDDD00CECB02 /* LFActionSheetCell.m */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		6F796D6E1EB1E08C00CECB02 /* category */ = {
+			isa = PBXGroup;
+			children = (
+				6F796D6F1EB1E08C00CECB02 /* UIImage */,
+				6F796D741EB1E08C00CECB02 /* UIView */,
+				6F796D771EB1E08C00CECB02 /* UIViewController */,
+			);
+			path = category;
+			sourceTree = "<group>";
+		};
+		6F796D6F1EB1E08C00CECB02 /* UIImage */ = {
+			isa = PBXGroup;
+			children = (
+				6F796D701EB1E08C00CECB02 /* UIImage+LFPB_Format.h */,
+				6F796D711EB1E08C00CECB02 /* UIImage+LFPB_Format.m */,
+				6F796D721EB1E08C00CECB02 /* UIImage+LFPB_Size.h */,
+				6F796D731EB1E08C00CECB02 /* UIImage+LFPB_Size.m */,
 			);
 			path = UIImage;
 			sourceTree = "<group>";
 		};
-		6F9C622D1DCC1A2600024BE0 /* UIView */ = {
+		6F796D741EB1E08C00CECB02 /* UIView */ = {
 			isa = PBXGroup;
 			children = (
-				6F9C622E1DCC1A2600024BE0 /* UIView+LFPB_CornerRadius.h */,
-				6F9C622F1DCC1A2600024BE0 /* UIView+LFPB_CornerRadius.m */,
+				6F796D751EB1E08C00CECB02 /* UIView+LFPB_CornerRadius.h */,
+				6F796D761EB1E08C00CECB02 /* UIView+LFPB_CornerRadius.m */,
 			);
 			path = UIView;
+			sourceTree = "<group>";
+		};
+		6F796D771EB1E08C00CECB02 /* UIViewController */ = {
+			isa = PBXGroup;
+			children = (
+				6F796D781EB1E08C00CECB02 /* UIViewController+LFPB_Extension.h */,
+				6F796D791EB1E08C00CECB02 /* UIViewController+LFPB_Extension.m */,
+			);
+			path = UIViewController;
 			sourceTree = "<group>";
 		};
 		989714017A6B971521BF0D85 /* Frameworks */ = {
@@ -623,29 +662,32 @@
 			files = (
 				6F148D1A1DB89A7C0011BAE6 /* LFPhotoInfo.m in Sources */,
 				6F19F0881DB5EF9500BC6149 /* AppDelegate.m in Sources */,
+				6F796D211EB1DDDD00CECB02 /* UIView+LFFindTopView.m in Sources */,
 				6F19F08B1DB5EF9500BC6149 /* MasterViewController.m in Sources */,
+				6F796D7A1EB1E08C00CECB02 /* UIImage+LFPB_Format.m in Sources */,
 				6FC387AE1EA998ED00284C74 /* NavigationController.m in Sources */,
 				6F148D671DB8C9730011BAE6 /* PhotoCollectionViewCell.m in Sources */,
 				6F148D171DB89A7C0011BAE6 /* LLARingSpinnerView.m in Sources */,
 				6F5BA4B41DE2DA2B00F26951 /* ImageProgressView.m in Sources */,
-				6F9C62321DCC1A2600024BE0 /* UIView+LFPB_CornerRadius.m in Sources */,
+				6F796D201EB1DDDD00CECB02 /* NSString+LFActionSheetAttributed.m in Sources */,
 				6F5BA48D1DE2A0C100F26951 /* LFPlayer.m in Sources */,
 				6F148D151DB89A7C0011BAE6 /* LFPhotoBrowser.m in Sources */,
+				6F796D221EB1DDDD00CECB02 /* LFActionSheet.m in Sources */,
 				6F5BA4B71DE2DB1A00F26951 /* VideoProgressView.m in Sources */,
+				6F796D7B1EB1E08C00CECB02 /* UIImage+LFPB_Size.m in Sources */,
 				6F148D031DB8917F0011BAE6 /* PhotoTableViewCell.m in Sources */,
-				6F9C62311DCC1A2600024BE0 /* UIImage+LFPB_Size.m in Sources */,
 				6F19F0A61DB5F16400BC6149 /* PhotoCollectionViewController.m in Sources */,
+				6F796D7D1EB1E08C00CECB02 /* UIViewController+LFPB_Extension.m in Sources */,
 				6F5BA4BD1DE3D2AE00F26951 /* LFPhotoScrollView.m in Sources */,
 				6F5BA4C31DE4368500F26951 /* DownLoadManager.m in Sources */,
-				6F9C62381DCC25E000024BE0 /* UIImage+LFPB_Format.m in Sources */,
 				6F19F0A21DB5F13C00BC6149 /* PhotoTableViewController.m in Sources */,
 				6F5BA4961DE2A5CD00F26951 /* LFAVPlayerLayerView.m in Sources */,
 				6F148D631DB8C9450011BAE6 /* MyHeaderView.m in Sources */,
 				6F19F0851DB5EF9500BC6149 /* main.m in Sources */,
-				6F148D281DB89DCE0011BAE6 /* UIViewController+LFPB_Extension.m in Sources */,
 				6F5BA4BA1DE2E76000F26951 /* LFVideoSlider.m in Sources */,
 				6F148D161DB89A7C0011BAE6 /* LFPhotoView.m in Sources */,
-				6F9C62301DCC1A2600024BE0 /* UIActionSheet+LFPB_Block.m in Sources */,
+				6F796D7C1EB1E08C00CECB02 /* UIView+LFPB_CornerRadius.m in Sources */,
+				6F796D231EB1DDDD00CECB02 /* LFActionSheetCell.m in Sources */,
 				6F148D641DB8C9450011BAE6 /* XLPlainFlowLayout.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

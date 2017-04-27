@@ -9,7 +9,7 @@
 #import "LFPhotoBrowser.h"
 #import "LFPhotoScrollView.h"
 #import "UIImageView+WebCache.h"
-#import "UIActionSheet+LFPB_Block.h"
+#import "LFActionSheet.h"
 #import "UIViewController+LFPB_Extension.h"
 #import <AVFoundation/AVFoundation.h>
 
@@ -937,35 +937,49 @@ dispatch_sync(dispatch_get_main_queue(), block);\
             return obj1.style > obj2.style;
         }];
         
+        /** 新数组，实际显示列表 */
+        LFPhotoSheetAction *cancelAction = nil, *destructiveAction = nil;
+        NSMutableArray *newActionItems = [@[] mutableCopy];
+        
         NSString *cancelTitle = nil, *destructiveTitle = nil;
-        NSMutableString *otherTitles = [NSMutableString stringWithFormat:@""];
+        NSMutableArray *otherTitles = [@[] mutableCopy];
         for (LFPhotoSheetAction *action in actionItems) {
             switch (action.style) {
                 case LFPhotoSheetActionType_Default:
                     //                [otherTitles addObject:action.title];
-                    [otherTitles appendString:action.title];
-                    [otherTitles appendString:kSeparator];
+                    [otherTitles addObject:action.title];
+                    /** actionSheet的点击顺序为倒序，所以这里需要翻转 */
+                    [newActionItems insertObject:action atIndex:0];
                     break;
                 case LFPhotoSheetActionType_Destructive:
                     destructiveTitle = action.title;
+                    destructiveAction = action;
                     break;
                 case LFPhotoSheetActionType_Cancel:
                     cancelTitle = action.title;
+                    cancelAction = action;
                     break;
             }
         }
-        [otherTitles deleteCharactersInRange:NSMakeRange(otherTitles.length - kSeparator.length, kSeparator.length)];
         
-        if (destructiveTitle.length || otherTitles.length) {
-            UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil cancelButtonTitle:(cancelTitle.length ? cancelTitle : @"取消") destructiveButtonTitle:destructiveTitle otherButtonTitles:otherTitles block:^(NSInteger buttonIndex) {
-                if (actionItems.count > buttonIndex) {
-                    LFPhotoSheetAction *action = [actionItems objectAtIndex:buttonIndex];
-                    if (action.handler) {
-                        action.handler(object);
-                    }
+        /** 不错新数组头尾部分 */
+        if (cancelAction == nil) { /** 创建一个取消action占位，因为取消无论如何都存在 */
+            cancelAction = [[LFPhotoSheetAction alloc] init];
+        }
+        [newActionItems insertObject:cancelAction atIndex:0];
+        
+        if (destructiveAction) { /** 在actionSheet为最顶层，这里则为最尾 */
+            [newActionItems addObject:destructiveAction];
+        }
+        
+        
+        if (destructiveTitle.length || otherTitles.count) {
+            [[[LFActionSheet alloc] initWithTitle:nil cancelButtonTitle:cancelTitle destructiveButtonTitle:destructiveTitle otherButtonTitles:otherTitles didSelectBlock:^(NSInteger buttonIndex) {
+                LFPhotoSheetAction *action = [newActionItems objectAtIndex:buttonIndex];
+                if (action.handler) {
+                    action.handler(object);
                 }
-            }];
-            [sheet showInView:self.view];
+            }] show];
         }
     }
     

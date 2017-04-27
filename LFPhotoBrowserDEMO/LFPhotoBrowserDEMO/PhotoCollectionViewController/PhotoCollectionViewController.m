@@ -349,6 +349,37 @@ static NSString * const reuseIdentifier = @"Cell";
     }
 }
 
+- (NSArray<LFPhotoSheetAction *> *)photoBrowserLongPressActionItems:(LFPhotoBrowser *)photoBrowser photoType:(PhotoType)PhotoType object:(id)object{
+    
+    BOOL isImage = PhotoType == PhotoType_image ? YES : NO;
+    NSMutableArray *actionsArr = [@[] mutableCopy];
+    NSString *title = isImage ? @"保存图片" : @"保存视频";
+    /** sheetAction1 */
+    LFPhotoSheetAction *sheetAction1 = [LFPhotoSheetAction actionWithTitle:title style:LFPhotoSheetActionType_Default handler:^(id media) {
+        NSLog(@"%@", title);
+    }];
+    [actionsArr addObject:sheetAction1];
+    if (isImage) {
+            LFPhotoSheetAction *sheetAction2 = [LFPhotoSheetAction actionWithTitle:@"识别图中二维码" style:LFPhotoSheetActionType_Default handler:^(id media) {
+                    NSLog(@"识别图中二维码");
+            }];
+            [actionsArr addObject:sheetAction2];
+    }
+    
+    LFPhotoSheetAction *sheetAction4 = [LFPhotoSheetAction actionWithTitle:@"ooooo" style:LFPhotoSheetActionType_Destructive handler:^(id media) {
+        NSLog(@"ooooo");
+    }];
+    [actionsArr addObject:sheetAction4];
+
+    
+    /** sheetAction3 */
+    LFPhotoSheetAction *sheetAction3 = [LFPhotoSheetAction actionWithTitle:@"取消" style:LFPhotoSheetActionType_Cancel handler:^(id media) {
+        NSLog(@"cancel");
+    }];
+    [actionsArr addObject:sheetAction3];
+    return actionsArr;
+}
+
 - (BOOL)shouldAutorotate
 {
     return YES;
