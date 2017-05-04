@@ -1,16 +1,16 @@
 //
-//  LLARingSpinnerView.m
-//  LLARingSpinnerView
+//  X_LLARingSpinnerView.m
+//  X_LLARingSpinnerView
 //
 //  Created by Lukas Lipka on 05/04/14.
 //  Copyright (c) 2014 Lukas Lipka. All rights reserved.
 //
 
-#import "LLARingSpinnerView.h"
+#import "X_LLARingSpinnerView.h"
 
-static NSString *kLLARingSpinnerAnimationKey = @"llaringspinnerview.rotation";
+static NSString *kLLARingSpinnerAnimationKey = @"X_LLARingSpinnerView.rotation";
 
-@interface LLARingSpinnerView ()
+@interface X_LLARingSpinnerView ()
 
 @property (nonatomic, readonly) CAShapeLayer *progressLayer;
 @property (nonatomic, readwrite) BOOL isAnimating;
@@ -19,7 +19,7 @@ static NSString *kLLARingSpinnerAnimationKey = @"llaringspinnerview.rotation";
 @property (nonatomic, strong) UILabel *progressLabel; // 进度显示Label
 @end
 
-@implementation LLARingSpinnerView
+@implementation X_LLARingSpinnerView
 
 @synthesize progressLayer = _progressLayer;
 @synthesize isAnimating = _isAnimating;

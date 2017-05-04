@@ -1,14 +1,14 @@
 //
-//  VideoProgressView.m
+//  LFVideoProgressView.m
 //  LFPhotoBrowserDEMO
 //
 //  Created by LamTsanFeng on 2016/11/21.
 //  Copyright © 2016年 GZMiracle. All rights reserved.
 //
 
-#import "VideoProgressView.h"
+#import "LFVideoProgressView.h"
 
-@interface VideoProgressView ()
+@interface LFVideoProgressView ()
 
 /** 大小 */
 @property (nonatomic, assign) CGRect circlesSize;
@@ -22,7 +22,7 @@
 
 @end
 
-@implementation VideoProgressView
+@implementation LFVideoProgressView
 
 - (id)init
 {

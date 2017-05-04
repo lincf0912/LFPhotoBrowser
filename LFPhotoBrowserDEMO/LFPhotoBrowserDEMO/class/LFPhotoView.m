@@ -14,8 +14,8 @@
 #import "UIImageView+WebCache.h"
 #import "UIImage+LFPB_Format.h"
 
-#import "ImageProgressView.h"
-#import "VideoProgressView.h"
+#import "LFImageProgressView.h"
+#import "LFVideoProgressView.h"
 
 #import "UIView+LFPB_CornerRadius.h"
 #import "UIImage+LFPB_Size.h"
@@ -84,12 +84,12 @@
     /** 进度视图*/
     if (_progressView == nil) {
         if (self.photoInfo.photoType == PhotoType_image) {
-            ImageProgressView *progressView = [[ImageProgressView alloc] initWithFrame:self.bounds];
+            LFImageProgressView *progressView = [[LFImageProgressView alloc] initWithFrame:self.bounds];
             progressView.userInteractionEnabled = NO;
             [self addSubview:progressView];
             _progressView = progressView;
         } else if (self.photoInfo.photoType == PhotoType_video) {
-            VideoProgressView *progressView = [[VideoProgressView alloc] init];
+            LFVideoProgressView *progressView = [[LFVideoProgressView alloc] init];
             progressView.center = CGPointMake(self.center.x-self.frame.origin.x, self.center.y-self.frame.origin.y);
             __weak typeof(self) weakSelf = self;
             [progressView setClickBlock:^{
@@ -605,14 +605,14 @@
 -(void)showPhotoLoadingView
 {
     if (self.photoInfo.photoType == PhotoType_image) {
-        [(ImageProgressView *)self.progressView showLoading];
-        ((ImageProgressView *)self.progressView).progress = self.photoInfo.downloadProgress;
+        [(LFImageProgressView *)self.progressView showLoading];
+        ((LFImageProgressView *)self.progressView).progress = self.photoInfo.downloadProgress;
     } else if (self.photoInfo.photoType == PhotoType_video) {
-        [(VideoProgressView *)self.progressView showLoading];
+        [(LFVideoProgressView *)self.progressView showLoading];
         if (self.photoInfo.downloadProgress > 0) {
-            ((VideoProgressView *)self.progressView).progress = self.photoInfo.downloadProgress;
+            ((LFVideoProgressView *)self.progressView).progress = self.photoInfo.downloadProgress;
         } else if (self.photoInfo.isLoading) {
-            ((VideoProgressView *)self.progressView).progress = 1.f;
+            ((LFVideoProgressView *)self.progressView).progress = 1.f;
         }
     }
 }
@@ -621,9 +621,9 @@
 -(void)photoLoadingViewProgress:(float)progress
 {
     if (self.photoInfo.photoType == PhotoType_image) {
-        ((ImageProgressView *)self.progressView).progress = progress;
+        ((LFImageProgressView *)self.progressView).progress = progress;
     } else if (self.photoInfo.photoType == PhotoType_video) {
-        ((VideoProgressView *)self.progressView).progress = progress;
+        ((LFVideoProgressView *)self.progressView).progress = progress;
     }
 }
 
@@ -645,10 +645,10 @@
             [_customView removeFromSuperview];
             _customView = nil;
             self.imageMaskView = nil;
-            [(ImageProgressView *)self.progressView showFailure];
+            [(LFImageProgressView *)self.progressView showFailure];
         }];
     } else if (self.photoInfo.photoType == PhotoType_video) {
-        [(VideoProgressView *)self.progressView showFailure];
+        [(LFVideoProgressView *)self.progressView showFailure];
     }
 }
 

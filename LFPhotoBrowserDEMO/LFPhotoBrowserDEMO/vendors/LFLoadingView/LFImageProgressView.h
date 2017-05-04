@@ -1,5 +1,5 @@
 //
-//  VideoProgressView.h
+//  LFImageProgressView.h
 //  LFPhotoBrowserDEMO
 //
 //  Created by LamTsanFeng on 2016/11/21.
@@ -8,12 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@interface VideoProgressView : UIView
+@interface LFImageProgressView : UIView
 
-/** 进度值*/
-@property (nonatomic, assign) float progress;
-
-@property (nonatomic, copy) void (^clickBlock)();
+@property (nonatomic) float progress;
 
 - (void)showLoading;
 - (void)showFailure;

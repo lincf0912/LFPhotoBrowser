@@ -1,24 +1,24 @@
 //
-//  ImageProgressView.m
+//  LFImageProgressView.m
 //  LFPhotoBrowserDEMO
 //
 //  Created by LamTsanFeng on 2016/11/21.
 //  Copyright © 2016年 GZMiracle. All rights reserved.
 //
 
-#import "ImageProgressView.h"
-#import "LLARingSpinnerView.h"
+#import "LFImageProgressView.h"
+#import "X_LLARingSpinnerView.h"
 
 
-@interface ImageProgressView ()
+@interface LFImageProgressView ()
 {
     UIImageView *_failureImageView;
     UILabel *_failureLabel;
-    LLARingSpinnerView *_progressView;
+    X_LLARingSpinnerView *_progressView;
 }
 @end
 
-@implementation ImageProgressView
+@implementation LFImageProgressView
 
 - (void)showFailure
 {
@@ -51,7 +51,7 @@
     [_failureLabel removeFromSuperview];
     
     if (_progressView == nil) {
-        _progressView = [[LLARingSpinnerView alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+        _progressView = [[X_LLARingSpinnerView alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
         _progressView.center = self.center;
         _progressView.tintColor = [[UIColor whiteColor] colorWithAlphaComponent:1];
     }
