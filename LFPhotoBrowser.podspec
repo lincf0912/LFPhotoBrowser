@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
 s.name         = 'LFPhotoBrowser'
-s.version      = '1.0.7'
+s.version      = '1.0.8'
 s.summary      = 'A clone of UIImagePickerController, support picking multiple photos、 video and edit photo'
 s.homepage     = 'https://github.com/lincf0912/LFPhotoBrowser'
 s.license      = 'MIT'
@@ -11,7 +11,7 @@ s.source       = { :git => 'https://github.com/lincf0912/LFPhotoBrowser.git', :t
 s.requires_arc = true
 s.resources    = 'LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/class/*.bundle'
 s.source_files = 'LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/class/*.{h,m}','LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/class/**/*.{h,m}'
-s.public_header_files = 'LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/class/*.h','LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/class/model/*.h','LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/class/model/**/*.h','LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/class/type/*.h'
+s.public_header_files = 'LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/class/*.h','LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/class/model/*.h','LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/class/model/**/*.h','LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/class/type/*.h','LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/class/category/UIImage/UIImage+LFPB_Format.h'
 
 # LFPlayer模块
 s.subspec 'LFVideoPlayer' do |ss|
