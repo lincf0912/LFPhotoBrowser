@@ -25,11 +25,11 @@
 -(void)photoViewDidEndZooming:(LFPhotoView *)photoView;
 
 /** 单击手势代理方法*/
--(void)photoViewGesture:(LFPhotoView *)photoView singleTapPhotoType:(PhotoType)PhotoType object:(id /* UIImage * /NSURL * */)object;
+-(void)photoViewGesture:(LFPhotoView *)photoView singleTapPhotoType:(PhotoType)photoType object:(id /* UIImage * /NSURL * */)object;
 /** 双击手势代理方法(传imageView出去)*/
--(void)photoViewGesture:(LFPhotoView *)photoView doubleTapPhotoType:(PhotoType)PhotoType object:(id /* UIImage * /NSURL * */)object;
+-(void)photoViewGesture:(LFPhotoView *)photoView doubleTapPhotoType:(PhotoType)photoType object:(id /* UIImage * /NSURL * */)object;
 /** 长按手势代理方法*/
--(void)photoViewGesture:(LFPhotoView *)photoView longPressPhotoType:(PhotoType)PhotoType object:(id /* UIImage * /NSURL * */)object;
+-(void)photoViewGesture:(LFPhotoView *)photoView longPressPhotoType:(PhotoType)photoType object:(id /* UIImage * /NSURL * */)object;
 
 /** (不实现，自带SD下载)下载缩略图代理方法 return YES 自定义下载，改变self.photoInfo对象属性，下载完毕调用reloadPhotoView */
 -(BOOL)photoViewDownLoadThumbnail:(LFPhotoView *)photoView url:(NSString *)url;

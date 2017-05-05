@@ -8,20 +8,20 @@
 
 #import <UIKit/UIKit.h>
 
-typedef NS_ENUM(NSUInteger, LFImageType) {
-    LFImageType_Unknow = 0,
-    LFImageType_JPEG,
-    LFImageType_JPEG2000,
-    LFImageType_TIFF,
-    LFImageType_BMP,
-    LFImageType_ICO,
-    LFImageType_ICNS,
-    LFImageType_GIF,
-    LFImageType_PNG,
-    LFImageType_WebP,
+typedef NS_ENUM(NSUInteger, LFPBImageType) {
+    LFPBImageType_Unknow = 0,
+    LFPBImageType_JPEG,
+    LFPBImageType_JPEG2000,
+    LFPBImageType_TIFF,
+    LFPBImageType_BMP,
+    LFPBImageType_ICO,
+    LFPBImageType_ICNS,
+    LFPBImageType_GIF,
+    LFPBImageType_PNG,
+    LFPBImageType_WebP,
 };
 
-CG_EXTERN LFImageType LFImageDetectType(CFDataRef data);
+CG_EXTERN LFPBImageType LFPBImageDetectType(CFDataRef data);
 
 @interface UIImage (LFPB_Format)
 

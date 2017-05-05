@@ -96,22 +96,26 @@ static NSString * const reuseIdentifier = @"Cell";
     
     NSArray *keys = @[@"1今天", @"2明天", @"3一周前", @"4一个月前", @"5三个月前"];
     
-    for (NSInteger i=1; i<22; i++) {
+    for (NSInteger i=0; i<22; i++) {
+        NSString *name = [NSString stringWithFormat:@"%ld.jpeg", i];
+        if (i == 0) {
+            name = [NSString stringWithFormat:@"%ld.gif", i];
+        }
         if (i<5) {
             NSMutableArray *array = [self getMutableArrayWithKey:keys[0]];
-            [array addObject:[NSString stringWithFormat:@"%ld.jpeg", i]];
+            [array addObject:name];
         } else if (i < 10) {
             NSMutableArray *array = [self getMutableArrayWithKey:keys[1]];
-            [array addObject:[NSString stringWithFormat:@"%ld.jpeg", i]];
+            [array addObject:name];
         } else if (i < 15) {
             NSMutableArray *array = [self getMutableArrayWithKey:keys[2]];
-            [array addObject:[NSString stringWithFormat:@"%ld.jpeg", i]];
+            [array addObject:name];
         } else if (i < 20) {
             NSMutableArray *array = [self getMutableArrayWithKey:keys[3]];
-            [array addObject:[NSString stringWithFormat:@"%ld.jpeg", i]];
+            [array addObject:name];
         } else {
             NSMutableArray *array = [self getMutableArrayWithKey:keys[4]];
-            [array addObject:[NSString stringWithFormat:@"%ld.jpeg", i]];
+            [array addObject:name];
         }
     }
     for (NSInteger k=1; k<7; k++) {
@@ -186,7 +190,10 @@ static NSString * const reuseIdentifier = @"Cell";
                 }
             } else {
                 LFPhotoInfo *photo = [LFPhotoInfo photoInfoWithType:PhotoType_image key:title];
-                photo.originalImagePath = [[NSBundle mainBundle] pathForResource:name ofType:nil];
+//                photo.originalImagePath = [[NSBundle mainBundle] pathForResource:name ofType:nil];
+                /** 新增data传参，主要为了方便保存到相册的问题 */
+                NSString *imagePath = [[NSBundle mainBundle] pathForResource:name ofType:nil];
+                photo.originalImageData = [NSData dataWithContentsOfFile:imagePath options:NSDataReadingMappedIfSafe error:nil];
                 [items addObject:photo];
             }
             if ([clickName isEqualToString:name]) {
@@ -349,13 +356,14 @@ static NSString * const reuseIdentifier = @"Cell";
     }
 }
 
-- (NSArray<LFPhotoSheetAction *> *)photoBrowserLongPressActionItems:(LFPhotoBrowser *)photoBrowser photoType:(PhotoType)PhotoType object:(id)object{
-    
-    BOOL isImage = PhotoType == PhotoType_image ? YES : NO;
+- (NSArray <LFPhotoSheetAction *>*)photoBrowserLongPressActionItems:(LFPhotoBrowser *)photoBrowser photoInfo:(LFPhotoInfo *)photoInfo object:(id /* UIImage * /NSURL * */)object
+{
+    BOOL isImage = photoInfo.photoType == PhotoType_image ? YES : NO;
     NSMutableArray *actionsArr = [@[] mutableCopy];
     NSString *title = isImage ? @"保存图片" : @"保存视频";
     /** sheetAction1 */
     LFPhotoSheetAction *sheetAction1 = [LFPhotoSheetAction actionWithTitle:title style:LFPhotoSheetActionType_Default handler:^(id media) {
+        /** object = UIImage 无法保存GIF图片的数据，需要使用photoInfo.originalImageData 或者photoInfo.originalImagePath 获取NSData来保存到相册  */
         NSLog(@"%@", title);
     }];
     [actionsArr addObject:sheetAction1];

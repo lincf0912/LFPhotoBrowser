@@ -8,6 +8,8 @@
 
 @protocol LFVideoProtocol <NSObject>
 
+/** 属性优先级 由上到下 -> 低到高 */
+
 @required
 /** 第一帧URLString*/
 @property (nonatomic, copy) NSString *thumbnailUrl;

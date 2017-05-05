@@ -12,46 +12,46 @@
 #define _FOUR_CC(c1,c2,c3,c4) ((uint32_t)(((c4) << 24) | ((c3) << 16) | ((c2) << 8) | (c1)))
 #define _TWO_CC(c1,c2) ((uint16_t)(((c2) << 8) | (c1)))
 
-LFImageType LFImageDetectType(CFDataRef data) {
-    if (!data) return LFImageType_Unknow;
+LFPBImageType LFImageDetectType(CFDataRef data) {
+    if (!data) return LFPBImageType_Unknow;
     uint64_t length = CFDataGetLength(data);
-    if (length < 16) return LFImageType_Unknow;
+    if (length < 16) return LFPBImageType_Unknow;
     
     const char *bytes = (char *)CFDataGetBytePtr(data);
     
     uint32_t magic4 = *((uint32_t *)bytes);
     switch (magic4) {
         case _FOUR_CC(0x4D, 0x4D, 0x00, 0x2A): { // big endian TIFF
-            return LFImageType_TIFF;
+            return LFPBImageType_TIFF;
         } break;
             
         case _FOUR_CC(0x49, 0x49, 0x2A, 0x00): { // little endian TIFF
-            return LFImageType_TIFF;
+            return LFPBImageType_TIFF;
         } break;
             
         case _FOUR_CC(0x00, 0x00, 0x01, 0x00): { // ICO
-            return LFImageType_ICO;
+            return LFPBImageType_ICO;
         } break;
             
         case _FOUR_CC('i', 'c', 'n', 's'): { // ICNS
-            return LFImageType_ICNS;
+            return LFPBImageType_ICNS;
         } break;
             
         case _FOUR_CC('G', 'I', 'F', '8'): { // GIF
-            return LFImageType_GIF;
+            return LFPBImageType_GIF;
         } break;
             
         case _FOUR_CC(0x89, 'P', 'N', 'G'): {  // PNG
             uint32_t tmp = *((uint32_t *)(bytes + 4));
             if (tmp == _FOUR_CC('\r', '\n', 0x1A, '\n')) {
-                return LFImageType_PNG;
+                return LFPBImageType_PNG;
             }
         } break;
             
         case _FOUR_CC('R', 'I', 'F', 'F'): { // WebP
             uint32_t tmp = *((uint32_t *)(bytes + 8));
             if (tmp == _FOUR_CC('W', 'E', 'B', 'P')) {
-                return LFImageType_WebP;
+                return LFPBImageType_WebP;
             }
         } break;
     }
@@ -64,15 +64,15 @@ LFImageType LFImageDetectType(CFDataRef data) {
         case _TWO_CC('P', 'I'):
         case _TWO_CC('C', 'I'):
         case _TWO_CC('C', 'P'): { // BMP
-            return LFImageType_BMP;
+            return LFPBImageType_BMP;
         }
         case _TWO_CC(0xFF, 0x4F): { // JPEG2000
-            return LFImageType_JPEG2000;
+            return LFPBImageType_JPEG2000;
         }
     }
-    if (memcmp(bytes,"\377\330\377",3) == 0) return LFImageType_JPEG;
-    if (memcmp(bytes + 4, "\152\120\040\040\015", 5) == 0) return LFImageType_JPEG2000;
-    return LFImageType_Unknow;
+    if (memcmp(bytes,"\377\330\377",3) == 0) return LFPBImageType_JPEG;
+    if (memcmp(bytes + 4, "\152\120\040\040\015", 5) == 0) return LFPBImageType_JPEG2000;
+    return LFPBImageType_Unknow;
 }
 
 @implementation UIImage (LFPB_Format)
@@ -100,14 +100,14 @@ LFImageType LFImageDetectType(CFDataRef data) {
 
 + (instancetype)LF_imageWithImageData:(NSData *)imgData
 {
-//    LFImageType imageType = LFImageDetectType((__bridge CFDataRef)imgData);
+//    LFPBImageType imageType = LFImageDetectType((__bridge CFDataRef)imgData);
 //    
 //    UIImage *image = nil;
 //    switch (imageType) {
-//        case LFImageType_GIF:
+//        case LFPBImageType_GIF:
 //            image = [self sd_animatedGIFWithData:imgData];
 //            break;
-//        case LFImageType_WebP:
+//        case LFPBImageType_WebP:
 //            image = [self sd_imageWithWebPData:imgData];
 //            break;
 //        default:

@@ -52,7 +52,8 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 /** 获取遮罩图片 */
 - (UIImage *)photoBrowserTargetMaskImageWithIndex:(int)index key:(NSString *)key;
 /** 设置长按列表 */
-- (NSArray <LFPhotoSheetAction *>*)photoBrowserLongPressActionItems:(LFPhotoBrowser *)photoBrowser photoType:(PhotoType)PhotoType object:(id /* UIImage * /NSURL * */)object;
+- (NSArray <LFPhotoSheetAction *>*)photoBrowserLongPressActionItems:(LFPhotoBrowser *)photoBrowser photoInfo:(LFPhotoInfo *)photoInfo object:(id /* UIImage * /NSURL * */)object;
+
 /** 滑动(滑动增加数据源，调用 增加数据源方法)[异步回调] 获取数据后执行addDataSourceFormSlideDirection:dataSourceArray:回调数据源 */
 - (void)photoBrowserDidSlide:(LFPhotoBrowser *)photoBrowser slideDirection:(SlideDirection)direction photoInfo:(LFPhotoInfo *)photoInfo;
 @end
@@ -96,7 +97,7 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 /** block回调 效果等同于 LFPhotoBrowserDelegate代理, 若实现了代理，block将不会回调 */
 @property (nonatomic, copy) CGRect (^targetFrameBlock)(int index, NSString *key);
 @property (nonatomic, copy) UIImage * (^targetMaskImageBlock)(int index, NSString *key);
-@property (nonatomic, copy) NSArray <LFPhotoSheetAction *>* (^longPressActionItemsBlock)(PhotoType type, id /* UIImage * /NSURL * */ object);
+@property (nonatomic, copy) NSArray <LFPhotoSheetAction *>* (^longPressActionItemsBlock)(LFPhotoInfo *photoInfo, id /* UIImage * /NSURL * */ object);
 @property (nonatomic, copy) void (^slideBlock)(SlideDirection direction, LFPhotoInfo *photoInfo);
 /** 触发photoBrowserDidSlide:slideDirection:photoInfo:代理的范围（距离最后一张）,default is 2 */
 @property (nonatomic, assign) NSUInteger slideRange;

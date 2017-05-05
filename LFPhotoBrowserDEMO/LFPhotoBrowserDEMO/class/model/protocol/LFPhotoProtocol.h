@@ -8,6 +8,8 @@
 
 @protocol LFPhotoProtocol <NSObject>
 
+/** 属性优先级 由上到下 -> 低到高 */
+
 @required
 /** 缩略图URLString*/
 @property (nonatomic, copy) NSString *thumbnailUrl;
@@ -22,5 +24,7 @@
 @property (nonatomic, copy) NSString *originalImagePath;
 /** 本地图片、保存下载图片*/
 @property (nonatomic, copy) UIImage *originalImage;
+/** 图片数据*/
+@property (nonatomic, strong) NSData *originalImageData;
 
 @end

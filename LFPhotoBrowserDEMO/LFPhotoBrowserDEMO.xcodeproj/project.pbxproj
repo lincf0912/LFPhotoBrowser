@@ -72,6 +72,7 @@
 		6FA36E821EBB363F0009E2DE /* LFImageProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FA36E7D1EBB363F0009E2DE /* LFImageProgressView.m */; };
 		6FA36E831EBB363F0009E2DE /* LFVideoProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FA36E7F1EBB363F0009E2DE /* LFVideoProgressView.m */; };
 		6FA36E841EBB363F0009E2DE /* X_LLARingSpinnerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FA36E811EBB363F0009E2DE /* X_LLARingSpinnerView.m */; };
+		6FA36E881EBC0E040009E2DE /* 0.gif in Resources */ = {isa = PBXBuildFile; fileRef = 6FA36E871EBC0E040009E2DE /* 0.gif */; };
 		6FC387AE1EA998ED00284C74 /* NavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FC387AD1EA998ED00284C74 /* NavigationController.m */; };
 		B731EC0F634A3745F52C3A15 /* libPods-LFPhotoBrowserDEMO.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C99D3BE2C4FC1032EABDFDE /* libPods-LFPhotoBrowserDEMO.a */; };
 /* End PBXBuildFile section */
@@ -178,6 +179,7 @@
 		6FA36E7F1EBB363F0009E2DE /* LFVideoProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LFVideoProgressView.m; sourceTree = "<group>"; };
 		6FA36E801EBB363F0009E2DE /* X_LLARingSpinnerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = X_LLARingSpinnerView.h; sourceTree = "<group>"; };
 		6FA36E811EBB363F0009E2DE /* X_LLARingSpinnerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = X_LLARingSpinnerView.m; sourceTree = "<group>"; };
+		6FA36E871EBC0E040009E2DE /* 0.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = 0.gif; sourceTree = "<group>"; };
 		6FC387AC1EA998ED00284C74 /* NavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationController.h; sourceTree = "<group>"; };
 		6FC387AD1EA998ED00284C74 /* NavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -335,6 +337,7 @@
 		6F19F0A71DB5F3A000BC6149 /* source */ = {
 			isa = PBXGroup;
 			children = (
+				6FA36E871EBC0E040009E2DE /* 0.gif */,
 				6F19F0A81DB5F3A000BC6149 /* 1.jpeg */,
 				6F19F0A91DB5F3A000BC6149 /* 10.jpeg */,
 				6F19F0AA1DB5F3A000BC6149 /* 11.jpeg */,
@@ -570,6 +573,7 @@
 				6F19F0C31DB5F3A000BC6149 /* 15.jpeg in Resources */,
 				6F19F0C61DB5F3A000BC6149 /* 18.jpeg in Resources */,
 				6F5BA4A91DE2C6E100F26951 /* 300.png in Resources */,
+				6FA36E881EBC0E040009E2DE /* 0.gif in Resources */,
 				6F19F0D11DB5F3A000BC6149 /* 9.jpeg in Resources */,
 				6F19F0CB1DB5F3A000BC6149 /* 3.jpeg in Resources */,
 				6F5BA4A41DE2C6E100F26951 /* 100.mp4 in Resources */,

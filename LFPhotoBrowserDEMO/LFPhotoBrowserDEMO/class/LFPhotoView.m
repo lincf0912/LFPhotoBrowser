@@ -366,6 +366,8 @@
     if (self.photoInfo.photoType == PhotoType_image) {
         if (self.photoInfo.downloadFail) {
             _loadType = downLoadTypeFail;
+        }else if(_photoInfo.originalImageData){
+            _loadType = downLoadTypeImage;
         }else if(_photoInfo.originalImage){
             _loadType = downLoadTypeImage;
         }else if(self.photoInfo.originalImagePath != nil && [[NSFileManager defaultManager] fileExistsAtPath:self.photoInfo.originalImagePath]){//存在路径和URL
@@ -399,7 +401,12 @@
             break;
         case downLoadTypeImage:
         {
-            [self setImage:_photoInfo.originalImage];
+            UIImage *image = [UIImage LF_imageWithImageData:self.photoInfo.originalImageData];
+            if (image == nil) {
+                [self setImage:_photoInfo.originalImage];
+            } else {
+                [self setImage:image];
+            }
         }
             break;
         case downLoadTypeLocale:

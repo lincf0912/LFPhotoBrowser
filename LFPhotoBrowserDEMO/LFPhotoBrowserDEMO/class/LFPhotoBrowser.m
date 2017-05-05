@@ -916,16 +916,16 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     [self handleAnimationEnd];
 }
 
--(void)photoViewGesture:(LFPhotoView *)photoView longPressPhotoType:(PhotoType)PhotoType object:(id /* UIImage * /NSURL * */)object
+-(void)photoViewGesture:(LFPhotoView *)photoView longPressPhotoType:(PhotoType)photoType object:(id /* UIImage * /NSURL * */)object
 {
     __block NSMutableArray *actionItems = [NSMutableArray array];
-    if ([self.delegate respondsToSelector:@selector(photoBrowserLongPressActionItems:photoType:object:)]) {
-        NSArray *items = [self.delegate photoBrowserLongPressActionItems:self photoType:PhotoType object:object];
+    if ([self.delegate respondsToSelector:@selector(photoBrowserLongPressActionItems:photoInfo:object:)]) {
+        NSArray *items = [self.delegate photoBrowserLongPressActionItems:self photoInfo:photoView.photoInfo object:object];
         if (items) {
             [actionItems addObjectsFromArray:items];
         }
     } else if (self.longPressActionItemsBlock) {
-        NSArray *items = self.longPressActionItemsBlock(PhotoType, object);
+        NSArray *items = self.longPressActionItemsBlock(photoView.photoInfo, object);
         if (items) {
             [actionItems addObjectsFromArray:items];
         }

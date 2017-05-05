@@ -46,6 +46,8 @@
 @property (nonatomic, copy) NSString *originalImagePath;
 /** 本地图片、保存下载图片*/
 @property (nonatomic, copy) UIImage *originalImage;
+/** 图片数据*/
+@property (nonatomic, strong) NSData *originalImageData;
 
 /** ************LFVideoProtocol************ */
 
