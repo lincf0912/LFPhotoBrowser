@@ -12,7 +12,7 @@
 #define _FOUR_CC(c1,c2,c3,c4) ((uint32_t)(((c4) << 24) | ((c3) << 16) | ((c2) << 8) | (c1)))
 #define _TWO_CC(c1,c2) ((uint16_t)(((c2) << 8) | (c1)))
 
-LFPBImageType LFImageDetectType(CFDataRef data) {
+LFPBImageType LFPBImageDetectType(CFDataRef data) {
     if (!data) return LFPBImageType_Unknow;
     uint64_t length = CFDataGetLength(data);
     if (length < 16) return LFPBImageType_Unknow;
