@@ -18,15 +18,19 @@
 /** 分隔间距 */
 #define lf_tableViewFooter_Height 5.f
 
+int defaultButtonIndex = -1;
+
 @interface LFActionSheet() <UITableViewDataSource,UITableViewDelegate>
 /** 标题 */
 @property (nonatomic, copy) NSString *menuTitle;
 /** 列表 */
 @property (nonatomic, weak) UITableView *tableView;
 /** 按钮数组 */
-@property (nonatomic, strong) NSArray <NSArray *>*buttonArray;
+@property (nonatomic, strong) NSArray <NSString *>*buttonArray;
 /** 特殊按钮，标记红色 */
 @property (nonatomic, assign) BOOL hasDestructiveButton;
+/** 取消按钮 */
+@property (nonatomic, assign) BOOL hasCancelButton;
 /** 回调 */
 @property (nonatomic, copy) LFActionSheetBlock didSelectBlock;
 
@@ -41,33 +45,54 @@
     if (self) {
         self.backgroundColor = [UIColor clearColor];
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _cancelButtonIndex = defaultButtonIndex;
+        _destructiveButtonIndex = defaultButtonIndex;
         _menuTitle = title;
         _didSelectBlock = didSelectBlock;
         _hasDestructiveButton = NO;
+        _hasCancelButton = NO;
         /* 获取按钮数组 */
         NSMutableArray *otherButtons = [NSMutableArray arrayWithArray:otherButtonTitles];
         if(destructiveButtonTitle){ /** 将特殊按钮归类到最顶层 */
             _hasDestructiveButton = YES;
+            _destructiveButtonIndex = 0 ;
+            _firstOtherButtonIndex = 1;
             [otherButtons insertObject:destructiveButtonTitle atIndex:0];
         }
-        /** 补充取消按钮 */
-        if (cancelButtonTitle.length == 0) {
-            cancelButtonTitle = @"取消";
+        if (cancelButtonTitle) {
+            _hasCancelButton = YES;
+            [otherButtons addObject:cancelButtonTitle]; /** 返回按钮最低 */
         }
-        self.buttonArray = @[[otherButtons copy], @[cancelButtonTitle]];
+        self.buttonArray = [otherButtons copy];
+        _numberOfButtons = otherButtons.count;
+        _cancelButtonIndex = !_hasCancelButton ?: (_numberOfButtons - 1);
+        
         [self buildUI];
     }
     return self;
 }
 
+- (NSInteger)indexButtonWithTitle:(nullable NSString *)title
+{
+     return [self.buttonArray indexOfObject:title];
+}
+- (nullable NSString *)buttonTitleAtIndex:(NSInteger)buttonIndex
+{
+    return [self.buttonArray objectAtIndex:buttonIndex];
+}
+
 #pragma mark - 创建UI
 -(void)buildUI
 {
-    CGFloat totalHeight = 0;
-    for (NSArray *subArr in self.buttonArray) {
-        totalHeight += subArr.count * lf_tabelViewCell_Height;
-    }
-    totalHeight += MAX((self.buttonArray.count-1), 0) * lf_tableViewFooter_Height;
+    /** 阻止其他手势 */
+    UIButton *background = [UIButton buttonWithType:UIButtonTypeCustom];
+    background.frame = self.frame;
+    [background addTarget:self action:@selector(tapBackgroundView) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:background];
+    
+    CGFloat totalHeight = MAX(self.buttonArray.count, 1) * lf_tabelViewCell_Height;
+    
+    totalHeight += !self.hasCancelButton ?: lf_tableViewFooter_Height;
     
     UILabel *headerView = nil;
     if(self.menuTitle){
@@ -121,17 +146,38 @@
     [self actionSheetDidAppear];
 }
 
+/** 显示某个view上 */
+- (void)showInView:(UIView *)view
+{
+    if (view) {        
+        [view addSubview:self];
+        [self actionSheetDidAppear];
+    }
+}
+
 
 #pragma mark - TabelViewDelegate
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return self.buttonArray.count;
+    if (self.hasCancelButton) { /** 有取消 */
+        if (_numberOfButtons) { /** 有其他 */
+            return 2;
+        }
+    }
+    return 1;
 }
 
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    NSArray *arr = self.buttonArray[section];
-    return arr.count;
+    if (self.hasCancelButton) {
+        if (section == 0) {
+            return _numberOfButtons - 1;
+        } else {
+            return 1;
+        }
+    }
+    
+    return MAX(_numberOfButtons, 1); /** 最少有1个 */
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -157,41 +203,48 @@
     }
     cell.backgroundColor = [UIColor whiteColor];
     cell.alpha = 0.6;
-    NSArray * rowsTextArr = self.buttonArray[indexPath.section];
-    NSString *text = rowsTextArr[indexPath.row];
-    UIColor *textColor = (_hasDestructiveButton && indexPath.section ==0 && indexPath.row ==0) ? [UIColor redColor] : [UIColor blackColor];
     
-    cell.attributedText = [text lf_actionSheetAttributedStringWithFontSize:14.f color:textColor alignment:NSTextAlignmentCenter lineBreakMode:NSLineBreakByTruncatingTail];
+    NSInteger index = indexPath.row;
+    if (indexPath.section == 1) {
+        index = _numberOfButtons-1;
+    }
+    if (index < self.buttonArray.count) {
+        NSString *text = self.buttonArray[index];
+        UIColor *textColor = (_hasDestructiveButton && indexPath.section ==0 && indexPath.row ==0) ? [UIColor redColor] : [UIColor blackColor];
+        
+        cell.attributedText = [text lf_actionSheetAttributedStringWithFontSize:14.f color:textColor alignment:NSTextAlignmentCenter lineBreakMode:NSLineBreakByTruncatingTail];
+    } else {
+        cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    }
    
     return cell;
 };
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (self.didSelectBlock) {
-        NSInteger index = 0;
-        for (NSInteger i=0; i<self.buttonArray.count; i++) {
-            if (i >= indexPath.section) {
-                NSArray *subArr = self.buttonArray[i];
-                NSInteger count = subArr.count;
-                if (i == indexPath.section) {
-                    count -= indexPath.row+1;
-                }
-                index += count;
+    if (_numberOfButtons) { /** 有数据才触发 */
+        if (self.didSelectBlock) {
+            NSInteger index = 0;
+            if (indexPath.section == 0) {
+                index = indexPath.row;
+            } else if (indexPath.section == 1) {
+                index = self.cancelButtonIndex;
             }
+            self.didSelectBlock(self, index);
         }
-        self.didSelectBlock(index);
+        [self actionSheetDidDisappear];
     }
-    [self actionSheetDidDisappear];
 }
 
 #pragma mark - 触碰销毁
--(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+- (void)tapBackgroundView
 {
-    if (self.didSelectBlock) {
-        self.didSelectBlock(0);
+    if (self.hasCancelButton) {
+        if (self.didSelectBlock) {
+            self.didSelectBlock(self, self.cancelButtonIndex);
+        }
+        [self actionSheetDidDisappear];
     }
-    [self actionSheetDidDisappear];
 }
 
 #pragma mark - 视图显示
@@ -218,5 +271,4 @@
         [self removeFromSuperview];
     }];
 }
-
 @end
