@@ -674,6 +674,7 @@
         imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:frame.size isBoth:NO];
         /** 计算相对宽度 */
         CGFloat scale = MAX(verticalSize.height/frame.size.width, 1.f);
+        scale = !isnan(scale) ?: 0;
         imageSize = CGSizeMake(imageSize.width*scale, imageSize.height*scale);
     } else { /** 竖屏 */
         if (maskPosition == MaskPosition_None) {
