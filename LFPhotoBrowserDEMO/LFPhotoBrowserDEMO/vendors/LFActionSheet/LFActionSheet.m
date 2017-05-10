@@ -86,7 +86,8 @@ int defaultButtonIndex = -1;
 {
     /** 阻止其他手势 */
     UIButton *background = [UIButton buttonWithType:UIButtonTypeCustom];
-    background.frame = self.frame;
+    background.frame = self.bounds;
+    background.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     [background addTarget:self action:@selector(tapBackgroundView) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:background];
     
@@ -103,8 +104,7 @@ int defaultButtonIndex = -1;
         headerView.frame = CGRectMake(0, 0, SCREEN_WIDTH, fontHeight+30);
         headerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         headerView.attributedText = attrString;
-        headerView.backgroundColor = [UIColor whiteColor];
-        headerView.alpha = 0.9f;
+        headerView.backgroundColor = [UIColor colorWithWhite:0.95 alpha:1.f];
         headerView.numberOfLines = 0;
         totalHeight += CGRectGetHeight(headerView.frame);
     }
@@ -189,12 +189,19 @@ int defaultButtonIndex = -1;
 {
     return self.buttonArray.count == section ? 0.1f : lf_tableViewFooter_Height;
 }
--(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
     return 0.1f;
 }
+- (nullable UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
+{
+    UIView *footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.bounds.size.width, lf_tableViewFooter_Height)];
+    footerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    footerView.backgroundColor = [UIColor colorWithWhite:0.8 alpha:1.f];
+    return footerView;
+}
 
--(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSString *identifier = [LFActionSheetCell identifier];
     LFActionSheetCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
@@ -218,7 +225,7 @@ int defaultButtonIndex = -1;
     }
    
     return cell;
-};
+}
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
