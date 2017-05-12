@@ -786,6 +786,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     switch (panGesture.state)
     {
         case UIGestureRecognizerStateBegan:{
+            _isStatusBarHiden = NO;
+            [self setNeedsStatusBarAppearanceUpdate];
             _isPullBegan = YES;
             _beginPoint = movePoint;
             self.movePhotoView.hidden = YES;

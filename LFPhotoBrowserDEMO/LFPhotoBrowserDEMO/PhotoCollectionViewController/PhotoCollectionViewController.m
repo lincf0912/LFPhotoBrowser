@@ -46,6 +46,12 @@ static NSString * const reuseIdentifier = @"Cell";
     [self initCollectionView];
 }
 
+- (void)viewWillLayoutSubviews
+{
+    [super viewWillLayoutSubviews];
+    NSLog(@"%f", (CGRectGetHeight(self.navigationController.navigationBar.frame) + CGRectGetHeight([UIApplication sharedApplication].statusBarFrame)));
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
@@ -59,6 +65,12 @@ static NSString * const reuseIdentifier = @"Cell";
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (UIViewController *)childViewControllerForStatusBarHidden
+{
+    /** 因iOS7之后需要实现此方法才能控制状态栏，重写方法，让childViewController控制状态栏 */
+    return self.childViewControllers.count ? self.childViewControllers.firstObject : nil;
 }
 
 #pragma mark - Private Methods
