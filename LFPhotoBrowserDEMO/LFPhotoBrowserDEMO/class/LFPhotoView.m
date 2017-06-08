@@ -601,6 +601,13 @@
     }
 }
 
+- (void)closeVideo
+{
+    [self.videoPlayer pause];
+    self.videoPlayer.delegate = nil;
+    self.videoPlayer = nil;
+}
+
 #pragma mark - 设置图片
 -(void)setImage:(UIImage *)image
 {

@@ -49,7 +49,7 @@ static NSString * const reuseIdentifier = @"Cell";
 - (void)viewWillLayoutSubviews
 {
     [super viewWillLayoutSubviews];
-    NSLog(@"%f", (CGRectGetHeight(self.navigationController.navigationBar.frame) + CGRectGetHeight([UIApplication sharedApplication].statusBarFrame)));
+//    NSLog(@"%f", (CGRectGetHeight(self.navigationController.navigationBar.frame) + CGRectGetHeight([UIApplication sharedApplication].statusBarFrame)));
 }
 
 - (void)viewWillAppear:(BOOL)animated

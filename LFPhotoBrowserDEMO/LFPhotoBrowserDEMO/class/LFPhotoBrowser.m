@@ -271,6 +271,9 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     /** 因为调用[self removeFromParentViewController]才会触发viewWillDisappear时，此时self.navigationController 为nil，但不调用[self removeFromParentViewController] 又不会触发viewWillDisappear，手动提前调用 */
     [self viewWillDisappear:YES];
     
+    /** 关闭视频 */
+    [self.currPhotoView closeVideo];
+    
     UIViewController *parentViewController = self.parentViewController;
     self.parentViewController.navigationController.interactivePopGestureRecognizer.enabled = _interactiveEnabled;
     [self removeFromParentViewController];

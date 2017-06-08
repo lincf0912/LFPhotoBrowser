@@ -54,15 +54,17 @@
 @property (nonatomic, assign) UIInterfaceOrientation orientation;
 
 /** 设置View的frame*/
--(void)calcFrameMaskPosition:(MaskPosition)maskPosition frame:(CGRect)frame;
+- (void)calcFrameMaskPosition:(MaskPosition)maskPosition frame:(CGRect)frame;
 
 /** 设置遮罩图片 */
 - (void)setMaskImage:(UIImage *)maskImage;
 
 /** 清除数据*/
--(void)cleanData;
+- (void)cleanData;
 /** 刷新photoView*/
--(void)reloadPhotoView;
+- (void)reloadPhotoView;
+/** 关闭视频数据(即将销毁前调用) */
+- (void)closeVideo;
 
 /** 触发动画开始 */
 - (void)beginUpdate;
@@ -70,5 +72,5 @@
 - (void)endUpdate;
 
 /** 隐藏附属控件 */
--(void)setSubControlAlpha:(CGFloat)alpha;
+- (void)setSubControlAlpha:(CGFloat)alpha;
 @end
