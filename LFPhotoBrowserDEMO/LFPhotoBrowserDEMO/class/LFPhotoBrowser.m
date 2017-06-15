@@ -187,19 +187,21 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
+    _navigationBarAlpha = 0;
     [UIView animateWithDuration:self.animatedTime animations:^{
-        _navigationBarAlpha = 0;
         [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
+    } completion:^(BOOL finished) {
+        [self.navigationController setNavigationBarHidden:YES];
     }];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    
+    [self.navigationController setNavigationBarHidden:NO];
+    [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
+    _navigationBarAlpha = 1;
     [UIView animateWithDuration:self.animatedTime animations:^{
-        _navigationBarAlpha = 1;
         [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
     }];
 }
@@ -790,6 +792,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     {
         case UIGestureRecognizerStateBegan:{
             _isStatusBarHiden = NO;
+            [self.navigationController setNavigationBarHidden:NO];
             [self setNeedsStatusBarAppearanceUpdate];
             _isPullBegan = YES;
             _beginPoint = movePoint;
@@ -817,9 +820,9 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                 {
                     _isStatusBarHiden = YES;
                     CGRect currRect = (CGRect){CGPointZero, self.currPhotoView.bounds.size};
-                    [UIView animateWithDuration:0.25 animations:^{
+                    _navigationBarAlpha = 0;
+                    [UIView animateWithDuration:self.animatedTime animations:^{
                         self.bgImageView.alpha = 1.0f;
-                        _navigationBarAlpha = 0;
                         [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
                         [self.currPhotoView setSubControlAlpha:1.f];
                         [self.currPhotoView calcFrameMaskPosition:MaskPosition_None frame:currRect];
@@ -827,6 +830,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                         self.movePhotoView.hidden = NO;
                         [_coverView removeFromSuperview];
                         _coverView = nil;
+                        [self.navigationController setNavigationBarHidden:YES];
                         [self setNeedsStatusBarAppearanceUpdate];
                     }];
                 }else{
