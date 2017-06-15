@@ -677,12 +677,16 @@
     CGSize videoSize = CGSizeEqualToSize(CGSizeZero, _customView.image.size) ? self.videoPlayer.size : _customView.image.size;
     
     if (self.orientation == UIInterfaceOrientationLandscapeLeft || self.orientation == UIInterfaceOrientationLandscapeRight) { /** 横屏 */
-        CGSize verticalSize = [UIImage scaleImageSizeBySize:videoSize targetSize:CGSizeMake(frame.size.height, CGFLOAT_MAX) isBoth:NO];
-        imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:frame.size isBoth:NO];
-        /** 计算相对宽度 */
-        CGFloat scale = MAX(verticalSize.height/frame.size.width, 1.f);
-        scale = !isnan(scale) ?: 0;
-        imageSize = CGSizeMake(imageSize.width*scale, imageSize.height*scale);
+        if (maskPosition == MaskPosition_None) {
+            CGSize verticalSize = [UIImage scaleImageSizeBySize:videoSize targetSize:CGSizeMake(frame.size.height, CGFLOAT_MAX) isBoth:NO];
+            imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:frame.size isBoth:NO];
+            /** 计算相对宽度 */
+            CGFloat scale = MAX(verticalSize.height/frame.size.width, 1.f);
+            scale = !isnan(scale) ?: 0;
+            imageSize = CGSizeMake(imageSize.width*scale, imageSize.height*scale);
+        } else {
+            imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:frame.size isBoth:YES];
+        }
     } else { /** 竖屏 */
         if (maskPosition == MaskPosition_None) {
             /** 判断宽度，拉伸 */
