@@ -120,6 +120,9 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 /** 批量下载记录 */
 @property (nonatomic, assign) BOOL isBatchDLing;
 
+/** 父视图导航栏隐藏状态 */
+@property (nonatomic, assign) BOOL parentNaviHiden;
+
 @end
 
 @implementation LFPhotoBrowser
@@ -272,6 +275,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     
     /** 因为调用[self removeFromParentViewController]才会触发viewWillDisappear时，此时self.navigationController 为nil，但不调用[self removeFromParentViewController] 又不会触发viewWillDisappear，手动提前调用 */
     [self viewWillDisappear:YES];
+    [self.navigationController setNavigationBarHidden:_parentNaviHiden];
     
     /** 关闭视频 */
     [self.currPhotoView closeVideo];
@@ -414,6 +418,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     [viewController addChildViewController:self];
     [viewController.view addSubview:self.view];
     _interactiveEnabled = self.parentViewController.navigationController.interactivePopGestureRecognizer.enabled;
+    _parentNaviHiden = self.parentViewController.navigationController.navigationBarHidden;
     self.parentViewController.navigationController.interactivePopGestureRecognizer.enabled = NO;
     
     /** 首次打开，判断是否在触发代理范围内 */
@@ -894,7 +899,9 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                     [self.currPhotoView setSubControlAlpha:alpha];
                     
                     _navigationBarAlpha = 1-alpha;
-                    [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
+                    if (_parentNaviHiden == NO) {
+                        [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
+                    }
                 }
                 
                 /** 移动 */
