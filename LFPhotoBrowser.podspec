@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
 s.name         = 'LFPhotoBrowser'
-s.version      = '1.1.5'
+s.version      = '1.1.6'
 s.summary      = 'A clone of UIImagePickerController, support picking multiple photos、 video and edit photo'
 s.homepage     = 'https://github.com/lincf0912/LFPhotoBrowser'
 s.license      = 'MIT'
