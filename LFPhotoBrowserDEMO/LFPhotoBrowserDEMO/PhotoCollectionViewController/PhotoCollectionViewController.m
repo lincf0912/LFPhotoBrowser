@@ -401,6 +401,17 @@ static NSString * const reuseIdentifier = @"Cell";
     return actionsArr;
 }
 
+/** 设置保存按钮（右下角） */
+- (void)photoBrowserSavePreview:(LFPhotoBrowser *)photoBrowser photoInfo:(LFPhotoInfo *)photoInfo object:(id /* UIImage * /NSURL * */)object
+{
+    NSLog(@"设置保存按钮（右下角）-- %@", object);
+}
+/** 设置更多按钮（右上角） */
+- (void)photoBrowserMorePreview:(LFPhotoBrowser *)photoBrowser photoInfo:(LFPhotoInfo *)photoInfo object:(id /* UIImage * /NSURL * */)object
+{
+    NSLog(@"设置更多按钮（右上角）-- %@", object);
+}
+
 - (BOOL)shouldAutorotate
 {
     return YES;

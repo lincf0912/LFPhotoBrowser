@@ -53,6 +53,8 @@
 /** 横屏适配(在屏幕将要改变方向时，设置orientation=实际屏幕方向) */
 @property (nonatomic, assign) UIInterfaceOrientation orientation;
 
+- (id /* UIImage * /NSURL * */)getSelectObject;
+
 /** 设置View的frame*/
 - (void)calcFrameMaskPosition:(MaskPosition)maskPosition frame:(CGRect)frame;
 

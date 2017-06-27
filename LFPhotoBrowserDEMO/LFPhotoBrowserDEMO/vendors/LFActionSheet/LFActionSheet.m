@@ -116,8 +116,13 @@ int defaultButtonIndex = -1;
     tableView.dataSource = self;
     tableView.alwaysBounceVertical = NO;
     tableView.scrollEnabled = NO;
+    /** 这个设置iOS9以后才有，主要针对iPad，不设置的话，分割线左侧空出很多 */
     if ([tableView respondsToSelector:@selector(setCellLayoutMarginsFollowReadableWidth:)]) {
         tableView.cellLayoutMarginsFollowReadableWidth = NO;
+    }
+    /** 解决ios7中tableview每一行下面的线向右偏移的问题 */
+    if ([tableView respondsToSelector:@selector(setSeparatorInset:)]) {
+        [tableView setSeparatorInset:UIEdgeInsetsZero];
     }
     if(headerView){
         tableView.tableHeaderView = headerView;

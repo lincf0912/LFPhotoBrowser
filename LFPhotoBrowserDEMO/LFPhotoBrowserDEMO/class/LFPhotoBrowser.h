@@ -53,6 +53,10 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 - (UIImage *)photoBrowserTargetMaskImageWithIndex:(int)index key:(NSString *)key;
 /** 设置长按列表 */
 - (NSArray <LFPhotoSheetAction *>*)photoBrowserLongPressActionItems:(LFPhotoBrowser *)photoBrowser photoInfo:(LFPhotoInfo *)photoInfo object:(id /* UIImage * /NSURL * */)object;
+/** 设置保存按钮（右下角） */
+- (void)photoBrowserSavePreview:(LFPhotoBrowser *)photoBrowser photoInfo:(LFPhotoInfo *)photoInfo object:(id /* UIImage * /NSURL * */)object;
+/** 设置更多按钮（右上角） */
+- (void)photoBrowserMorePreview:(LFPhotoBrowser *)photoBrowser photoInfo:(LFPhotoInfo *)photoInfo object:(id /* UIImage * /NSURL * */)object;
 
 /** 滑动(滑动增加数据源，调用 增加数据源方法)[异步回调] 获取数据后执行addDataSourceFormSlideDirection:dataSourceArray:回调数据源 */
 - (void)photoBrowserDidSlide:(LFPhotoBrowser *)photoBrowser slideDirection:(SlideDirection)direction photoInfo:(LFPhotoInfo *)photoInfo;

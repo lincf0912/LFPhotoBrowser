@@ -213,7 +213,7 @@
 
 #pragma mark - 手势处理
 
-- (id)getSelectObject
+- (id /* UIImage * /NSURL * */)getSelectObject
 {
     id object = nil;
     if (self.photoInfo.photoType == PhotoType_image) {

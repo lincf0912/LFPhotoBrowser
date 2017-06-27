@@ -98,6 +98,12 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 @property (nonatomic, strong) UIView *shieldView;
 @property (nonatomic, strong) UIView *coverView;
 
+/** 保存按钮 */
+@property (nonatomic, weak) UIButton *saveButton;
+/** 更多按钮 */
+@property (nonatomic, weak) UIButton *moreButton;
+
+
 /** 记录触发代理加载数据，避免重复触发 */
 /** 左边 */
 @property (nonatomic, assign) BOOL callLeftSlideDataSource;
@@ -178,6 +184,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     [self imageFromSelectItems:_curr withImageView:self.currPhotoView];
     //动画
     [self handleAnimationBegin];
+    
+    [self hiddenPreviewButton];
 }
 
 -(void)viewDidLayoutSubviews
@@ -358,6 +366,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 
 - (void)setupView
 {
+    [self setAutomaticallyAdjustsScrollViewInsets:NO];
     /** 设置scrollview*/
     if(!_photoScrollView){
         _photoScrollView = [[LFPhotoScrollView alloc]init];
@@ -392,7 +401,28 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         self.movePhotoView = _nextPhotoView;
     }
     //    [self resetScrollView];
-    [self setAutomaticallyAdjustsScrollViewInsets:NO];
+    
+    CGFloat button_W = 28.f, margin = 20.f;
+    /** 保存按钮 */
+    if ([self.delegate respondsToSelector:@selector(photoBrowserSavePreview:photoInfo:object:)]) {
+        UIButton *saveButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        saveButton.frame = CGRectMake(self.view.frame.size.width - button_W - margin, self.view.frame.size.height - button_W - margin, button_W, button_W);
+        saveButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleTopMargin;
+        [saveButton setImage:[UIImage imageNamed:@"LFPhotoSource.bundle/mediaPreviewDownload"] forState:UIControlStateNormal];
+        [saveButton addTarget:self action:@selector(mediaSavePreviewAction) forControlEvents:UIControlEventTouchUpInside];
+        [self.view addSubview:saveButton];
+        self.saveButton = saveButton;
+    }
+    /** 更多按钮 */
+    if ([self.delegate respondsToSelector:@selector(photoBrowserMorePreview:photoInfo:object:)]) {
+        UIButton *moreButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        moreButton.frame = CGRectMake(self.view.frame.size.width - button_W - margin, margin, button_W, button_W);
+        moreButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleBottomMargin;
+        [moreButton setImage:[UIImage imageNamed:@"LFPhotoSource.bundle/mediaPreviewAlbum"] forState:UIControlStateNormal];
+        [moreButton addTarget:self action:@selector(mediaMorePreviewAction) forControlEvents:UIControlEventTouchUpInside];
+        [self.view addSubview:moreButton];
+        self.moreButton = moreButton;
+    }
     
 }
 
@@ -572,6 +602,15 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                 if(self.images.count >1)
                     [self resetNextImageView:self.movePhotoView];
             }
+            
+            /** 终止动画 */
+            [self cancelHiddenPreviewButton];
+            self.moreButton.alpha = 1.f;
+            if (self.movePhotoView.photoInfo.photoType == PhotoType_video) {
+                self.saveButton.alpha = 0.f;
+            } else {
+                self.saveButton.alpha = 1.f;
+            }
         }
         
         
@@ -677,6 +716,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         /** 重置全局 */
         [self resetScrollView];
     }
+    
+    [self hiddenPreviewButton];
 }
 
 #pragma mark - 增加数据源
@@ -1076,6 +1117,42 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                                                         [weakSelf batchDownload];
                                                     }];
     }
+}
+
+#pragma mark - 额外按钮事件
+- (void)mediaSavePreviewAction
+{
+    if ([self.delegate respondsToSelector:@selector(photoBrowserSavePreview:photoInfo:object:)]) {
+        [self.delegate photoBrowserSavePreview:self photoInfo:self.currPhotoView.photoInfo object:[self.currPhotoView getSelectObject]];
+    }
+}
+
+- (void)mediaMorePreviewAction
+{
+    if ([self.delegate respondsToSelector:@selector(photoBrowserMorePreview:photoInfo:object:)]) {
+        [self.delegate photoBrowserMorePreview:self photoInfo:self.currPhotoView.photoInfo object:[self.currPhotoView getSelectObject]];
+    }
+}
+
+- (void)hiddenPreviewButton
+{
+    self.saveButton.alpha = self.currPhotoView.photoInfo.photoType == PhotoType_video ? 0 : 1;
+    [self performSelector:@selector(hidePreviewButtonAlpha) withObject:nil afterDelay:5.f];
+}
+
+- (void)cancelHiddenPreviewButton
+{
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(hidePreviewButtonAlpha) object:nil];
+}
+
+- (void)hidePreviewButtonAlpha
+{
+    [UIView animateWithDuration:0.25f delay:0.f options:UIViewAnimationOptionCurveEaseOut animations:^{
+        self.saveButton.alpha = 0.f;
+        self.moreButton.alpha = 0.f;
+    } completion:^(BOOL finished) {
+        
+    }];
 }
 
 #pragma mark - 重写方法,横屏
