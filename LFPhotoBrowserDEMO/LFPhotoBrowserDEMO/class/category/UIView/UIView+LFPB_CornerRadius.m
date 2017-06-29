@@ -10,7 +10,7 @@
 
 @implementation UIView (LFPB_CornerRadius)
 
-- (void)setCornerRadius:(float)cornerRadius
+- (void)LFPB_setCornerRadius:(float)cornerRadius
 {
     if (cornerRadius > 0) {
         self.layer.masksToBounds = YES;
@@ -24,11 +24,11 @@
         self.layer.rasterizationScale = 1.f;
     }
 }
-- (void)setLayerMaskView:(UIImageView *)maskView {
-    [self setLayerMaskView:maskView isNeedBorder:NO];
+- (void)LFPB_setLayerMaskView:(UIImageView *)maskView {
+    [self LFPB_setLayerMaskView:maskView isNeedBorder:NO];
 }
 
-- (void)setLayerMaskView:(UIImageView *)maskView isNeedBorder:(BOOL)isNeedBorder
+- (void)LFPB_setLayerMaskView:(UIImageView *)maskView isNeedBorder:(BOOL)isNeedBorder
 {
     /** 获取遮罩层 */
     CALayer *maskLayer = maskView.layer;

@@ -11,7 +11,7 @@
 @implementation UIViewController (LFPB_Extension)
 
 #pragma mark - 获取当前屏幕显示的ViewController
-+ (UIViewController *)getCurrentVC
++ (UIViewController *)LFPB_getCurrentVC
 {
     UIViewController *result = nil;
     UIWindow * window = [[UIApplication sharedApplication] keyWindow];

@@ -11,6 +11,6 @@
 @interface UIViewController (LFPB_Extension)
 
 /** 获取当前屏幕显示的ViewController */
-+ (UIViewController *)getCurrentVC;
++ (UIViewController *)LFPB_getCurrentVC;
 
 @end

@@ -34,9 +34,9 @@ CG_EXTERN LFPBImageType LFPBImageDetectType(CFDataRef data);
  *
  *  @return UIImage
  */
-+ (instancetype)LF_imageWithImagePath:(NSString *)imagePath;
++ (instancetype)LFPB_imageWithImagePath:(NSString *)imagePath;
 
-+ (instancetype)LF_imageWithImagePath:(NSString *)imagePath error:(NSError **)error;
++ (instancetype)LFPB_imageWithImagePath:(NSString *)imagePath error:(NSError **)error;
 
-+ (instancetype)LF_imageWithImageData:(NSData *)imgData;
++ (instancetype)LFPB_imageWithImageData:(NSData *)imgData;
 @end

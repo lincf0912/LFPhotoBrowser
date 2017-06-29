@@ -71,7 +71,7 @@
         _imageMaskView = [[UIImageView alloc]initWithFrame:_imageView.bounds];
         _imageMaskView.backgroundColor = [UIColor whiteColor];
         /** 设置遮罩 */
-        [_imageView setLayerMaskView:_imageMaskView];
+        [_imageView LFPB_setLayerMaskView:_imageMaskView];
         _customView = _imageView;
         _customView.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
         _imageMaskView.autoresizingMask = UIViewAutoresizingFlexibleHeight|UIViewAutoresizingFlexibleWidth;
@@ -401,7 +401,7 @@
             break;
         case downLoadTypeImage:
         {
-            UIImage *image = [UIImage LF_imageWithImageData:self.photoInfo.originalImageData];
+            UIImage *image = [UIImage LFPB_imageWithImageData:self.photoInfo.originalImageData];
             if (image == nil) {
                 [self setImage:_photoInfo.originalImage];
             } else {
@@ -411,7 +411,7 @@
             break;
         case downLoadTypeLocale:
         {
-            UIImage *image = [UIImage LF_imageWithImagePath:self.photoInfo.originalImagePath];
+            UIImage *image = [UIImage LFPB_imageWithImagePath:self.photoInfo.originalImagePath];
             
             if(image == nil){
                 [self showPhotoLoadingFailure];
@@ -483,7 +483,7 @@
     if (_photoInfo.thumbnailImage){
         [self setImage:_photoInfo.thumbnailImage];
     }else{
-        UIImage *thumbnailImage = [UIImage LF_imageWithImagePath:self.photoInfo.thumbnailPath];
+        UIImage *thumbnailImage = [UIImage LFPB_imageWithImagePath:self.photoInfo.thumbnailPath];
         if(thumbnailImage){
             self.photoInfo.thumbnailImage = thumbnailImage;
             [self setImage:thumbnailImage];
@@ -678,22 +678,22 @@
     
     if (self.orientation == UIInterfaceOrientationLandscapeLeft || self.orientation == UIInterfaceOrientationLandscapeRight) { /** 横屏 */
         if (maskPosition == MaskPosition_None) {
-            CGSize verticalSize = [UIImage scaleImageSizeBySize:videoSize targetSize:CGSizeMake(frame.size.height, CGFLOAT_MAX) isBoth:NO];
-            imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:frame.size isBoth:NO];
+            CGSize verticalSize = [UIImage LFPB_scaleImageSizeBySize:videoSize targetSize:CGSizeMake(frame.size.height, CGFLOAT_MAX) isBoth:NO];
+            imageSize = [UIImage LFPB_scaleImageSizeBySize:videoSize targetSize:frame.size isBoth:NO];
             /** 计算相对宽度 */
             CGFloat scale = MAX(verticalSize.height/frame.size.width, 1.f);
             scale = !isnan(scale) ?: 0;
             imageSize = CGSizeMake(imageSize.width*scale, imageSize.height*scale);
         } else {
-            imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:frame.size isBoth:YES];
+            imageSize = [UIImage LFPB_scaleImageSizeBySize:videoSize targetSize:frame.size isBoth:YES];
         }
     } else { /** 竖屏 */
         if (maskPosition == MaskPosition_None) {
             /** 判断宽度，拉伸 */
-            imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:CGSizeMake(frame.size.width, CGFLOAT_MAX) isBoth:NO];
+            imageSize = [UIImage LFPB_scaleImageSizeBySize:videoSize targetSize:CGSizeMake(frame.size.width, CGFLOAT_MAX) isBoth:NO];
         } else {
             /** 对两边判断，拉伸最小值(缩放效果实现) */
-            imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:frame.size isBoth:YES];
+            imageSize = [UIImage LFPB_scaleImageSizeBySize:videoSize targetSize:frame.size isBoth:YES];
         }
     }
     
@@ -864,7 +864,7 @@
             CGFloat height = 30;
             /** 不能直接使用CGRectGetMaxY(_customView.frame)，有下拉缩放的情况坐标需要重新计算 */
             CGSize videoSize = CGSizeEqualToSize(CGSizeZero, _customView.image.size) ? self.videoPlayer.size : _customView.image.size;
-            CGSize imageSize = [UIImage scaleImageSizeBySize:videoSize targetSize:CGSizeMake(self.frame.size.width, CGFLOAT_MAX) isBoth:NO];
+            CGSize imageSize = [UIImage LFPB_scaleImageSizeBySize:videoSize targetSize:CGSizeMake(self.frame.size.width, CGFLOAT_MAX) isBoth:NO];
             CGFloat y = (CGRectGetHeight(self.frame) + imageSize.height)/2;
             if (CGRectGetHeight(self.frame) < y+height) {
                 y = CGRectGetHeight(self.frame) - height;

@@ -77,12 +77,12 @@ LFPBImageType LFPBImageDetectType(CFDataRef data) {
 
 @implementation UIImage (LFPB_Format)
 
-+ (instancetype)LF_imageWithImagePath:(NSString *)imagePath
++ (instancetype)LFPB_imageWithImagePath:(NSString *)imagePath
 {
-    return [self LF_imageWithImagePath:imagePath error:nil];
+    return [self LFPB_imageWithImagePath:imagePath error:nil];
 }
 
-+ (instancetype)LF_imageWithImagePath:(NSString *)imagePath error:(NSError **)error
++ (instancetype)LFPB_imageWithImagePath:(NSString *)imagePath error:(NSError **)error
 {
     if (imagePath.length == 0) return nil;
     NSError *dataError = nil;
@@ -95,10 +95,10 @@ LFPBImageType LFPBImageDetectType(CFDataRef data) {
         return nil;
     }
     
-    return [self LF_imageWithImageData:imgData];
+    return [self LFPB_imageWithImageData:imgData];
 }
 
-+ (instancetype)LF_imageWithImageData:(NSData *)imgData
++ (instancetype)LFPB_imageWithImageData:(NSData *)imgData
 {
 //    LFPBImageType imageType = LFImageDetectType((__bridge CFDataRef)imgData);
 //    

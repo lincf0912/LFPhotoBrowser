@@ -52,7 +52,7 @@
     [super layoutSubviews];
     
     
-    CGSize size = [UIImage imageSizeBySize:self.photoView.image.size maxHeight:self.bounds.size.height];
+    CGSize size = [UIImage LFPB_imageSizeBySize:self.photoView.image.size maxHeight:self.bounds.size.height];
 //    [_photoView setFrame:(CGRect){(self.bounds.size.width - size.width) / 2, 0, size}];
     [_photoView setFrame:(CGRect){_photoView.frame.origin, size}];
     

@@ -444,7 +444,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     //    [window.rootViewController addChildViewController:self];
     //    [window.rootViewController.view addSubview:self.view];
     
-    UIViewController *viewController = [UIViewController getCurrentVC];
+    UIViewController *viewController = [UIViewController LFPB_getCurrentVC];
     [viewController addChildViewController:self];
     [viewController.view addSubview:self.view];
     _interactiveEnabled = self.parentViewController.navigationController.interactivePopGestureRecognizer.enabled;

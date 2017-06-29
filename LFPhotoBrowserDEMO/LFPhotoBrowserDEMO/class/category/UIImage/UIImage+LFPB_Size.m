@@ -10,7 +10,7 @@
 
 @implementation UIImage (LFPB_Size)
 
-+ (CGSize)imageSizeByFileName:(NSString *)fileName maxWidth:(CGFloat)maxWidth
++ (CGSize)LFPB_imageSizeByFileName:(NSString *)fileName maxWidth:(CGFloat)maxWidth
 {
     UIImage *img = nil;
     NSString *imageName = fileName;
@@ -34,7 +34,7 @@
 //            imageSize =  [UIImage downloadImageSizeWithURL:imageURL type:[imageName pathExtension]];
         }
     }
-    imageSize = [self imageSizeBySize:imageSize maxWidth:maxWidth];
+    imageSize = [self LFPB_imageSizeBySize:imageSize maxWidth:maxWidth];
 
     if(CGSizeEqualToSize(CGSizeZero, imageSize)){
         /** 手工设置图片大小 */
@@ -46,7 +46,7 @@
     return imageSize;
 }
 
-+ (CGSize)imageSizeBySize:(CGSize)size maxWidth:(CGFloat)maxWidth
++ (CGSize)LFPB_imageSizeBySize:(CGSize)size maxWidth:(CGFloat)maxWidth
 {
     if (maxWidth == 0) return size;
     CGSize imageSize = size;
@@ -67,7 +67,7 @@
     return imageSize;
 }
 
-+ (CGSize)imageSizeBySize:(CGSize)size maxHeight:(CGFloat)maxHeight
++ (CGSize)LFPB_imageSizeBySize:(CGSize)size maxHeight:(CGFloat)maxHeight
 {
     if (maxHeight == 0) return size;
     CGSize imageSize = size;
@@ -88,7 +88,7 @@
     return imageSize;
 }
 
-+ (CGSize)scaleImageSizeBySize:(CGSize)imageSize targetSize:(CGSize)size isBoth:(BOOL)isBoth {
++ (CGSize)LFPB_scaleImageSizeBySize:(CGSize)imageSize targetSize:(CGSize)size isBoth:(BOOL)isBoth {
     
     /** 原图片大小为0 不再往后处理 */
     if (CGSizeEqualToSize(imageSize, CGSizeZero)) {
@@ -132,7 +132,7 @@
     return CGSizeMake(ceilf(scaledWidth), ceilf(scaledHeight));
 }
 
-+ (CGSize)downloadImageSizeWithURL:(id)imageURL type:(NSString *)type
++ (CGSize)LFPB_downloadImageSizeWithURL:(id)imageURL type:(NSString *)type
 {
     NSURL* URL = nil;
     if([imageURL isKindOfClass:[NSURL class]]){
@@ -148,14 +148,14 @@
     
     CGSize size = CGSizeZero;
     if([type isEqualToString:@"png"]){
-        size = [self downloadPNGImageSizeWithRequest:request];
+        size = [self LFPB_downloadPNGImageSizeWithRequest:request];
     }
     else if([type isEqual:@"gif"])
     {
-        size = [self downloadGIFImageSizeWithRequest:request];
+        size = [self LFPB_downloadGIFImageSizeWithRequest:request];
     }
     else{
-        size = [self downloadJPGImageSizeWithRequest:request];
+        size = [self LFPB_downloadJPGImageSizeWithRequest:request];
     }
     if(CGSizeEqualToSize(CGSizeZero, size))
     {
@@ -169,10 +169,10 @@
     return size;
 }
 
-+ (CGSize)downloadPNGImageSizeWithRequest:(NSMutableURLRequest*)request
++ (CGSize)LFPB_downloadPNGImageSizeWithRequest:(NSMutableURLRequest*)request
 {
     [request setValue:@"bytes=16-23" forHTTPHeaderField:@"Range"];
-    NSData* data = [self networkSynchronousRequest:request];
+    NSData* data = [self LFPB_networkSynchronousRequest:request];
     if(data.length == 8)
     {
         int w1 = 0, w2 = 0, w3 = 0, w4 = 0;
@@ -192,10 +192,10 @@
     return CGSizeZero;
 }
 
-+ (CGSize)downloadGIFImageSizeWithRequest:(NSMutableURLRequest*)request
++ (CGSize)LFPB_downloadGIFImageSizeWithRequest:(NSMutableURLRequest*)request
 {
     [request setValue:@"bytes=6-9" forHTTPHeaderField:@"Range"];
-    NSData* data = [self networkSynchronousRequest:request];
+    NSData* data = [self LFPB_networkSynchronousRequest:request];
     if(data.length == 4)
     {
         short w1 = 0, w2 = 0;
@@ -211,10 +211,10 @@
     return CGSizeZero;
 }
 
-+ (CGSize)downloadJPGImageSizeWithRequest:(NSMutableURLRequest*)request
++ (CGSize)LFPB_downloadJPGImageSizeWithRequest:(NSMutableURLRequest*)request
 {
     [request setValue:@"bytes=0-209" forHTTPHeaderField:@"Range"];
-    NSData* data = [self networkSynchronousRequest:request];
+    NSData* data = [self LFPB_networkSynchronousRequest:request];
     
     if ([data length] <= 0x58) {
         return CGSizeZero;
@@ -263,7 +263,7 @@
 }
 
 #pragma mark - 网络请求返回nsdata
-+ (NSData *)networkSynchronousRequest:(NSMutableURLRequest *)request
++ (NSData *)LFPB_networkSynchronousRequest:(NSMutableURLRequest *)request
 {
     [request setTimeoutInterval:2.0]; // 设置超时
     NSData* data = [NSURLConnection sendSynchronousRequest:request returningResponse:nil error:nil];

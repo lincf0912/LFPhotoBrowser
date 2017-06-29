@@ -18,7 +18,7 @@
  *  @param cornerRadius 圆角大小（视图大小，若视图大小改变角度，需要重新设置）
  *
  */
-- (void)setCornerRadius:(float)cornerRadius;// DEPRECATED_ATTRIBUTE;
+- (void)LFPB_setCornerRadius:(float)cornerRadius;// DEPRECATED_ATTRIBUTE;
 
 
 /**
@@ -30,7 +30,7 @@
  *  @param isNeedBorder  是否需要显示遮罩描边
  *
  */
-- (void)setLayerMaskView:(UIImageView * _Nonnull)maskView isNeedBorder:(BOOL)isNeedBorder;
-- (void)setLayerMaskView:(UIImageView * _Nonnull)maskView;
+- (void)LFPB_setLayerMaskView:(UIImageView * _Nonnull)maskView isNeedBorder:(BOOL)isNeedBorder;
+- (void)LFPB_setLayerMaskView:(UIImageView * _Nonnull)maskView;
 
 @end
