@@ -401,11 +401,16 @@
             break;
         case downLoadTypeImage:
         {
-            UIImage *image = [UIImage LFPB_imageWithImageData:self.photoInfo.originalImageData];
-            if (image == nil) {
+            if (self.photoInfo.originalImage) {
                 [self setImage:_photoInfo.originalImage];
             } else {
-                [self setImage:image];
+                UIImage *image = [UIImage LFPB_imageWithImageData:self.photoInfo.originalImageData];
+                if (image == nil) {
+                    [self showPhotoLoadingFailure];
+                } else {                    
+                    self.photoInfo.originalImage = image;
+                    [self setImage:image];
+                }
             }
         }
             break;
@@ -584,6 +589,7 @@
         _photoInfo = nil;
         //图片设置为空
         [_customView removeFromSuperview];
+        _customView.image = nil;
         _customView = nil;
         self.imageMaskView = nil;
         //移除加载视图

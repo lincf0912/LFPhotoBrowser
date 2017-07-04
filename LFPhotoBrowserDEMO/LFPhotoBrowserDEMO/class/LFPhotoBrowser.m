@@ -223,6 +223,19 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     [[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
 }
 
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+    for (LFPhotoInfo *photoInfo in self.imageSources) {
+        if (photoInfo.photoType == PhotoType_image) {
+            if (photoInfo.originalImagePath || photoInfo.originalImageData) {
+                /** 释放缓存 */
+                photoInfo.originalImage = nil;
+            }
+        }
+    }
+}
+
 - (BOOL)prefersStatusBarHidden
 {
     return _isStatusBarHiden;
