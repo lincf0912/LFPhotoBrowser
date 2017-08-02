@@ -217,7 +217,7 @@
 {
     id object = nil;
     if (self.photoInfo.photoType == PhotoType_image) {
-        object = _customView.image;
+        object = self.photoInfo.originalImage;
     } else if (self.photoInfo.photoType == PhotoType_video) {
         if (self.loadType == downLoadTypeLocale) { /** 本地视频才回调URL */
             object = self.videoPlayer.URL;
