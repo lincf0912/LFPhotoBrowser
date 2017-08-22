@@ -188,7 +188,18 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     [self hiddenPreviewButton];
 }
 
--(void)viewDidLayoutSubviews
+- (void)viewWillLayoutSubviews
+{
+    [super viewWillLayoutSubviews];
+
+    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
+    self.currPhotoView.orientation = orientation;
+    self.movePhotoView.orientation = orientation;
+    
+    _panGesture.enabled = (orientation == UIInterfaceOrientationPortrait);
+}
+
+- (void)viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
     
@@ -1174,23 +1185,23 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     return UIInterfaceOrientationMaskAllButUpsideDown;
 }
 
-#pragma mark - iOS7
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
-{
-    self.currPhotoView.orientation = toInterfaceOrientation;
-    self.movePhotoView.orientation = toInterfaceOrientation;
-    
-    _panGesture.enabled = (toInterfaceOrientation == UIInterfaceOrientationPortrait);
-}
-#pragma mark - iOS8 Later
-- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
-{
-    UIInterfaceOrientation orientation = size.width < size.height ? UIInterfaceOrientationPortrait : UIInterfaceOrientationLandscapeLeft;
-    self.currPhotoView.orientation = orientation;//[[UIApplication sharedApplication] statusBarOrientation];
-    self.movePhotoView.orientation = orientation;//[[UIApplication sharedApplication] statusBarOrientation];
-    
-    _panGesture.enabled = (size.width < size.height);
-}
+//#pragma mark - iOS7
+//- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+//{
+//    self.currPhotoView.orientation = toInterfaceOrientation;
+//    self.movePhotoView.orientation = toInterfaceOrientation;
+//    
+//    _panGesture.enabled = (toInterfaceOrientation == UIInterfaceOrientationPortrait);
+//}
+//#pragma mark - iOS8 Later
+//- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
+//{
+//    UIInterfaceOrientation orientation = size.width < size.height ? UIInterfaceOrientationPortrait : UIInterfaceOrientationLandscapeLeft;
+//    self.currPhotoView.orientation = orientation;//[[UIApplication sharedApplication] statusBarOrientation];
+//    self.movePhotoView.orientation = orientation;//[[UIApplication sharedApplication] statusBarOrientation];
+//    
+//    _panGesture.enabled = (size.width < size.height);
+//}
 
 #pragma mark - 重置屏幕方向
 - (void)resetInterfaceOrientation:(UIInterfaceOrientationMask)orientationMask
