@@ -29,6 +29,7 @@
         _failureImageView.contentMode = UIViewContentModeScaleAspectFit;
         _failureImageView.image = [UIImage imageNamed:@"LFPhotoSource.bundle/PhotoDownloadfailedSamll@2x"];
         _failureImageView.center = CGPointMake(self.center.x, self.center.y - 150);
+        _failureImageView.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
     }
     [self addSubview:_failureImageView];
     if (_failureLabel == nil) {
@@ -40,7 +41,7 @@
         _failureLabel.font = [UIFont boldSystemFontOfSize:16.0f];
         _failureLabel.textColor = [UIColor whiteColor];
         _failureLabel.backgroundColor = [UIColor clearColor];
-        _failureLabel.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
+        _failureLabel.autoresizingMask = UIViewAutoresizingFlexibleTopMargin | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin;
     }
     [self addSubview:_failureLabel];
 }
