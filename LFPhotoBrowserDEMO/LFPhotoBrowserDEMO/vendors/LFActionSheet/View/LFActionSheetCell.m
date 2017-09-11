@@ -78,17 +78,15 @@
     // Configure the view for the selected state
 }
 
-#pragma mark - setter
-- (void)setText:(NSString *)text
-{
-    _text = text;
-    self.label.text = text;
-}
-
+#pragma mark - setter／getter
 - (void)setAttributedText:(NSAttributedString *)attributedText
 {
-    _attributedText = attributedText;
     self.label.attributedText = attributedText;
+}
+
+- (NSAttributedString *)attributedText
+{
+    return self.label.attributedText;
 }
 
 @end

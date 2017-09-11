@@ -47,6 +47,8 @@ int defaultButtonIndex = -1;
         self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         _cancelButtonIndex = defaultButtonIndex;
         _destructiveButtonIndex = defaultButtonIndex;
+        _firstOtherButtonIndex = defaultButtonIndex;
+        _markButtonIndex = defaultButtonIndex;
         _menuTitle = title;
         _didSelectBlock = didSelectBlock;
         _hasDestructiveButton = NO;
@@ -165,7 +167,7 @@ int defaultButtonIndex = -1;
 -(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     if (self.hasCancelButton) { /** 有取消 */
-        if (_numberOfButtons) { /** 有其他 */
+        if (_numberOfButtons > 1) { /** 有其他 */
             return 2;
         }
     }
@@ -212,9 +214,10 @@ int defaultButtonIndex = -1;
     LFActionSheetCell *cell = [tableView dequeueReusableCellWithIdentifier:identifier];
     if(cell == nil){
         cell = [[LFActionSheetCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifier];
+        cell.backgroundColor = [UIColor whiteColor];
+        cell.alpha = 0.6;
     }
-    cell.backgroundColor = [UIColor whiteColor];
-    cell.alpha = 0.6;
+    cell.accessoryType = UITableViewCellAccessoryNone;
     
     NSInteger index = indexPath.row;
     if (indexPath.section == 1) {
@@ -225,6 +228,12 @@ int defaultButtonIndex = -1;
         UIColor *textColor = (_hasDestructiveButton && indexPath.section ==0 && indexPath.row ==0) ? [UIColor redColor] : [UIColor blackColor];
         
         cell.attributedText = [text lf_actionSheetAttributedStringWithFontSize:14.f color:textColor alignment:NSTextAlignmentCenter lineBreakMode:NSLineBreakByTruncatingTail];
+        cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+        
+        if (indexPath.section == 0 && _numberOfButtons > 1 && index == self.markButtonIndex) {
+            cell.accessoryType = UITableViewCellAccessoryCheckmark;
+        }
+        
     } else {
         cell.selectionStyle = UITableViewCellSelectionStyleNone;
     }

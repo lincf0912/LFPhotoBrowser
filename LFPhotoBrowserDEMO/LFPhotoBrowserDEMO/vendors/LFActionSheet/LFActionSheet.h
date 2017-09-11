@@ -32,6 +32,10 @@ typedef void (^LFActionSheetBlock)(LFActionSheet *actionSheet, NSInteger buttonI
 /** 显示某个view上 */
 - (void)showInView:(UIView *)view;
 
+#pragma mark - extend
+@property(nonatomic, assign) NSInteger markButtonIndex; // The mark button will display tick off on the right， default -1 no mark
+
+
 @end
 
 NS_ASSUME_NONNULL_END

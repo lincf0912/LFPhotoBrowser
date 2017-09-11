@@ -11,8 +11,6 @@
 @interface LFActionSheetCell : UITableViewCell
 
 +(NSString *)identifier;
-/** 文本 */
-@property (nonatomic, copy) NSString *text;
 /** 富文本 */
 @property (nonatomic, copy) NSAttributedString *attributedText;
 
