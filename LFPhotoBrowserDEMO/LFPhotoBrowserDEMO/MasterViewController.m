@@ -20,6 +20,10 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    /** 原生UITableViewController自动计算 */
+    if (@available(iOS 11.0, *)){
+        [self.tableView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentAutomatic];
+    }
     // Do any additional setup after loading the view, typically from a nib.
     self.objects = [NSMutableArray arrayWithObjects:@"网络数据（tableview）",@"本地数据（collectionview）", nil];
 }
