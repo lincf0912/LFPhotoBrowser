@@ -236,10 +236,8 @@
     }
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         id object = [self getSelectObject];
-        if (object) {
-            if([self.photoViewDelegate respondsToSelector:@selector(photoViewGesture:singleTapPhotoType:object:)]){
-                [self.photoViewDelegate photoViewGesture:self singleTapPhotoType:self.photoInfo.photoType object:object];
-            }
+        if([self.photoViewDelegate respondsToSelector:@selector(photoViewGesture:singleTapPhotoType:object:)]){
+            [self.photoViewDelegate photoViewGesture:self singleTapPhotoType:self.photoInfo.photoType object:object];
         }
     });
 }
@@ -247,6 +245,9 @@
 - (void)handleDoubleTap:(UIGestureRecognizer *)tap
 {
     if(!_customView) return;
+    id object = [self getSelectObject];
+    if (!object) return;
+    
     if (self.zoomScale > 1.0) {//放大时单击缩小
         [self setZoomScale:1.f animated:YES];
     } else {
@@ -254,11 +255,9 @@
         [self zoomToRect:(CGRect){point,1,1} animated:YES];
     }
     
-    id object = [self getSelectObject];
-    if (object) {
-        if([self.photoViewDelegate respondsToSelector:@selector(photoViewGesture:doubleTapPhotoType:object:)]){
-            [self.photoViewDelegate photoViewGesture:self doubleTapPhotoType:self.photoInfo.photoType object:object];
-        }
+    
+    if([self.photoViewDelegate respondsToSelector:@selector(photoViewGesture:doubleTapPhotoType:object:)]){
+        [self.photoViewDelegate photoViewGesture:self doubleTapPhotoType:self.photoInfo.photoType object:object];
     }
 }
 
