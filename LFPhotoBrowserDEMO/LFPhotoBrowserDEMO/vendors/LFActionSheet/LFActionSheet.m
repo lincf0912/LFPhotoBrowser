@@ -118,6 +118,9 @@ int defaultButtonIndex = -1;
     tableView.dataSource = self;
     tableView.alwaysBounceVertical = NO;
     tableView.scrollEnabled = NO;
+    tableView.estimatedRowHeight = 0;
+    tableView.estimatedSectionHeaderHeight = 0;
+    tableView.estimatedSectionFooterHeight = 0;
     /** 这个设置iOS9以后才有，主要针对iPad，不设置的话，分割线左侧空出很多 */
     if ([tableView respondsToSelector:@selector(setCellLayoutMarginsFollowReadableWidth:)]) {
         tableView.cellLayoutMarginsFollowReadableWidth = NO;
@@ -126,6 +129,11 @@ int defaultButtonIndex = -1;
     if ([tableView respondsToSelector:@selector(setSeparatorInset:)]) {
         [tableView setSeparatorInset:UIEdgeInsetsZero];
     }
+    /** 解决iOS11自动计算内边距问题 */
+    if (@available(iOS 11.0, *)) {
+        [tableView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
+    }
+    
     if(headerView){
         tableView.tableHeaderView = headerView;
     }
