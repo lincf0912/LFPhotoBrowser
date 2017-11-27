@@ -47,6 +47,15 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 @protocol LFPhotoBrowserDelegate <NSObject>
 
 @optional
+/* 即将显示 */
+- (void)photoBrowserWillBeginShow:(LFPhotoBrowser *)photoBrowser;
+/* 完全显示 */
+- (void)photoBrowserDidBeginShow:(LFPhotoBrowser *)photoBrowser;
+/* 即将关闭 */
+- (void)photoBrowserWillEndShow:(LFPhotoBrowser *)photoBrowser;
+/* 完全关闭 */
+- (void)photoBrowserDidEndShow:(LFPhotoBrowser *)photoBrowser;
+
 /** 获取startFrame或者overFrame */
 - (CGRect)photoBrowserTargetFrameWithIndex:(int)index key:(NSString *)key;
 /** 获取遮罩图片 */
@@ -119,7 +128,7 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 @property (nonatomic, assign) BOOL isBatchDownload;
 
 /** 销毁回调 */
-@property (nonatomic, copy) void (^dismissBlock)();
+@property (nonatomic, copy) void (^dismissBlock)() __deprecated_msg("Block type deprecated. Use `photoBrowserDidEndShow:`");
 
 /** 初始化 */
 -(id)initWithImageArray:(NSArray <LFPhotoInfo *>*)imageArray;

@@ -29,6 +29,8 @@
 
 #define kAnimatedTime 0.25f
 
+#define kMoreButtonMargin 20.f
+
 /** ================================长按列表对象===================================== */
 @interface LFPhotoSheetAction ()
 
@@ -197,6 +199,23 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     self.movePhotoView.orientation = orientation;
     
     _panGesture.enabled = (orientation == UIInterfaceOrientationPortrait);
+    
+    CGFloat top=0, bottom=0, right=0;
+    if (@available(iOS 11.0, *)) {
+        top += self.view.safeAreaInsets.top;
+        bottom += self.view.safeAreaInsets.bottom;
+        right += self.view.safeAreaInsets.right;
+    }
+    
+    CGRect tempRect = self.saveButton.frame;
+    tempRect.origin.x = self.view.frame.size.width - tempRect.size.width - kMoreButtonMargin - right;
+    tempRect.origin.y = self.view.frame.size.height - tempRect.size.height - kMoreButtonMargin - top;
+    self.saveButton.frame = tempRect;
+    
+    tempRect = self.moreButton.frame;
+    tempRect.origin.x = self.view.frame.size.width - tempRect.size.width - kMoreButtonMargin - right;
+    tempRect.origin.y = kMoreButtonMargin+top;
+    self.moreButton.frame = tempRect;
 }
 
 - (void)viewDidLayoutSubviews
@@ -268,6 +287,10 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 #pragma mark - 处理动画
 - (void)handleAnimationBegin
 {
+    if ([self.delegate respondsToSelector:@selector(photoBrowserWillBeginShow:)]) {
+        [self.delegate photoBrowserWillBeginShow:self];
+    }
+    
     [self obtainTargetFrame];
     
     _isStatusBarHiden = YES;
@@ -288,6 +311,9 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     } completion:^(BOOL finished) {
         [self setNeedsStatusBarAppearanceUpdate];
         [_currPhotoView endUpdate];
+        if ([self.delegate respondsToSelector:@selector(photoBrowserDidBeginShow:)]) {
+            [self.delegate photoBrowserDidBeginShow:self];
+        }
         if (self.isBatchDownload) {
             /** 获取需要下载的对象 批量下载 */
             for (LFPhotoInfo *info in self.images) {
@@ -302,6 +328,9 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 
 -(void)handleAnimationEnd
 {
+    if ([self.delegate respondsToSelector:@selector(photoBrowserWillEndShow:)]) {
+        [self.delegate photoBrowserWillEndShow:self];
+    }
     _isStatusBarHiden = NO;
     [self setNeedsStatusBarAppearanceUpdate];
     
@@ -340,9 +369,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         [_coverView removeFromSuperview];
         _coverView = nil;
         
-        if (self.dismissBlock) {
-            self.dismissBlock();
-            self.dismissBlock = nil;
+        if ([self.delegate respondsToSelector:@selector(photoBrowserDidEndShow:)]) {
+            [self.delegate photoBrowserDidEndShow:self];
         }
         [self.view removeFromSuperview];
     }];
@@ -426,7 +454,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     }
     //    [self resetScrollView];
     
-    CGFloat button_W = 28.f, margin = 20.f;
+    CGFloat button_W = 28.f, margin = kMoreButtonMargin;
     /** 保存按钮 */
     if ([self.delegate respondsToSelector:@selector(photoBrowserSavePreview:photoInfo:object:)]) {
         UIButton *saveButton = [UIButton buttonWithType:UIButtonTypeCustom];

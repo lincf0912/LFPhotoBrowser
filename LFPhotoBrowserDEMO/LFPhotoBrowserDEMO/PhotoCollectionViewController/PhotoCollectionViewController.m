@@ -25,6 +25,8 @@
 
 @property (nonatomic, strong) NSMutableArray *titleArrs;
 
+@property (nonatomic, assign) BOOL showPhotoBrowser;
+
 @end
 
 @implementation PhotoCollectionViewController
@@ -51,6 +53,23 @@ static NSString * const reuseIdentifier = @"Cell";
 {
     [super viewWillLayoutSubviews];
 //    NSLog(@"%f", (CGRectGetHeight(self.navigationController.navigationBar.frame) + CGRectGetHeight([UIApplication sharedApplication].statusBarFrame)));
+    
+    if (self.showPhotoBrowser == NO) {
+        CGFloat top = CGRectGetMaxY(self.navigationController.navigationBar.frame), bottom = 0;
+        if (@available(iOS 11.0, *)) {
+            top = self.view.safeAreaInsets.top;
+            bottom += self.view.safeAreaInsets.bottom;
+        }
+        UIEdgeInsets insets = UIEdgeInsetsMake(top, 0, bottom, 0);
+        
+        CGFloat diff = insets.top - self.collectionView.contentInset.top;
+        
+        self.collectionView.contentInset = insets;
+        self.collectionView.scrollIndicatorInsets = insets;
+        
+        CGPoint contentOffset = self.collectionView.contentOffset;
+        [self.collectionView setContentOffset:CGPointMake(contentOffset.x, MAX((contentOffset.y - diff), -insets.top))];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -265,6 +284,15 @@ static NSString * const reuseIdentifier = @"Cell";
 }
 
 #pragma mark - PhotoBrowserDelegate
+- (void)photoBrowserWillBeginShow:(LFPhotoBrowser *)photoBrowser
+{
+    self.showPhotoBrowser = YES;
+}
+- (void)photoBrowserDidEndShow:(LFPhotoBrowser *)photoBrowser
+{
+    self.showPhotoBrowser = NO;
+}
+
 - (CGRect)photoBrowserTargetFrameWithIndex:(int)index key:(NSString *)key
 {
     CGFloat contentOffsetY = self.collectionView.contentOffset.y;

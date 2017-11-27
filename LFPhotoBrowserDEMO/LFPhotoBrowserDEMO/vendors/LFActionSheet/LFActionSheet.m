@@ -34,6 +34,8 @@ int defaultButtonIndex = -1;
 /** 回调 */
 @property (nonatomic, copy) LFActionSheetBlock didSelectBlock;
 
+@property (nonatomic, assign) BOOL isDidAppear;
+
 @end
 
 @implementation LFActionSheet
@@ -281,6 +283,10 @@ int defaultButtonIndex = -1;
 {
     CGRect frame = self.tableView.frame;
     frame.origin.y = CGRectGetHeight(self.frame) - frame.size.height;
+    if (@available(iOS 11.0, *)) {
+        frame.origin.y -= self.safeAreaInsets.bottom;
+    }
+    self.isDidAppear = YES;
     [UIView animateWithDuration:0.25f delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
         self.tableView.frame = frame;
         self.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.4f];
@@ -293,11 +299,27 @@ int defaultButtonIndex = -1;
 {
     CGRect frame = self.tableView.frame;
     frame.origin.y = CGRectGetHeight(self.frame);
+    self.isDidAppear = NO;
     [UIView animateWithDuration:0.25f delay:0 options:UIViewAnimationOptionCurveEaseIn animations:^{
         self.tableView.frame = frame;
         self.backgroundColor = [UIColor clearColor];
     } completion:^(BOOL finished) {
         [self removeFromSuperview];
     }];
+}
+
+- (void)layoutSubviews
+{
+    [super layoutSubviews];
+    CGRect frame = self.tableView.frame;
+    if (self.isDidAppear) {
+        frame.origin.y = CGRectGetHeight(self.frame) - frame.size.height;
+        if (@available(iOS 11.0, *)) {
+            frame.origin.y -= self.safeAreaInsets.bottom;
+        }
+    } else {
+        frame.origin.y = CGRectGetHeight(self.frame);
+    }
+    self.tableView.frame = frame;
 }
 @end

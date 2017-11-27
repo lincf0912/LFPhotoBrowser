@@ -156,8 +156,14 @@
 {
     [super layoutSubviews];
 
+    CGFloat bottom=0;
+    if (@available(iOS 11.0, *)) {
+        bottom += self.safeAreaInsets.bottom;
+    }
+    
     [_progressView setFrame:self.bounds];
-    [_videoSlider setFrame:CGRectMake(0, CGRectGetHeight(self.frame)-kVideoSliderHeight, CGRectGetWidth(self.frame), kVideoSliderHeight)];
+    CGFloat videoSliderHeight = kVideoSliderHeight + bottom;
+    [_videoSlider setFrame:CGRectMake(0, CGRectGetHeight(self.frame)-videoSliderHeight, CGRectGetWidth(self.frame), videoSliderHeight)];
     /** 判断屏幕是否发送变化 */
     if (self.orientation != self.prevOrientation) {
         self.prevOrientation = self.orientation;

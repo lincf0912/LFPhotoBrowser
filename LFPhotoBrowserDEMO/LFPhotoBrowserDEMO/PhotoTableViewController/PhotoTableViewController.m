@@ -51,8 +51,32 @@
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     
+    if (@available(iOS 11.0, *)){
+        [self.tableView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
+    }
+    
     self.mapTable = [NSMapTable weakToWeakObjectsMapTable];
     
+}
+
+- (void)viewWillLayoutSubviews
+{
+    [super viewWillLayoutSubviews];
+    
+    CGFloat top = CGRectGetMaxY(self.navigationController.navigationBar.frame), bottom = 0;
+    if (@available(iOS 11.0, *)) {
+        top = self.view.safeAreaInsets.top;
+        bottom += self.view.safeAreaInsets.bottom;
+    }
+    UIEdgeInsets insets = UIEdgeInsetsMake(top, 0, bottom, 0);
+    
+    CGFloat diff = insets.top - self.tableView.contentInset.top;
+    
+    self.tableView.contentInset = insets;
+    self.tableView.scrollIndicatorInsets = insets;
+    
+    CGPoint contentOffset = self.tableView.contentOffset;
+    [self.tableView setContentOffset:CGPointMake(contentOffset.x, MAX((contentOffset.y - diff), -insets.top))];
 }
 
 - (void)dealloc

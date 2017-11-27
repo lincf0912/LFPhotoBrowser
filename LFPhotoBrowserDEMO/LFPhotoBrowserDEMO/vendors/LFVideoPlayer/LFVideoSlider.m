@@ -71,16 +71,25 @@ static void *LFVideoSliderValueObservationContext = &LFVideoSliderValueObservati
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    _play.frame = CGRectMake(2*kMargin, (self.frame.size.height-kPlayButtnWH)/2, kPlayButtnWH, kPlayButtnWH);
+    CGFloat bottom=0, left=0, right=0;
+    if (@available(iOS 11.0, *)) {
+        bottom += self.safeAreaInsets.bottom;
+        left += self.safeAreaInsets.left;
+        right += self.safeAreaInsets.right;
+    }
+    CGFloat height = self.frame.size.height - bottom;
+    CGFloat width = self.frame.size.width;
+    
+    _play.frame = CGRectMake(left+2*kMargin, (height-kPlayButtnWH)/2, kPlayButtnWH, kPlayButtnWH);
     
     if (_playTimeLabel && _totalTimeLabel) {
         _playTimeLabel.frame = (CGRect){CGPointMake(CGRectGetMaxX(_play.frame)+kMargin, CGRectGetMinY(_play.frame)), _playTimeLabel.frame.size};
-        _totalTimeLabel.frame = (CGRect){CGPointMake(CGRectGetWidth(self.frame)-CGRectGetWidth(_totalTimeLabel.frame)-kMargin, CGRectGetMinY(_play.frame)), _totalTimeLabel.frame.size};
+        _totalTimeLabel.frame = (CGRect){CGPointMake(width-right-CGRectGetWidth(_totalTimeLabel.frame)-2*kMargin, CGRectGetMinY(_play.frame)), _totalTimeLabel.frame.size};
         
-        [_slider setFrame:CGRectMake(CGRectGetMaxX(_playTimeLabel.frame)+kMargin, (self.frame.size.height-kSliderH)/2, CGRectGetMinX(_totalTimeLabel.frame) - CGRectGetMaxX(_playTimeLabel.frame) - 2*kMargin, kSliderH)];
+        [_slider setFrame:CGRectMake(CGRectGetMaxX(_playTimeLabel.frame)+kMargin, (height-kSliderH)/2, CGRectGetMinX(_totalTimeLabel.frame) - CGRectGetMaxX(_playTimeLabel.frame) - 2*kMargin, kSliderH)];
     } else {
         
-        _slider.frame = CGRectMake(CGRectGetMaxX(_play.frame)+kMargin, (self.frame.size.height-kSliderH)/2, CGRectGetWidth(self.frame) - CGRectGetMaxX(_play.frame) - 3*kMargin, kSliderH);
+        _slider.frame = CGRectMake(CGRectGetMaxX(_play.frame)+kMargin, (height-kSliderH)/2, width - left - right - CGRectGetMaxX(_play.frame) - 3*kMargin, kSliderH);
     }
 }
 
