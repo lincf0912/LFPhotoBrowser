@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
 s.name         = 'LFPhotoBrowser'
-s.version      = '1.2.1'
+s.version      = '1.2.1.1'
 s.summary      = 'A clone of UIImagePickerController, support picking multiple photos、 video and edit photo'
 s.homepage     = 'https://github.com/lincf0912/LFPhotoBrowser'
 s.license      = 'MIT'
@@ -30,7 +30,5 @@ s.subspec 'LFLoadingView' do |ss|
 ss.source_files = 'LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/vendors/LFLoadingView/*.{h,m}'
 ss.public_header_files = 'LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/vendors/LFLoadingView/*.h'
 end
-
-s.dependency 'SDWebImage/Core', '~> 3.8.2'
 
 end
