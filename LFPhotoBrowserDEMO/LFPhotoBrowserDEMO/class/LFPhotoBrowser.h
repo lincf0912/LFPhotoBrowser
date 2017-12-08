@@ -128,7 +128,7 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 @property (nonatomic, assign) BOOL isBatchDownload;
 
 /** 销毁回调 */
-@property (nonatomic, copy) void (^dismissBlock)() __deprecated_msg("Block type deprecated. Use `photoBrowserDidEndShow:`");
+@property (nonatomic, copy) void (^dismissBlock)(void) __deprecated_msg("Block type deprecated. Use `photoBrowserDidEndShow:`");
 
 /** 初始化 */
 -(id)initWithImageArray:(NSArray <LFPhotoInfo *>*)imageArray;

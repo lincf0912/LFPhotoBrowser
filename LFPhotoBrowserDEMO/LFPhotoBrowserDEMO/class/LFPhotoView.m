@@ -11,7 +11,7 @@
 #import "LFAVPlayerLayerView.h"
 #import "LFVideoSlider.h"
 
-#import "UIImageView+WebCache.h"
+#import <SDWebImage/UIImageView+WebCache.h>
 #import "UIImage+LFPB_Format.h"
 
 #import "LFImageProgressView.h"

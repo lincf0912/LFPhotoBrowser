@@ -8,7 +8,7 @@
 
 #import "LFPhotoBrowser.h"
 #import "LFPhotoScrollView.h"
-#import "UIImageView+WebCache.h"
+#import <SDWebImage/UIImageView+WebCache.h>
 #import "LFActionSheet.h"
 #import "UIViewController+LFPB_Extension.h"
 #import <AVFoundation/AVFoundation.h>

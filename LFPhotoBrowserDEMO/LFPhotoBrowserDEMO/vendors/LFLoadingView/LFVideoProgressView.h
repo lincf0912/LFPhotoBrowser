@@ -13,7 +13,7 @@
 /** 进度值*/
 @property (nonatomic, assign) float progress;
 
-@property (nonatomic, copy) void (^clickBlock)();
+@property (nonatomic, copy) void (^clickBlock)(void);
 
 - (void)showLoading;
 - (void)showFailure;
