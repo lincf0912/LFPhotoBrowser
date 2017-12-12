@@ -7,7 +7,7 @@
 //
 
 #import "UIImage+LFPB_Format.h"
-#import "UIImage+MultiFormat.h"
+#import <ImageIO/ImageIO.h>
 
 #define _FOUR_CC(c1,c2,c3,c4) ((uint32_t)(((c4) << 24) | ((c3) << 16) | ((c2) << 8) | (c1)))
 #define _TWO_CC(c1,c2) ((uint16_t)(((c2) << 8) | (c1)))
@@ -100,22 +100,91 @@ LFPBImageType LFPBImageDetectType(CFDataRef data) {
 
 + (instancetype)LFPB_imageWithImageData:(NSData *)imgData
 {
-//    LFPBImageType imageType = LFImageDetectType((__bridge CFDataRef)imgData);
-//    
-//    UIImage *image = nil;
-//    switch (imageType) {
-//        case LFPBImageType_GIF:
-//            image = [self sd_animatedGIFWithData:imgData];
-//            break;
-//        case LFPBImageType_WebP:
-//            image = [self sd_imageWithWebPData:imgData];
-//            break;
-//        default:
-//            image = [UIImage imageWithData:imgData];
-//            break;
-//    }
-//    return image;
-    return [self sd_imageWithData:imgData];
+    LFPBImageType imageType = LFPBImageDetectType((__bridge CFDataRef)imgData);
+    
+    UIImage *image = nil;
+    switch (imageType) {
+        case LFPBImageType_GIF:
+            image = [self LFPB_animatedGIFWithData:imgData];
+            break;
+            //        case LFImageType_WebP:
+            //            image = [self LFPB_imageWithWebPData:imgData];
+            //            break;
+        default:
+            image = [UIImage imageWithData:imgData scale:[UIScreen mainScreen].scale];
+            break;
+    }
+    return image;
+}
+
++ (UIImage *)LFPB_animatedGIFWithData:(NSData *)data {
+    if (!data) {
+        return nil;
+    }
+    
+    CGImageSourceRef source = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
+    
+    size_t count = CGImageSourceGetCount(source);
+    
+    UIImage *animatedImage;
+    
+    if (count <= 1) {
+        animatedImage = [[UIImage alloc] initWithData:data];
+    }
+    else {
+        NSMutableArray *images = [NSMutableArray array];
+        
+        NSTimeInterval duration = 0.0f;
+        
+        for (size_t i = 0; i < count; i++) {
+            CGImageRef image = CGImageSourceCreateImageAtIndex(source, i, NULL);
+            if (!image) {
+                continue;
+            }
+            
+            duration += [self LFPB_frameDurationAtIndex:i source:source];
+            
+            [images addObject:[UIImage imageWithCGImage:image scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp]];
+            
+            CGImageRelease(image);
+        }
+        
+        if (!duration) {
+            duration = (1.0f / 10.0f) * count;
+        }
+        
+        animatedImage = [UIImage animatedImageWithImages:images duration:duration];
+    }
+    
+    CFRelease(source);
+    
+    return animatedImage;
+}
+
++ (float)LFPB_frameDurationAtIndex:(NSUInteger)index source:(CGImageSourceRef)source {
+    float frameDuration = 0.1f;
+    CFDictionaryRef cfFrameProperties = CGImageSourceCopyPropertiesAtIndex(source, index, nil);
+    NSDictionary *frameProperties = (__bridge NSDictionary *)cfFrameProperties;
+    NSDictionary *gifProperties = frameProperties[(NSString *)kCGImagePropertyGIFDictionary];
+    
+    NSNumber *delayTimeUnclampedProp = gifProperties[(NSString *)kCGImagePropertyGIFUnclampedDelayTime];
+    if (delayTimeUnclampedProp) {
+        frameDuration = [delayTimeUnclampedProp floatValue];
+    }
+    else {
+        
+        NSNumber *delayTimeProp = gifProperties[(NSString *)kCGImagePropertyGIFDelayTime];
+        if (delayTimeProp) {
+            frameDuration = [delayTimeProp floatValue];
+        }
+    }
+    
+    if (frameDuration < 0.011f) {
+        frameDuration = 0.100f;
+    }
+    
+    CFRelease(cfFrameProperties);
+    return frameDuration;
 }
 
 @end

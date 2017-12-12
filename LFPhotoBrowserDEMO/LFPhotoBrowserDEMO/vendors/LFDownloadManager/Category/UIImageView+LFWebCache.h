@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "LFDownloadManager.h"
 
-typedef void(^LFWebImageDownloaderProgressBlock)(NSInteger receivedSize, NSInteger expectedSize, NSURL *imageURL);
+typedef void(^LFWebImageDownloaderProgressBlock)(int64_t receivedSize, int64_t expectedSize, NSURL *imageURL);
 typedef void(^LFWebImageCompletionBlock)(UIImage *image, NSError *error, NSURL *imageURL);
 
 typedef NS_OPTIONS(NSUInteger, LFWebImageOptions) {

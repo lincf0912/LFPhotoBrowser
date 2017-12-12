@@ -561,7 +561,7 @@
             __weak typeof(self) weakSelf = self;
             __weak typeof(self.photoInfo.originalImageUrl) weakURL = self.photoInfo.originalImageUrl;
             
-            [_customView lf_setImageWithURL:[NSURL URLWithString:self.photoInfo.originalImageUrl] placeholderImage:_customView.image options:LFWebImageAvoidAutoSetImage progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL *imageURL) {
+            [_customView lf_setImageWithURL:[NSURL URLWithString:self.photoInfo.originalImageUrl] placeholderImage:_customView.image options:LFWebImageAvoidAutoSetImage progress:^(int64_t receivedSize, int64_t expectedSize, NSURL *imageURL) {
                 if (weakSelf.photoInfo.originalImageUrl != weakURL) return ;
                 /*设置进度*/
                 weakSelf.photoInfo.downloadProgress = (float)receivedSize/expectedSize;
@@ -997,7 +997,7 @@
     [self.delayMotheds removeAllObjects];
 }
 
-- (void)addDelayAminateMothed:(void (^)())mothed
+- (void)addDelayAminateMothed:(void (^)(void))mothed
 {
     if (mothed == nil) return;
     if (self.delayMotheds == nil) {
