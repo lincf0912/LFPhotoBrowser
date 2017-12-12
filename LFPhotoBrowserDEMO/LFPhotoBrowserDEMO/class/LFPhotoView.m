@@ -11,7 +11,6 @@
 #import "LFAVPlayerLayerView.h"
 #import "LFVideoSlider.h"
 
-#import "UIImageView+WebCache.h"
 #import "UIImage+LFPB_Format.h"
 
 #import "LFImageProgressView.h"
@@ -19,6 +18,8 @@
 
 #import "UIView+LFPB_CornerRadius.h"
 #import "UIImage+LFPB_Size.h"
+
+#import "UIImageView+LFWebCache.h"
 
 #define kVideoSliderHeight 40.f
 
@@ -352,8 +353,6 @@
 #pragma mark - 刷新photoView
 -(void)reloadPhotoView
 {
-    //sd-cancle下载
-    [_customView sd_cancelCurrentImageLoad];
     [self selectLoadMethod];
     [self removePhotoLoadingView];
     if (self.photoInfo) {
@@ -526,7 +525,8 @@
         if (SD_DL) {
             //使用SD下载
             __weak typeof(self) weakSelf = self;
-            [_customView sd_setImageWithURL:[NSURL URLWithString:self.photoInfo.thumbnailUrl] placeholderImage:_customView.image options:SDWebImageRetryFailed|SDWebImageLowPriority|SDWebImageAvoidAutoSetImage completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+            [_customView lf_setImageWithURL:[NSURL URLWithString:self.photoInfo.thumbnailUrl] placeholderImage:_customView.image options:LFWebImageAvoidAutoSetImage completed:^(UIImage *image, NSError *error, NSURL *imageURL) {
+                
                 if ([imageURL.absoluteString isEqualToString:weakSelf.photoInfo.thumbnailUrl]) {
                     if(image){//下载成功
                         weakSelf.photoInfo.thumbnailImage = image;
@@ -560,11 +560,12 @@
             //使用SD下载原图
             __weak typeof(self) weakSelf = self;
             __weak typeof(self.photoInfo.originalImageUrl) weakURL = self.photoInfo.originalImageUrl;
-            [_customView sd_setImageWithURL:[NSURL URLWithString:self.photoInfo.originalImageUrl] placeholderImage:_customView.image options:SDWebImageRetryFailed|SDWebImageLowPriority|SDWebImageAvoidAutoSetImage progress:^(NSInteger receivedSize, NSInteger expectedSize) {
+            
+            [_customView lf_setImageWithURL:[NSURL URLWithString:self.photoInfo.originalImageUrl] placeholderImage:_customView.image options:LFWebImageAvoidAutoSetImage progress:^(NSInteger receivedSize, NSInteger expectedSize, NSURL *imageURL) {
                 if (weakSelf.photoInfo.originalImageUrl != weakURL) return ;
                 /*设置进度*/
                 weakSelf.photoInfo.downloadProgress = (float)receivedSize/expectedSize;
-            } completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+            } completed:^(UIImage *image, NSError *error, NSURL *imageURL) {
                 if ([imageURL.absoluteString isEqualToString:weakSelf.photoInfo.originalImageUrl]) {
                     if(image){/*下载成功*/
                         weakSelf.photoInfo.originalImage = image;
@@ -990,7 +991,7 @@
 - (void)endUpdate
 {
     _isAminated = NO;
-    for (void (^mothed)() in self.delayMotheds) {
+    for (void (^mothed)(void) in self.delayMotheds) {
         mothed();
     }
     [self.delayMotheds removeAllObjects];

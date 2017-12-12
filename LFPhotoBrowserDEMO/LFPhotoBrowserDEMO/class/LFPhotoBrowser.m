@@ -8,10 +8,10 @@
 
 #import "LFPhotoBrowser.h"
 #import "LFPhotoScrollView.h"
-#import "UIImageView+WebCache.h"
 #import "LFActionSheet.h"
 #import "UIViewController+LFPB_Extension.h"
 #import <AVFoundation/AVFoundation.h>
+#import "LFDownloadManager.h"
 
 #define kRound(f) round(f*10)/10
 
@@ -1159,15 +1159,12 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     if (info && info.originalImage == nil && info.originalImagePath.length == 0 && info.originalImageUrl.length) {
         _isBatchDLing = YES;
         __weak typeof(self) weakSelf = self;
-        [SDWebImageManager.sharedManager downloadImageWithURL:[NSURL URLWithString:info.originalImageUrl]
-                                                      options:SDWebImageRetryFailed|SDWebImageLowPriority
-                                                     progress:nil
-                                                    completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL) {
-                                                        
-                                                        [weakSelf.batchDLHash removeObject:info];
-                                                        weakSelf.isBatchDLing = NO;
-                                                        [weakSelf batchDownload];
-                                                    }];
+        
+        [[LFDownloadManager shareLFDownloadManager] lf_downloadURL:[NSURL URLWithString:info.originalImageUrl] progress:nil completion:^(NSData *data, NSError *error, NSURL *URL) {
+            [weakSelf.batchDLHash removeObject:info];
+            weakSelf.isBatchDLing = NO;
+            [weakSelf batchDownload];
+        }];
     }
 }
 

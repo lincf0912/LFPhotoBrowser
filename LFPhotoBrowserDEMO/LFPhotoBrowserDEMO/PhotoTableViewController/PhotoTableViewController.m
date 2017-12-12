@@ -63,20 +63,40 @@
 {
     [super viewWillLayoutSubviews];
     
-    CGFloat top = CGRectGetMaxY(self.navigationController.navigationBar.frame), bottom = 0;
-    if (@available(iOS 11.0, *)) {
-        top = self.view.safeAreaInsets.top;
-        bottom += self.view.safeAreaInsets.bottom;
+    /** 导航栏不存在 或 透明导航栏不计算 */
+    BOOL autoScroll = YES;
+    if (self.navigationController == nil || self.navigationController.navigationBar.hidden) {
+        autoScroll = NO;
     }
-    UIEdgeInsets insets = UIEdgeInsetsMake(top, 0, bottom, 0);
     
-    CGFloat diff = insets.top - self.tableView.contentInset.top;
+    UIEdgeInsets safeAreaInsets = UIEdgeInsetsZero;
+    if (@available(iOS 11.0, *)) {
+        safeAreaInsets = self.view.safeAreaInsets;
+    }
+    CGFloat naviHeight = CGRectGetMaxY(self.navigationController.navigationBar.frame);
+    UIEdgeInsets insets = self.tableView.contentInset;
+    UIEdgeInsets offsets = UIEdgeInsetsZero;
     
+    CGFloat diff = naviHeight - insets.top + offsets.top;
+    
+    insets.top = naviHeight + offsets.top;
+    
+    CGFloat targetBottom = offsets.bottom;
+    if (@available(iOS 11.0, *)) {
+        targetBottom += safeAreaInsets.bottom;
+    }
+    diff += (targetBottom - insets.bottom);
+    insets.bottom = targetBottom;
+    insets.left = offsets.left;
+    insets.right = offsets.right;
+    
+    CGPoint contentOffset = self.tableView.contentOffset;
     self.tableView.contentInset = insets;
     self.tableView.scrollIndicatorInsets = insets;
     
-    CGPoint contentOffset = self.tableView.contentOffset;
-    [self.tableView setContentOffset:CGPointMake(contentOffset.x, MAX((contentOffset.y - diff), -insets.top))];
+    if (autoScroll && self.tableView.contentSize.height > self.tableView.frame.size.height - insets.top - insets.bottom) {
+        [self.tableView setContentOffset:CGPointMake(contentOffset.x, MAX((contentOffset.y - diff), -insets.top))];
+    }
 }
 
 - (void)dealloc

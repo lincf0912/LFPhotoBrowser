@@ -75,6 +75,8 @@
 		6FA36E881EBC0E040009E2DE /* 0.gif in Resources */ = {isa = PBXBuildFile; fileRef = 6FA36E871EBC0E040009E2DE /* 0.gif */; };
 		6FC387AE1EA998ED00284C74 /* NavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FC387AD1EA998ED00284C74 /* NavigationController.m */; };
 		B731EC0F634A3745F52C3A15 /* libPods-LFPhotoBrowserDEMO.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C99D3BE2C4FC1032EABDFDE /* libPods-LFPhotoBrowserDEMO.a */; };
+		C773CB021FDE70C10010CAC2 /* LFDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C773CB011FDE70C10010CAC2 /* LFDownloadManager.m */; };
+		C773CB061FDE7EB10010CAC2 /* UIImageView+LFWebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = C773CB051FDE7EB10010CAC2 /* UIImageView+LFWebCache.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -182,6 +184,10 @@
 		6FA36E871EBC0E040009E2DE /* 0.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = 0.gif; sourceTree = "<group>"; };
 		6FC387AC1EA998ED00284C74 /* NavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationController.h; sourceTree = "<group>"; };
 		6FC387AD1EA998ED00284C74 /* NavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationController.m; sourceTree = "<group>"; };
+		C773CB001FDE70C10010CAC2 /* LFDownloadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LFDownloadManager.h; sourceTree = "<group>"; };
+		C773CB011FDE70C10010CAC2 /* LFDownloadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LFDownloadManager.m; sourceTree = "<group>"; };
+		C773CB041FDE7EB10010CAC2 /* UIImageView+LFWebCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImageView+LFWebCache.h"; sourceTree = "<group>"; };
+		C773CB051FDE7EB10010CAC2 /* UIImageView+LFWebCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+LFWebCache.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -434,6 +440,7 @@
 		6FA36E571EBB34F00009E2DE /* vendors */ = {
 			isa = PBXGroup;
 			children = (
+				C773CAFF1FDE70B70010CAC2 /* LFDownloadManager */,
 				6FA36E581EBB34F00009E2DE /* LFActionSheet */,
 				6FA36E631EBB34F00009E2DE /* LFVideoPlayer */,
 				6FA36E7B1EBB363F0009E2DE /* LFLoadingView */,
@@ -504,6 +511,25 @@
 				5C99D3BE2C4FC1032EABDFDE /* libPods-LFPhotoBrowserDEMO.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		C773CAFF1FDE70B70010CAC2 /* LFDownloadManager */ = {
+			isa = PBXGroup;
+			children = (
+				C773CB031FDE7E900010CAC2 /* Category */,
+				C773CB001FDE70C10010CAC2 /* LFDownloadManager.h */,
+				C773CB011FDE70C10010CAC2 /* LFDownloadManager.m */,
+			);
+			path = LFDownloadManager;
+			sourceTree = "<group>";
+		};
+		C773CB031FDE7E900010CAC2 /* Category */ = {
+			isa = PBXGroup;
+			children = (
+				C773CB041FDE7EB10010CAC2 /* UIImageView+LFWebCache.h */,
+				C773CB051FDE7EB10010CAC2 /* UIImageView+LFWebCache.m */,
+			);
+			path = Category;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -618,13 +644,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
 			name = "[CP] Check Pods Manifest.lock";
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-LFPhotoBrowserDEMO-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 		2E3727DB6E79CA03B5665ADE /* [CP] Embed Pods Frameworks */ = {
@@ -668,6 +697,7 @@
 				6F19F0881DB5EF9500BC6149 /* AppDelegate.m in Sources */,
 				6F19F08B1DB5EF9500BC6149 /* MasterViewController.m in Sources */,
 				6F796D7A1EB1E08C00CECB02 /* UIImage+LFPB_Format.m in Sources */,
+				C773CB061FDE7EB10010CAC2 /* UIImageView+LFWebCache.m in Sources */,
 				6FC387AE1EA998ED00284C74 /* NavigationController.m in Sources */,
 				6F148D671DB8C9730011BAE6 /* PhotoCollectionViewCell.m in Sources */,
 				6FA36E6B1EBB34F00009E2DE /* UIView+LFFindTopView.m in Sources */,
@@ -691,6 +721,7 @@
 				6FA36E6D1EBB34F00009E2DE /* LFActionSheetCell.m in Sources */,
 				6FA36E6C1EBB34F00009E2DE /* LFActionSheet.m in Sources */,
 				6F148D161DB89A7C0011BAE6 /* LFPhotoView.m in Sources */,
+				C773CB021FDE70C10010CAC2 /* LFDownloadManager.m in Sources */,
 				6F796D7C1EB1E08C00CECB02 /* UIView+LFPB_CornerRadius.m in Sources */,
 				6F148D641DB8C9450011BAE6 /* XLPlainFlowLayout.m in Sources */,
 			);

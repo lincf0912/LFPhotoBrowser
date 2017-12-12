@@ -54,20 +54,38 @@ static NSString * const reuseIdentifier = @"Cell";
     [super viewWillLayoutSubviews];
 //    NSLog(@"%f", (CGRectGetHeight(self.navigationController.navigationBar.frame) + CGRectGetHeight([UIApplication sharedApplication].statusBarFrame)));
     
-    if (self.showPhotoBrowser == NO) {
-        CGFloat top = CGRectGetMaxY(self.navigationController.navigationBar.frame), bottom = 0;
-        if (@available(iOS 11.0, *)) {
-            top = self.view.safeAreaInsets.top;
-            bottom += self.view.safeAreaInsets.bottom;
-        }
-        UIEdgeInsets insets = UIEdgeInsetsMake(top, 0, bottom, 0);
-        
-        CGFloat diff = insets.top - self.collectionView.contentInset.top;
-        
-        self.collectionView.contentInset = insets;
-        self.collectionView.scrollIndicatorInsets = insets;
-        
-        CGPoint contentOffset = self.collectionView.contentOffset;
+    /** 导航栏不存在 或 透明导航栏不计算 */
+    BOOL autoScroll = YES;
+    if (self.navigationController == nil || self.navigationController.navigationBar.hidden) {
+        autoScroll = NO;
+    }
+    
+    UIEdgeInsets safeAreaInsets = UIEdgeInsetsZero;
+    if (@available(iOS 11.0, *)) {
+        safeAreaInsets = self.view.safeAreaInsets;
+    }
+    CGFloat naviHeight = CGRectGetMaxY(self.navigationController.navigationBar.frame);
+    UIEdgeInsets insets = self.collectionView.contentInset;
+    UIEdgeInsets offsets = UIEdgeInsetsZero;
+    
+    CGFloat diff = naviHeight - insets.top + offsets.top;
+    
+    insets.top = naviHeight + offsets.top;
+    
+    CGFloat targetBottom = offsets.bottom;
+    if (@available(iOS 11.0, *)) {
+        targetBottom += safeAreaInsets.bottom;
+    }
+    diff += (targetBottom - insets.bottom);
+    insets.bottom = targetBottom;
+    insets.left = offsets.left;
+    insets.right = offsets.right;
+    
+    CGPoint contentOffset = self.collectionView.contentOffset;
+    self.collectionView.contentInset = insets;
+    self.collectionView.scrollIndicatorInsets = insets;
+    
+    if (autoScroll && self.collectionView.contentSize.height > self.collectionView.frame.size.height - insets.top - insets.bottom) {
         [self.collectionView setContentOffset:CGPointMake(contentOffset.x, MAX((contentOffset.y - diff), -insets.top))];
     }
 }
