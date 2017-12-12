@@ -5,7 +5,7 @@
 ## Installation 安装
 
 * CocoaPods：pod 'LFPhotoBrowser'
-* 手动导入：将LFPhotoBrowser\class文件夹拽入项目中，导入头文件：#import "LFPhotoBrowser.h"，依赖SDWebImage
+* 手动导入：将LFPhotoBrowser\class文件夹拽入项目中，导入头文件：#import "LFPhotoBrowser.h"
 
 ## 调用代码
 
