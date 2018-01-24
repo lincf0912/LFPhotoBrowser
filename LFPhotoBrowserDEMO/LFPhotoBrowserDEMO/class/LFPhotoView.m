@@ -153,6 +153,12 @@
     _customView.frame = photoRect;
 }
 
+- (void)setOrientation:(UIInterfaceOrientation)orientation
+{
+    [self setZoomScale:1.f];
+    _orientation = orientation;
+}
+
 -(void)layoutSubviews
 {
     [super layoutSubviews];
@@ -169,7 +175,7 @@
     if (self.orientation != self.prevOrientation) {
         self.prevOrientation = self.orientation;
         /** 重新排版 */
-        [self calcFrameMaskPosition:MaskPosition_None frame:self.bounds];
+        [self calcFrameMaskPosition:MaskPosition_None frame:(CGRect){CGPointZero, self.bounds.size}];
     }
 }
 

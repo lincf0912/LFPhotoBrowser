@@ -13,7 +13,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import "LFDownloadManager.h"
 
-#define kRound(f) round(f*10)/10
+#define kRound(f) (round(f*10)/10)
 
 #define SCREEN_WIDTH [[UIScreen mainScreen] bounds].size.width
 #define SCREEN_HEIGHT ([[UIScreen mainScreen] bounds].size.height)
@@ -193,7 +193,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 - (void)viewWillLayoutSubviews
 {
     [super viewWillLayoutSubviews];
-
+    
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     self.currPhotoView.orientation = orientation;
     self.movePhotoView.orientation = orientation;
@@ -561,7 +561,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     }else{
         [self setScrollViewPosition:0];
     }
-    
+
     [self.movePhotoView cleanData];
     
     _shieldView.frame = CGRectMake(-kShieldViewW, 0, kShieldViewW, SCREEN_HEIGHT);
@@ -840,14 +840,14 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     if([self.delegate respondsToSelector:@selector(photoBrowserTargetFrameWithIndex:key:)]){
         CGRect frame = [self.delegate photoBrowserTargetFrameWithIndex:_curr key:self.currPhotoView.photoInfo.key];
         if(frame.size.width != 0 && frame.size.height != 0){
-            self.targetFrame = frame;
+            self.targetFrame = CGRectInset(frame, -0.05f, -0.05f);
         } else {
             self.targetFrame = CGRectMake(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 0);
         }
     } else if (self.targetFrameBlock) {
         CGRect frame = self.targetFrameBlock(_curr, self.currPhotoView.photoInfo.key);
         if(frame.size.width != 0 && frame.size.height != 0){
-            self.targetFrame = frame;
+            self.targetFrame = CGRectInset(frame, -0.05f, -0.05f);
         } else {
             self.targetFrame = CGRectMake(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 0);
         }
@@ -870,7 +870,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 {
     if (self.currPhotoView.photoInfo.downloadFail) return;
     /** 缩放状态下不触发 */
-    if (self.currPhotoView.zoomScale > 1.f) return;
+    if (self.currPhotoView.zoomScale != 1.f) return;
     /** 滑动情况下不能触发 */
     BOOL isScroll = self.currPhotoView.isTracking || self.currPhotoView.isDragging || self.currPhotoView.isDecelerating || self.currPhotoView.isZooming || self.currPhotoView.isZoomBouncing;
     

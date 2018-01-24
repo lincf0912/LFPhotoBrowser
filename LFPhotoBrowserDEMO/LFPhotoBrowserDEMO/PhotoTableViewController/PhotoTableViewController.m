@@ -90,13 +90,8 @@
     insets.left = offsets.left;
     insets.right = offsets.right;
     
-    CGPoint contentOffset = self.tableView.contentOffset;
     self.tableView.contentInset = insets;
     self.tableView.scrollIndicatorInsets = insets;
-    
-    if (autoScroll && self.tableView.contentSize.height > self.tableView.frame.size.height - insets.top - insets.bottom) {
-        [self.tableView setContentOffset:CGPointMake(contentOffset.x, MAX((contentOffset.y - diff), -insets.top))];
-    }
 }
 
 - (void)dealloc

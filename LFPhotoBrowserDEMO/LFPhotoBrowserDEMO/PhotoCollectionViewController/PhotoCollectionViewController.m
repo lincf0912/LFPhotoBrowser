@@ -81,13 +81,9 @@ static NSString * const reuseIdentifier = @"Cell";
     insets.left = offsets.left;
     insets.right = offsets.right;
     
-    CGPoint contentOffset = self.collectionView.contentOffset;
     self.collectionView.contentInset = insets;
     self.collectionView.scrollIndicatorInsets = insets;
-    
-    if (autoScroll && self.collectionView.contentSize.height > self.collectionView.frame.size.height - insets.top - insets.bottom) {
-        [self.collectionView setContentOffset:CGPointMake(contentOffset.x, MAX((contentOffset.y - diff), -insets.top))];
-    }
+
 }
 
 - (void)viewWillAppear:(BOOL)animated
