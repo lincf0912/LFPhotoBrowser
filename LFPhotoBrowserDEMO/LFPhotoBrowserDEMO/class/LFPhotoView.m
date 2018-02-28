@@ -610,6 +610,7 @@
         _photoInfo = nil;
         //图片设置为空
         [_customView removeFromSuperview];
+        [_customView setPlayer:nil];
         _customView.image = nil;
         _customView = nil;
         self.imageMaskView = nil;
@@ -633,6 +634,10 @@
     [self.videoPlayer pause];
     self.videoPlayer.delegate = nil;
     self.videoPlayer = nil;
+    [self.videoSlider reset];
+    
+    [_customView setPlayer:nil];
+    [self setThumbnailImage];
 }
 
 #pragma mark - 设置图片
