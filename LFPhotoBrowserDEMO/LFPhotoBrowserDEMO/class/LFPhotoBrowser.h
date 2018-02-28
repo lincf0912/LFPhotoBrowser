@@ -136,6 +136,8 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 /** 显示相册
  状态栏隐藏：需要调用UI 重写childViewControllerForStatusBarHidden方法，返回当前UI才能控制状态栏（return self.childViewControllers.count ? self.childViewControllers.firstObject : nil;） */
 -(void)showPhotoBrowser;
+/** 关闭相册 */
+-(void)closePhotoBrowser;
 /** 刷新UI */
 - (void)reloadView:(LFPhotoInfo *)photoInfo;
 

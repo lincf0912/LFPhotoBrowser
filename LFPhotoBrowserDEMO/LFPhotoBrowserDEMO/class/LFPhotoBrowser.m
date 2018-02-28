@@ -514,6 +514,19 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     }
 }
 
+/** 关闭相册 */
+-(void)closePhotoBrowser
+{
+    [self.movePhotoView removeFromSuperview];
+    /** 竖屏正常处理 */
+    if ([[UIApplication sharedApplication] statusBarOrientation] == UIInterfaceOrientationPortrait) {
+        [self obtainTargetFrame];
+    } else { /** 清空坐标 */
+        self.targetFrame = CGRectZero;
+    }
+    [self handleAnimationEnd];
+}
+
 /** 刷新UI */
 - (void)reloadView:(LFPhotoInfo *)photoInfo
 {
@@ -1015,14 +1028,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 #pragma mark - photoView手势代理
 -(void)photoViewGesture:(LFPhotoView *)photoView singleTapPhotoType:(PhotoType)PhotoType object:(id /* UIImage * /NSURL * */)object
 {
-    [self.movePhotoView removeFromSuperview];
-    /** 竖屏正常处理 */
-    if ([[UIApplication sharedApplication] statusBarOrientation] == UIInterfaceOrientationPortrait) {
-        [self obtainTargetFrame];
-    } else { /** 清空坐标 */
-        self.targetFrame = CGRectZero;
-    }
-    [self handleAnimationEnd];
+    [self closePhotoBrowser];
 }
 
 -(void)photoViewGesture:(LFPhotoView *)photoView longPressPhotoType:(PhotoType)photoType object:(id /* UIImage * /NSURL * */)object
