@@ -239,7 +239,7 @@ static NSString * const reuseIdentifier = @"Cell";
 //                photo.originalImagePath = [[NSBundle mainBundle] pathForResource:name ofType:nil];
                 /** 新增data传参，主要为了方便保存到相册的问题 */
                 NSString *imagePath = [[NSBundle mainBundle] pathForResource:name ofType:nil];
-                photo.originalImageData = [NSData dataWithContentsOfFile:imagePath options:NSDataReadingMappedIfSafe error:nil];
+                photo.originalImagePath = imagePath;
                 [items addObject:photo];
             }
             if ([clickName isEqualToString:name]) {

@@ -23,6 +23,68 @@
 
 #define kVideoSliderHeight 40.f
 
+#pragma mark - UIImage Category
+
+@interface UIImage (LFPB_scale)
+
+- (UIImage*)LFPB_scaleWithSize:(CGSize)newSize;
+
+@end
+
+@implementation UIImage (LFPB_scale)
+
+- (UIImage*)LFPB_scaleWithSize:(CGSize)newSize
+{
+    //We prepare a bitmap with the new size
+    UIGraphicsBeginImageContextWithOptions(newSize, NO, 0.0);
+    
+    //Draws a rect for the image
+    [self drawInRect:CGRectMake(0, 0, newSize.width, newSize.height)];
+    
+    //We set the scaled image from the context
+    UIImage* scaledImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return scaledImage;
+}
+
+@end
+
+#pragma mark - NSBlockOperation SubClass
+
+typedef void(^LFPBCompressImageCompletionBlock)(UIImage *compressImage, BOOL isCanceled);
+
+@interface LFPBCompressImageOperaction : NSBlockOperation
+
+- (void)setLFPBExecutionWithImage:(UIImage *)image size:(CGSize)size compleionBlock:(LFPBCompressImageCompletionBlock)compleionBlock;
+
+@end
+
+@interface LFPBCompressImageOperaction ()
+
+@property (nonatomic, strong) UIImage *image;
+
+@end
+
+@implementation LFPBCompressImageOperaction
+
+- (void)setLFPBExecutionWithImage:(UIImage *)image size:(CGSize)size compleionBlock:(LFPBCompressImageCompletionBlock)compleionBlock
+{
+    if (image && !CGSizeEqualToSize(CGSizeZero, size)) {
+        __weak typeof(self) weakSelf = self;
+        [self addExecutionBlock:^{
+            weakSelf.image = [image LFPB_scaleWithSize:size];
+        }];
+        
+        [self setCompletionBlock:^{
+            if (compleionBlock) compleionBlock(weakSelf.image, weakSelf.isCancelled);
+        }];
+    }
+}
+
+@end
+
+
 @interface LFPhotoView() <UIScrollViewDelegate, LFPlayerDelegate, LFVideoSliderDelegate>
 {
     //    单击手势
@@ -57,6 +119,12 @@
 
 /** 上次屏幕方向，判断方向是否发送变化 */
 @property (nonatomic, assign) UIInterfaceOrientation prevOrientation;
+
+/** 菊花等待 */
+@property (nonatomic, strong) UIActivityIndicatorView *activityIndicatorView;
+/** 处理图片线程 */
+@property (nonatomic, strong) NSOperationQueue *imageSerialQueue;
+
 @end
 
 @implementation LFPhotoView
@@ -104,6 +172,18 @@
     return _progressView;
 }
 
+- (UIActivityIndicatorView *)activityIndicatorView
+{
+    if (_activityIndicatorView == nil) {
+        UIActivityIndicatorView *activityIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        activityIndicatorView.hidesWhenStopped = YES;
+        [self addSubview:activityIndicatorView];
+        [self bringSubviewToFront:activityIndicatorView];
+        _activityIndicatorView = activityIndicatorView;
+    }
+    return _activityIndicatorView;
+}
+
 -(instancetype)initWithFrame:(CGRect)frame
 {
     if(self = [super initWithFrame:frame]){
@@ -130,6 +210,10 @@
         /** 默认正方向 */
         _orientation = UIInterfaceOrientationPortrait;
         _prevOrientation = UIInterfaceOrientationPortrait;
+        
+        _imageSerialQueue = [[NSOperationQueue alloc] init];
+        _imageSerialQueue.maxConcurrentOperationCount = 1; // 就变成了异步串行队列
+
     }
     return self;
 }
@@ -169,6 +253,7 @@
     }
     
     [_progressView setFrame:self.bounds];
+    _activityIndicatorView.center = CGPointMake(self.bounds.size.width/2, self.bounds.size.height/2);
     CGFloat videoSliderHeight = kVideoSliderHeight + bottom;
     [_videoSlider setFrame:CGRectMake(0, CGRectGetHeight(self.frame)-videoSliderHeight, CGRectGetWidth(self.frame), videoSliderHeight)];
     /** 判断屏幕是否发送变化 */
@@ -230,7 +315,9 @@
 {
     id object = nil;
     if (self.photoInfo.photoType == PhotoType_image) {
-        object = self.photoInfo.originalImage;
+        if(self.loadType == downLoadTypeImage || self.loadType == downLoadTypeLocale){
+            object = _customView.image;
+        }
     } else if (self.photoInfo.photoType == PhotoType_video) {
         if (self.loadType == downLoadTypeLocale) { /** 本地视频才回调URL */
             object = self.videoPlayer.URL;
@@ -377,6 +464,7 @@
     _progressView.alpha = newAlpah;
     self.videoSlider.alpha = newAlpah;
     self.tipsLabel.alpha = newAlpah;
+    _activityIndicatorView.alpha = (alpha == 1 ? 1 : 0);
 }
 
 #pragma mark - 选择加载方式
@@ -426,8 +514,7 @@
                 UIImage *image = [UIImage LFPB_imageWithImageData:self.photoInfo.originalImageData];
                 if (image == nil) {
                     [self showPhotoLoadingFailure];
-                } else {                    
-                    self.photoInfo.originalImage = image;
+                } else {
                     [self setImage:image];
                 }
             }
@@ -440,7 +527,6 @@
             if(image == nil){
                 [self showPhotoLoadingFailure];
             } else {
-                self.photoInfo.originalImage = image;
                 [self setImage:image];
             }
         }
@@ -509,7 +595,6 @@
     }else{
         UIImage *thumbnailImage = [UIImage LFPB_imageWithImagePath:self.photoInfo.thumbnailPath];
         if(thumbnailImage){
-            self.photoInfo.thumbnailImage = thumbnailImage;
             [self setImage:thumbnailImage];
         }else{
             [self setImage:self.photoInfo.placeholderImage];
@@ -531,13 +616,20 @@
         if (SD_DL) {
             //使用SD下载
             __weak typeof(self) weakSelf = self;
-            [_customView lf_setImageWithURL:[NSURL URLWithString:self.photoInfo.thumbnailUrl] placeholderImage:_customView.image options:LFWebImageAvoidAutoSetImage completed:^(UIImage *image, NSError *error, NSURL *imageURL) {
-                
+            [_customView lf_setImageWithURL:[NSURL URLWithString:self.photoInfo.thumbnailUrl] placeholderImage:_customView.image options:LFWebImageAvoidAutoSetImage completed:^(UIImage *image, NSData *data, NSError *error, NSURL *imageURL) {
                 if ([imageURL.absoluteString isEqualToString:weakSelf.photoInfo.thumbnailUrl]) {
                     if(image){//下载成功
-                        weakSelf.photoInfo.thumbnailImage = image;
+                        BOOL writeFlag = NO;
+                        if (weakSelf.photoInfo.thumbnailPath) {
+                            writeFlag = [data writeToFile:weakSelf.photoInfo.thumbnailPath atomically:YES];
+                        }
+                        /** 存储失败，加入缓存 */
+                        if (!writeFlag) {
+                            weakSelf.photoInfo.thumbnailImage = image;
+                        }
                         if (weakSelf.photoInfo.photoType == PhotoType_image) {
-                            if(!weakSelf.photoInfo.originalImage){//判断是否已经显示原图,没有才显示缩略图
+                            [weakSelf selectLoadMethod];
+                            if(!(weakSelf.loadType == downLoadTypeImage || weakSelf.loadType == downLoadTypeLocale)){//判断是否已经显示原图,没有才显示缩略图
                                 [weakSelf reloadPhotoView];
                             }
                         } else if (weakSelf.photoInfo.photoType == PhotoType_video) {
@@ -571,10 +663,17 @@
                 if (weakSelf.photoInfo.originalImageUrl != weakURL) return ;
                 /*设置进度*/
                 weakSelf.photoInfo.downloadProgress = (float)receivedSize/expectedSize;
-            } completed:^(UIImage *image, NSError *error, NSURL *imageURL) {
+            } completed:^(UIImage *image, NSData *data, NSError *error, NSURL *imageURL) {
                 if ([imageURL.absoluteString isEqualToString:weakSelf.photoInfo.originalImageUrl]) {
                     if(image){/*下载成功*/
-                        weakSelf.photoInfo.originalImage = image;
+                        BOOL writeFlag = NO;
+                        if (weakSelf.photoInfo.originalImagePath) {
+                            writeFlag = [data writeToFile:weakSelf.photoInfo.originalImagePath atomically:YES];
+                        }
+                        /** 存储失败，加入缓存 */
+                        if (!writeFlag) {
+                            weakSelf.photoInfo.originalImage = image;
+                        }
                         [weakSelf reloadPhotoView];
                     }else{/*下载失败*/
                         weakSelf.photoInfo.downloadFail = YES;
@@ -616,6 +715,12 @@
         self.imageMaskView = nil;
         //移除加载视图
         [self removePhotoLoadingView];
+        //移除菊花
+        [_activityIndicatorView stopAnimating];
+        [_activityIndicatorView removeFromSuperview];
+        _activityIndicatorView = nil;
+        //结束线程
+        [_imageSerialQueue cancelAllOperations];
         
         self.videoPlayer.delegate = nil;
         self.videoPlayer = nil;
@@ -643,8 +748,42 @@
 #pragma mark - 设置图片
 -(void)setImage:(UIImage *)image
 {
-    self.customView.image = image;
-    [self calcFrameMaskPosition:MaskPosition_None frame:self.bounds];
+    CGRect rect_screen = [[UIScreen mainScreen] bounds];
+    CGSize size_screen = rect_screen.size;
+    CGFloat pixelV = 1.5f;
+    CGFloat scale_screen = [UIScreen mainScreen].scale;
+    CGFloat pixel_width = size_screen.width*scale_screen*pixelV;
+    CGFloat pixel_height = size_screen.height*scale_screen*pixelV;
+    CGFloat pixel = pixel_width*pixel_height;
+    
+    CGFloat imagePixel_width = image.size.width*image.scale;
+    CGFloat imagePixel_height = image.size.height*image.scale;
+    CGFloat imagePixel = imagePixel_width*imagePixel_height;
+    
+    if (imagePixel > pixel) {
+        /** 等待加载 */
+        [self.activityIndicatorView startAnimating];
+        // 添加操作
+        __weak typeof(self) weakSelf = self;
+        LFPBCompressImageOperaction *imageOperaction = [[LFPBCompressImageOperaction alloc] init];
+        
+        CGFloat factor = MAX(imagePixel_width / pixel_width, imagePixel_height/pixel_height);
+        CGSize size = CGSizeMake(imagePixel_width / factor, imagePixel_height / factor);
+        [imageOperaction setLFPBExecutionWithImage:image size:size compleionBlock:^(UIImage *compressImage, BOOL isCanceled) {
+            if (!isCanceled) {
+                [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                    weakSelf.customView.image = compressImage;
+                    [weakSelf calcFrameMaskPosition:MaskPosition_None frame:weakSelf.bounds];
+                    [weakSelf.activityIndicatorView stopAnimating];
+                }];
+            }
+        }];
+        [self.imageSerialQueue addOperation:imageOperaction];
+    } else {
+        self.customView.image = image;
+        [self calcFrameMaskPosition:MaskPosition_None frame:self.bounds];
+    }
+    
 }
 
 #pragma mark - 显示进度

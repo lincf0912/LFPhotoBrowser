@@ -15,16 +15,16 @@
 @property (nonatomic, copy) NSString *thumbnailUrl;
 /** 缩略图路径*/
 @property (nonatomic, copy) NSString *thumbnailPath;
-/** 缩略图图片*/
+/** 缩略图图片(会产生缓存)*/
 @property (nonatomic, strong) UIImage *thumbnailImage;
 
 /** 原图URLString*/
 @property (nonatomic, copy) NSString *originalImageUrl;
 /** 图片本地路径*/
 @property (nonatomic, copy) NSString *originalImagePath;
-/** 本地图片、保存下载图片*/
+/** 本地图片、保存下载图片(会产生缓存)*/
 @property (nonatomic, copy) UIImage *originalImage;
-/** 图片数据*/
+/** 图片数据(会产生缓存)*/
 @property (nonatomic, strong) NSData *originalImageData;
 
 @end

@@ -53,7 +53,7 @@ dispatch_async(dispatch_get_main_queue(), block);\
             if (image && (options & LFWebImageAvoidAutoSetImage) && completedBlock)
             {
                 if (completedBlock) {
-                    completedBlock(image, error, URL);
+                    completedBlock(image, data, error, URL);
                 }
                 return;
             } else if (image) {
@@ -64,7 +64,7 @@ dispatch_async(dispatch_get_main_queue(), block);\
                 [weakSelf setNeedsLayout];
             }
             if (completedBlock) {
-                completedBlock(image, error, URL);
+                completedBlock(image, data, error, URL);
             }
         });
     }];
