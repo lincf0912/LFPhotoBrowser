@@ -157,7 +157,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 -(id)initWithImageArray:(NSArray *)imageArray currentIndex:(int)currentIndex
 {
     if(self = [self initWithImageArray:imageArray]){
-        if(currentIndex <= imageArray.count)
+        if(currentIndex < imageArray.count)
             self.curr = currentIndex;
     }
     return self;
@@ -443,7 +443,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         [_photoScrollView setShowsHorizontalScrollIndicator:NO];
         [_photoScrollView setDelegate:self];
         [_photoScrollView setPagingEnabled:YES];
-        [_photoScrollView setScrollEnabled:YES];
+        [_photoScrollView setScrollEnabled:self.images.count];
         [self.view addSubview:_photoScrollView];
         
         if (kScrollAminated == 1) {
@@ -556,10 +556,12 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 #pragma mark - 设置imageView的显示模型
 - (void)imageFromSelectItems:(NSInteger)num withImageView:(LFPhotoView *)photoView
 {
-    /*设置图片*/
-    LFPhotoInfo *photoInfo = _images[num];
-    photoView.photoInfo = photoInfo;
-    [self.photoScrollView bringSubviewToFront:photoView];
+    if (_images.count > num) {
+        /*设置图片*/
+        LFPhotoInfo *photoInfo = _images[num];
+        photoView.photoInfo = photoInfo;
+        [self.photoScrollView bringSubviewToFront:photoView];
+    }
 }
 
 #pragma mark 重置scrollView的起始位置
