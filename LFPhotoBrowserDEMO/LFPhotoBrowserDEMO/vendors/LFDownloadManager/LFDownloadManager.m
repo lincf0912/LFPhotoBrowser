@@ -7,6 +7,7 @@
 //
 
 #import "LFDownloadManager.h"
+#import <CommonCrypto/CommonDigest.h>
 
 #define LFDownloadManagerDirector [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:NSStringFromClass([LFDownloadManager class])]
 #define LFDownloadManagerDirectorAppending(name) [LFDownloadManagerDirector stringByAppendingPathComponent:name]
@@ -16,6 +17,7 @@
 @property (nonatomic, assign) NSInteger downloadTimes;
 @property (nonatomic, strong) NSURL *downloadURL;
 
+@property (nonatomic, assign) BOOL cacheData;
 @property (nonatomic, readonly) BOOL reDownload;
 
 @property (nonatomic, copy) lf_progressBlock progress;
@@ -97,7 +99,8 @@
 
 - (NSData *)dataFromSandboxWithURL:(NSURL *)URL {
     
-    NSString *path = LFDownloadManagerDirectorAppending(URL.lastPathComponent);
+    
+    NSString *path = LFDownloadManagerDirectorAppending([self cachedFileNameForKey:URL.absoluteString]);
     NSData *data = [NSData dataWithContentsOfFile:path];
     if (data.length > 0 ) {
         return data;
@@ -107,9 +110,41 @@
     return nil;
 }
 
+- (void)lf_requestGetURL:(NSURL *)URL completion:(lf_completeBlock)completion
+{
+    //创建请求对象
+    //请求对象内部默认已经包含了请求头和请求方法（GET）
+    NSURLRequest *request = [NSURLRequest requestWithURL:URL];
+    
+    //根据会话对象创建一个Task(发送请求）
+    /*
+     第一个参数：请求对象
+     第二个参数：completionHandler回调（请求完成【成功|失败】的回调）
+     data：响应体信息（期望的数据）
+     response：响应头信息，主要是对服务器端的描述
+     error：错误信息，如果请求失败，则error有值
+     */
+    NSURLSessionDataTask *dataTask = [self.session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        
+        if (completion) {
+            completion(data, error, URL);
+        }
+    }];
+    
+    //执行任务
+    [dataTask resume];
+    
+}
+
 - (void)lf_downloadURL:(NSURL *)URL progress:(lf_progressBlock)progress completion:(lf_completeBlock)completion
 {
+    [self lf_downloadURL:URL cacheData:NO progress:progress completion:completion];
+}
+
+- (void)lf_downloadURL:(NSURL *)URL cacheData:(BOOL)cacheData progress:(lf_progressBlock)progress completion:(lf_completeBlock)completion
+{
     LFDownloadInfo *info = [LFDownloadInfo lf_downloadInfoWithURL:URL];
+    info.cacheData = cacheData;
     info.progress = [progress copy];
     info.complete = [completion copy];
     self.downloadDictionary[URL] = info;
@@ -131,17 +166,19 @@
 - (void)downloadInfo:(LFDownloadInfo *)info
 {
     NSURL *URL = info.downloadURL;
-    NSData *data = [self dataFromSandboxWithURL:URL];
-    if (data) {
-        if (info.progress) {
-            info.progress(data.length, data.length, info.downloadURL);
+    if (info.cacheData) {
+        NSData *data = [self dataFromSandboxWithURL:URL];
+        if (data) {
+            if (info.progress) {
+                info.progress(data.length, data.length, info.downloadURL);
+            }
+            if (info.complete) {
+                info.complete(data, nil, info.downloadURL);
+            }
+            info.complete = nil;
+            info.progress = nil;
+            return;
         }
-        if (info.complete) {
-            info.complete(data, nil, info.downloadURL);
-        }
-        info.complete = nil;
-        info.progress = nil;
-        return;
     }
     
     // 2、利用NSURLSessionDownloadTask创建任务(task)
@@ -193,16 +230,19 @@
     NSURL *URL = downloadTask.currentRequest.URL;
     
     LFDownloadInfo *info = self.downloadDictionary[URL];
-    //1、生成的Caches地址
-    NSString *cacepath = LFDownloadManagerDirectorAppending(info.downloadURL.lastPathComponent);
-    //2、移动图片的存储地址
-    NSFileManager *manager = [NSFileManager defaultManager];
-    [manager moveItemAtURL:location toURL:[NSURL fileURLWithPath:cacepath] error:nil];
+    NSData *data = [NSData dataWithContentsOfURL:location];
+    if (info.cacheData) {
+        //1、生成的Caches地址
+        NSString *cacepath = LFDownloadManagerDirectorAppending([self cachedFileNameForKey:info.downloadURL.absoluteString]);
+        //2、移动图片的存储地址
+        NSFileManager *manager = [NSFileManager defaultManager];
+        [manager moveItemAtURL:location toURL:[NSURL fileURLWithPath:cacepath] error:nil];
+    }
     
     [self.downloadDictionary removeObjectForKey:URL];
     
     if (info.complete) {
-        info.complete([NSData dataWithContentsOfFile:cacepath], nil, info.downloadURL);
+        info.complete(data, nil, info.downloadURL);
     }
     info.complete = nil;
     info.progress = nil;
@@ -227,5 +267,20 @@
             info.progress = nil;
         }
     }
+}
+
+#pragma mark - private
+- (NSString *)cachedFileNameForKey:(NSString *)key {
+    const char *str = [key UTF8String];
+    if (str == NULL) {
+        str = "";
+    }
+    unsigned char r[CC_MD5_DIGEST_LENGTH];
+    CC_MD5(str, (CC_LONG)strlen(str), r);
+    NSString *filename = [NSString stringWithFormat:@"%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%@",
+                          r[0], r[1], r[2], r[3], r[4], r[5], r[6], r[7], r[8], r[9], r[10],
+                          r[11], r[12], r[13], r[14], r[15], [[key pathExtension] isEqualToString:@""] ? @"" : [NSString stringWithFormat:@".%@", [key pathExtension]]];
+    
+    return filename;
 }
 @end

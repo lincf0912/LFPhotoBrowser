@@ -75,6 +75,7 @@
 		6FA36E881EBC0E040009E2DE /* 0.gif in Resources */ = {isa = PBXBuildFile; fileRef = 6FA36E871EBC0E040009E2DE /* 0.gif */; };
 		6FC387AE1EA998ED00284C74 /* NavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FC387AD1EA998ED00284C74 /* NavigationController.m */; };
 		B731EC0F634A3745F52C3A15 /* libPods-LFPhotoBrowserDEMO.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C99D3BE2C4FC1032EABDFDE /* libPods-LFPhotoBrowserDEMO.a */; };
+		C70FDAAC20E35F100053A02C /* 22.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = C70FDAAB20E35F0F0053A02C /* 22.jpeg */; };
 		C773CB021FDE70C10010CAC2 /* LFDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C773CB011FDE70C10010CAC2 /* LFDownloadManager.m */; };
 		C773CB061FDE7EB10010CAC2 /* UIImageView+LFWebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = C773CB051FDE7EB10010CAC2 /* UIImageView+LFWebCache.m */; };
 /* End PBXBuildFile section */
@@ -184,6 +185,7 @@
 		6FA36E871EBC0E040009E2DE /* 0.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = 0.gif; sourceTree = "<group>"; };
 		6FC387AC1EA998ED00284C74 /* NavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationController.h; sourceTree = "<group>"; };
 		6FC387AD1EA998ED00284C74 /* NavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationController.m; sourceTree = "<group>"; };
+		C70FDAAB20E35F0F0053A02C /* 22.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 22.jpeg; sourceTree = "<group>"; };
 		C773CB001FDE70C10010CAC2 /* LFDownloadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LFDownloadManager.h; sourceTree = "<group>"; };
 		C773CB011FDE70C10010CAC2 /* LFDownloadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LFDownloadManager.m; sourceTree = "<group>"; };
 		C773CB041FDE7EB10010CAC2 /* UIImageView+LFWebCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImageView+LFWebCache.h"; sourceTree = "<group>"; };
@@ -358,6 +360,7 @@
 				6F19F0B31DB5F3A000BC6149 /* 2.jpeg */,
 				6F19F0B41DB5F3A000BC6149 /* 20.jpeg */,
 				6F19F0B51DB5F3A000BC6149 /* 21.jpeg */,
+				C70FDAAB20E35F0F0053A02C /* 22.jpeg */,
 				6F19F0B61DB5F3A000BC6149 /* 3.jpeg */,
 				6F19F0B71DB5F3A000BC6149 /* 4.jpeg */,
 				6F19F0B81DB5F3A000BC6149 /* 5.jpeg */,
@@ -594,6 +597,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C70FDAAC20E35F100053A02C /* 22.jpeg in Resources */,
 				6F5BA4B11DE2D36300F26951 /* LFPhotoSource.bundle in Resources */,
 				6F19F0C21DB5F3A000BC6149 /* 14.jpeg in Resources */,
 				6F19F0C31DB5F3A000BC6149 /* 15.jpeg in Resources */,

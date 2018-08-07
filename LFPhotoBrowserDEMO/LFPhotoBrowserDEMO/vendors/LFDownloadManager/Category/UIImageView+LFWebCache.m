@@ -39,7 +39,7 @@ dispatch_async(dispatch_get_main_queue(), block);\
     }
     
     __weak typeof(self) weakSelf = self;
-    [[LFDownloadManager shareLFDownloadManager] lf_downloadURL:url progress:^(int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite, NSURL *URL) {
+    [[LFDownloadManager shareLFDownloadManager] lf_downloadURL:url cacheData:YES progress:^(int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite, NSURL *URL) {
         lf_dispatch_main_async_safe(^{
             if (progressBlock) {
                 progressBlock(totalBytesWritten, totalBytesExpectedToWrite, URL);
@@ -47,9 +47,9 @@ dispatch_async(dispatch_get_main_queue(), block);\
         });
     } completion:^(NSData *data, NSError *error, NSURL *URL) {
         
+        UIImage *image = [UIImage LFPB_imageWithImageData:data];
         lf_dispatch_main_async_safe(^{
             if (!weakSelf) return;
-            UIImage *image = [UIImage LFPB_imageWithImageData:data];
             if (image && (options & LFWebImageAvoidAutoSetImage) && completedBlock)
             {
                 if (completedBlock) {

@@ -142,7 +142,7 @@ static NSString * const reuseIdentifier = @"Cell";
     
     NSArray *keys = @[@"1今天", @"2明天", @"3一周前", @"4一个月前", @"5三个月前"];
     
-    for (NSInteger i=0; i<22; i++) {
+    for (NSInteger i=0; i<23; i++) {
         NSString *name = [NSString stringWithFormat:@"%ld.jpeg", i];
         if (i == 0) {
             name = [NSString stringWithFormat:@"%ld.gif", i];

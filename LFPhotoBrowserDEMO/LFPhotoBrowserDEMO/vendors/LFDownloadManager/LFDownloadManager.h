@@ -17,7 +17,10 @@ typedef void(^lf_completeBlock)(NSData * data, NSError *error, NSURL *URL);
 
 @property (nonatomic, assign) NSUInteger repeatCountWhenDownloadFailed;
 
+- (void)lf_requestGetURL:(NSURL *)URL completion:(lf_completeBlock)completion;
+
 - (void)lf_downloadURL:(NSURL *)URL progress:(lf_progressBlock)progress completion:(lf_completeBlock)completion;
+- (void)lf_downloadURL:(NSURL *)URL cacheData:(BOOL)cacheData progress:(lf_progressBlock)progress completion:(lf_completeBlock)completion;
 
 + (void)lf_clearCached;
 

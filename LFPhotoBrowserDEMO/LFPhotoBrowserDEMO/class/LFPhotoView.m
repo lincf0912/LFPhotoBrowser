@@ -511,24 +511,36 @@ typedef void(^LFPBCompressImageCompletionBlock)(UIImage *compressImage, BOOL isC
             if (self.photoInfo.originalImage) {
                 [self setImage:_photoInfo.originalImage];
             } else {
-                UIImage *image = [UIImage LFPB_imageWithImageData:self.photoInfo.originalImageData];
-                if (image == nil) {
-                    [self showPhotoLoadingFailure];
-                } else {
-                    [self setImage:image];
-                }
+                [self.activityIndicatorView startAnimating];
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    UIImage *image = [UIImage LFPB_imageWithImageData:self.photoInfo.originalImageData];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self.activityIndicatorView stopAnimating];
+                        if (image == nil) {
+                            [self showPhotoLoadingFailure];
+                        } else {
+                            [self setImage:image];
+                        }
+                    });
+                });
             }
         }
             break;
         case downLoadTypeLocale:
         {
-            UIImage *image = [UIImage LFPB_imageWithImagePath:self.photoInfo.originalImagePath];
+            [self.activityIndicatorView startAnimating];
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                UIImage *image = [UIImage LFPB_imageWithImagePath:self.photoInfo.originalImagePath];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self.activityIndicatorView stopAnimating];
+                    if(image == nil){
+                        [self showPhotoLoadingFailure];
+                    } else {
+                        [self setImage:image];
+                    }
+                });
+            });
             
-            if(image == nil){
-                [self showPhotoLoadingFailure];
-            } else {
-                [self setImage:image];
-            }
         }
             break;
         case downLoadTypeNetWork:
@@ -593,13 +605,17 @@ typedef void(^LFPBCompressImageCompletionBlock)(UIImage *compressImage, BOOL isC
     if (_photoInfo.thumbnailImage){
         [self setImage:_photoInfo.thumbnailImage];
     }else{
-        UIImage *thumbnailImage = [UIImage LFPB_imageWithImagePath:self.photoInfo.thumbnailPath];
-        if(thumbnailImage){
-            [self setImage:thumbnailImage];
-        }else{
-            [self setImage:self.photoInfo.placeholderImage];
-            [self loadThumbnailImage];//下载缩略图
-        }
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            UIImage *thumbnailImage = [UIImage LFPB_imageWithImagePath:self.photoInfo.thumbnailPath];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if(thumbnailImage){
+                    [self setImage:thumbnailImage];
+                }else{
+                    [self setImage:self.photoInfo.placeholderImage];
+                    [self loadThumbnailImage];//下载缩略图
+                }
+            });
+        });
     }
 }
 
