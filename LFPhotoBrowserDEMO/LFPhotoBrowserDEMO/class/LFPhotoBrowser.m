@@ -65,7 +65,7 @@ block();\
 dispatch_sync(dispatch_get_main_queue(), block);\
 }
 
-@interface LFPhotoBrowser () <UIScrollViewDelegate>
+@interface LFPhotoBrowser () <UIScrollViewDelegate, UIGestureRecognizerDelegate>
 {
     /** 状态栏隐藏 */
     BOOL _isStatusBarHiden;
@@ -180,6 +180,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     
     if(self.canPullDown){//手势
         _panGesture = [[UIPanGestureRecognizer alloc]initWithTarget:self action:@selector(panGesture:)];
+        _panGesture.delegate = self;
         [self.view addGestureRecognizer:_panGesture];
     }
     
@@ -1041,6 +1042,15 @@ dispatch_sync(dispatch_get_main_queue(), block);\
             
     }
     _originalPoint = movePoint;
+}
+
+#pragma mark - UIGestureRecognizerDelegate
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    if ([touch.view isKindOfClass:[UISlider class]]) {
+        return NO;
+    }
+    return YES;
 }
 
 #pragma mark - photoView手势代理
