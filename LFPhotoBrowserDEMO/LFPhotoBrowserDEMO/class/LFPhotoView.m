@@ -136,7 +136,7 @@ typedef void(^LFPBCompressImageCompletionBlock)(UIImage *compressImage, BOOL isC
         //初始化imageView 和 遮罩层
         LFAVPlayerLayerView *_imageView = [[LFAVPlayerLayerView alloc] initWithFrame:self.bounds];
         _imageView.contentMode = UIViewContentModeScaleAspectFit;
-        [self addSubview:_imageView];
+        [self insertSubview:_imageView atIndex:0];
         _imageMaskView = [[UIImageView alloc]initWithFrame:_imageView.bounds];
         _imageMaskView.backgroundColor = [UIColor whiteColor];
         /** 设置遮罩 */
