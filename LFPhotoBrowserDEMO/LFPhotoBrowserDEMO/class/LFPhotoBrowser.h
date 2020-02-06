@@ -112,7 +112,7 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 @property (nonatomic, copy) UIImage * (^targetMaskImageBlock)(int index, NSString *key);
 @property (nonatomic, copy) NSArray <LFPhotoSheetAction *>* (^longPressActionItemsBlock)(LFPhotoInfo *photoInfo, id /* UIImage * /NSURL * */ object);
 @property (nonatomic, copy) void (^slideBlock)(SlideDirection direction, LFPhotoInfo *photoInfo);
-/** 触发photoBrowserDidSlide:slideDirection:photoInfo:代理的范围（距离最后一张）,default is 2 */
+/** 触发photoBrowserDidSlide:slideDirection:photoInfo:代理的范围（距离最后一张）,default is 2, 需要注意当 (数据源数量/2 < 此值) 时不会触发代理。 */
 @property (nonatomic, assign) NSUInteger slideRange;
 /** 遮罩的位置,default is MaskPosition_Middle*/
 @property (nonatomic, assign) MaskPosition maskPosition;

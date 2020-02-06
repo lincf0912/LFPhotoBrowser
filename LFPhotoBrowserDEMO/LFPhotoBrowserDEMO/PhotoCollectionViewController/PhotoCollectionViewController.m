@@ -83,8 +83,19 @@ static NSString * const reuseIdentifier = @"Cell";
         safeAreaInsets = insets;
     }
     
-    self.collectionView.contentInset = safeAreaInsets;
-    self.collectionView.scrollIndicatorInsets = safeAreaInsets;
+    BOOL isShowLFPhotoBrowser = NO;
+    
+    for (id objVC in [self childViewControllers]) {
+        if ([objVC isKindOfClass:[LFPhotoBrowser class]]) {
+            isShowLFPhotoBrowser = YES;
+            break;
+        }
+    }
+    
+    if (!isShowLFPhotoBrowser) {
+        self.collectionView.contentInset = safeAreaInsets;
+        self.collectionView.scrollIndicatorInsets = safeAreaInsets;
+    }
 
 }
 
@@ -463,6 +474,47 @@ static NSString * const reuseIdentifier = @"Cell";
 {
     NSLog(@"设置更多按钮（右上角）-- %@", object);
 }
+
+//- (void)photoBrowserDidSlide:(LFPhotoBrowser *)photoBrowser slideDirection:(SlideDirection)direction photoInfo:(LFPhotoInfo *)photoInfo
+//{
+//    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+//        
+//        int limit = 10;
+//        
+//        /** 生成图片数据源 */
+//        NSMutableArray *items = [NSMutableArray arrayWithCapacity:limit];
+//        for (NSString *title in self.titleArrs) {
+//            NSArray *array = self.dataSourcDic[title];
+//            for (NSString *name in array) {
+//                if ([name containsString:@"00"]) {
+//                    LFPhotoInfo *photo = [LFPhotoInfo photoInfoWithType:PhotoType_video key:title];
+//                    photo.thumbnailPath = [[NSBundle mainBundle] pathForResource:name ofType:nil];
+//                    photo.videoPath = [[NSBundle mainBundle] pathForResource:[[name stringByDeletingPathExtension] stringByAppendingPathExtension:@"mp4"] ofType:nil];
+//                    [items addObject:photo];
+//                    if ([name compare:@"400"] == NSOrderedAscending) { /** 部分模拟需要进度条 */
+//                        photo.isNeedSlider = YES;
+//                        //                    photo.isAutoPlay = YES;
+//                    }
+//                } else {
+//                    LFPhotoInfo *photo = [LFPhotoInfo photoInfoWithType:PhotoType_image key:title];
+//                    //                photo.originalImagePath = [[NSBundle mainBundle] pathForResource:name ofType:nil];
+//                    /** 新增data传参，主要为了方便保存到相册的问题 */
+//                    NSString *imagePath = [[NSBundle mainBundle] pathForResource:name ofType:nil];
+//                    photo.originalImagePath = imagePath;
+//                    [items addObject:photo];
+//                }
+//                if (items.count == limit) {
+//                    break;
+//                }
+//            }
+//            if (items.count == limit) {
+//                break;
+//            }
+//        }
+//        
+//        [photoBrowser addDataSourceFormSlideDirection:direction dataSourceArray:items];
+//    });
+//}
 
 - (BOOL)shouldAutorotate
 {

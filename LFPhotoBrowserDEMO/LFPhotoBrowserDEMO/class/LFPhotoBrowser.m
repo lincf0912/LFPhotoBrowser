@@ -94,6 +94,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 @property (nonatomic, weak) LFPhotoView *currPhotoView; //当前张
 @property (nonatomic, assign) int curr; //记录当前张
 @property (nonatomic, assign) int scrollIndex; //记录滑动到第几张
+@property (nonatomic, assign, getter=isDecelerating) BOOL decelerating;//在未停止上一次滑动时，再次触发新的滑动
 
 @property (nonatomic, strong) UIPanGestureRecognizer *panGesture;
 
@@ -249,6 +250,11 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
+    [self resetNavigationBar];
+}
+
+- (void)resetNavigationBar
+{
     [self.navigationController setNavigationBarHidden:NO];
     [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
     _navigationBarAlpha = 1;
@@ -354,7 +360,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     [self setNeedsStatusBarAppearanceUpdate];
     
     /** 因为调用[self removeFromParentViewController]才会触发viewWillDisappear时，此时self.navigationController 为nil，但不调用[self removeFromParentViewController] 又不会触发viewWillDisappear，手动提前调用 */
-    [self viewWillDisappear:YES];
+    [self resetNavigationBar];
     [self.navigationController setNavigationBarHidden:_parentNaviHiden];
     
     UIViewController *parentViewController = self.parentViewController;
@@ -384,11 +390,11 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     } completion:^(BOOL finished) {
         [_coverView removeFromSuperview];
         _coverView = nil;
+        [self.view removeFromSuperview];
         
         if ([self.delegate respondsToSelector:@selector(photoBrowserDidEndShow:)]) {
             [self.delegate photoBrowserDidEndShow:self];
         }
-        [self.view removeFromSuperview];
     }];
     
 }
@@ -523,9 +529,9 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     if (self.callDataSource) {
         /** 关闭开关，避免触发代理 */
         if (self.curr <= self.slideRange) {
-            self.callRightSlideDataSource = NO;
+//            self.callRightSlideDataSource = NO;
         } else if (self.curr >= _images.count-1-self.slideRange) {
-            self.callLeftSlideDataSource = NO;
+//            self.callLeftSlideDataSource = NO;
         }
     }
 }
@@ -562,6 +568,35 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         LFPhotoInfo *photoInfo = _images[num];
         photoView.photoInfo = photoInfo;
         [self.photoScrollView bringSubviewToFront:photoView];
+        
+        if(self.callLeftSlideDataSource && num >= (NSInteger)(_images.count-self.slideRange)){//滑到右边倒数第二张
+            if([self.delegate respondsToSelector:@selector(photoBrowserDidSlide:slideDirection:photoInfo:)]){
+                self.callLeftSlideDataSource = NO;
+                dispatch_async(_globalSerialQueue, ^{
+                    [self.delegate photoBrowserDidSlide:self slideDirection:SlideDirection_Left photoInfo:self.images.lastObject];
+                });
+            } else if (self.slideBlock) {
+                self.callLeftSlideDataSource = NO;
+                dispatch_async(_globalSerialQueue, ^{
+                    self.slideBlock(SlideDirection_Left, self.images.lastObject);
+                });
+            }
+        }
+        
+        if(self.callRightSlideDataSource && num+1 <= self.slideRange){//滑到左边倒数第二张
+            if([self.delegate respondsToSelector:@selector(photoBrowserDidSlide:slideDirection:photoInfo:)]){
+                self.callRightSlideDataSource = NO;
+                dispatch_async(_globalSerialQueue, ^{
+                    [self.delegate photoBrowserDidSlide:self slideDirection:SlideDirection_Right photoInfo:self.images.firstObject];
+                });
+            } else if (self.slideBlock) {
+                self.callRightSlideDataSource = NO;
+                dispatch_async(_globalSerialQueue, ^{
+                    self.slideBlock(SlideDirection_Right, self.images.firstObject);
+                });
+            }
+        }
+        
     }
 }
 
@@ -601,6 +636,10 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 #pragma mark - 偏移scrollView到中间位置
 - (void)offsetScrollViewPosition:(int)position
 {
+    [self offsetScrollViewPosition:position offsetX:0];
+}
+- (void)offsetScrollViewPosition:(int)position offsetX:(CGFloat)offsetX
+{
     CGFloat newPointX = position * kScrollViewW;
     if (self.currPhotoView.frame.origin.x != newPointX) {
         /** 偏移视图坐标 */
@@ -614,8 +653,9 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         tmp.origin.x += offset;
         self.movePhotoView.frame = tmp;
     }
+    
     /** 偏移contentOffset */
-    [self.photoScrollView setContentOffset:CGPointMake(newPointX, 0)];
+    [self.photoScrollView setContentOffset:CGPointMake(newPointX+offsetX, 0)];
 }
 
 #pragma mark - 设置self.currPhotoView的位置(0:左边，1：中间，2：右边)
@@ -639,7 +679,10 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     CGFloat targetFrameX = CGRectGetMaxX(self.currPhotoView.frame) + kScrollViewMargin;
     CGRect tmpFrame = imageView.frame;
     
-    if (tmpFrame.origin.x != targetFrameX) {
+    // 边缘张，并且快速滑动时，需要重新获取。
+    BOOL isEdge = self.isDecelerating && self.curr == self.images.count - 2 && self.scrollIndex == self.curr;
+    
+    if (tmpFrame.origin.x != targetFrameX || isEdge) {
         tmpFrame.origin.x = targetFrameX;
         imageView.frame = tmpFrame;
         /** 设置下一张图片 */
@@ -654,7 +697,11 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 {
     CGFloat targetFrameX = CGRectGetMinX(self.currPhotoView.frame) - CGRectGetWidth(self.currPhotoView.frame) - kScrollViewMargin;
     CGRect tmpFrame = imageView.frame;
-    if (tmpFrame.origin.x != targetFrameX) {
+    
+    // 边缘张，并且快速滑动时，需要重新获取。
+    BOOL isEdge = self.isDecelerating && self.curr == 1 && self.scrollIndex == self.curr;
+    
+    if (tmpFrame.origin.x != targetFrameX || isEdge) {
         tmpFrame.origin.x = targetFrameX;
         imageView.frame = tmpFrame;
         /** 设置上一张图片 */
@@ -716,8 +763,10 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
     _isMTScroll = YES;
+    
     /** 在未停止上一次滑动时，再次触发新的滑动 */
-    if (scrollView.isDecelerating) {
+    if (scrollView.isDragging && scrollView.isDecelerating) {
+        self.decelerating = YES;
         /** 判断与当前视图是否一致 */
         if (!CGRectContainsPoint(self.currPhotoView.frame, [scrollView.panGestureRecognizer locationInView:scrollView])) {
             if (!_canCirculate && (self.scrollIndex == 0 || self.scrollIndex == self.images.count - 1)) {
@@ -746,37 +795,12 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
     _isMTScroll = NO;
+    self.decelerating = NO;
     BOOL isNextPage = NO;
     if (scrollView.contentOffset.x >= kScrollViewW*2 && (_curr != self.images.count - 1 || _canCirculate)) {//向左滑动
         isNextPage = YES;
-        if(self.callLeftSlideDataSource && self.curr >= _images.count-1-self.slideRange){//滑到右边倒数第二张
-            if([self.delegate respondsToSelector:@selector(photoBrowserDidSlide:slideDirection:photoInfo:)]){
-                self.callLeftSlideDataSource = NO;
-                dispatch_async(_globalSerialQueue, ^{
-                    [self.delegate photoBrowserDidSlide:self slideDirection:SlideDirection_Left photoInfo:self.images.lastObject];
-                });
-            } else if (self.slideBlock) {
-                self.callLeftSlideDataSource = NO;
-                dispatch_async(_globalSerialQueue, ^{
-                    self.slideBlock(SlideDirection_Left, self.images.lastObject);
-                });
-            }
-        }
     } else if (scrollView.contentOffset.x <= 0 && (_curr != 0 || _canCirculate)) {//向右滑动
         isNextPage = YES;
-        if(self.callRightSlideDataSource && self.curr <= self.slideRange){//滑到左边倒数第二张
-            if([self.delegate respondsToSelector:@selector(photoBrowserDidSlide:slideDirection:photoInfo:)]){
-                self.callRightSlideDataSource = NO;
-                dispatch_async(_globalSerialQueue, ^{
-                    [self.delegate photoBrowserDidSlide:self slideDirection:SlideDirection_Right photoInfo:self.images.firstObject];
-                });
-            } else if (self.slideBlock) {
-                self.callRightSlideDataSource = NO;
-                dispatch_async(_globalSerialQueue, ^{
-                    self.slideBlock(SlideDirection_Right, self.images.firstObject);
-                });
-            }
-        }
         /** 因为不开启循环滑动时，最后一张contentOffset不会重置，需要新增判断 */
     }else if (scrollView.contentOffset.x <= kScrollViewW  && _curr == self.images.count - 1 && !_canCirculate){ /** 最后一张向左滑动 */
         isNextPage = YES;
@@ -785,7 +809,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     }
     
     /** 是否已滑动到下一页 */
-    if (isNextPage) {
+    if (isNextPage && self.movePhotoView.photoInfo) {
         self.curr = self.scrollIndex;
         _pageControl.currentPage = _curr;
         
@@ -820,6 +844,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                 [self.images insertObjects:dataSource atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, dataSource.count)]];
                 _pageControl.numberOfPages = self.images.count;
                 _curr += dataSource.count;
+                _scrollIndex += dataSource.count;
                 _pageControl.currentPage = _curr;
                 isUseData = YES;
             }
@@ -835,23 +860,35 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                     [self batchDownload];
                 }
                 
-                /** 判断1个的情况，增加数据源时需要调整contentSize */
-                if (self.photoScrollView.contentSize.width == kScrollViewW) {
-                    /** 初始化移动view */
-                    if (!_nextPhotoView) {
-                        _nextPhotoView = [self createPhotoView];
-                        [self.photoScrollView addSubview:_nextPhotoView];
-                        self.movePhotoView = _nextPhotoView;
-                        /** 置顶当前张 */
-                        [self.photoScrollView bringSubviewToFront:self.currPhotoView];
-                    }
+                /** 判断1个的情况，增加数据源时需要调整contentSize。 补充：基于现在到判断。1个的情况是不能添加额外数据源的。 */
+//                if (self.images.count > 1 && self.photoScrollView.contentSize.width == kScrollViewW) {
+//                    /** 初始化移动view */
+//                    if (!_nextPhotoView) {
+//                        _nextPhotoView = [self createPhotoView];
+//                        [self.photoScrollView addSubview:_nextPhotoView];
+//                        self.movePhotoView = _nextPhotoView;
+//                        /** 置顶当前张 */
+//                        [self.photoScrollView bringSubviewToFront:self.currPhotoView];
+//                    }
+//                    [self.photoScrollView setContentSize:CGSizeMake(kScrollViewW * 3, 0)];
+//                    [self setScrollViewPosition:1];
+//                }
+                if (_isMTScroll == NO && self.photoScrollView.isDragging) { //手动加载
+                    _isMTScroll = YES;
                 }
-                /** 非滑动情况下 */
-                if (!(self.photoScrollView.isDragging || self.photoScrollView.isDecelerating || self.photoScrollView.isTracking)) {
-                    if (self.photoScrollView.contentOffset.x != kScrollViewW) {
-                        /** 重置UI */
-                        [self resetScrollView];
+                /** 修复边缘张才有额外数据源添加的情况 */
+                if (self.currPhotoView.frame.origin.x != kScrollViewW && (self.curr > 0 && self.curr < self.images.count-1)) {
+                    CGFloat offsetX = self.photoScrollView.contentOffset.x;
+                    
+                    SlideDirection sdirection = SlideDirection_Left;
+                    if (offsetX>=kScrollViewW) {//向左滑动
+                        offsetX -= kScrollViewW*2;
+                    } else if (offsetX<kScrollViewW) {//向右滑动
+                        sdirection = SlideDirection_Right;
                     }
+                    
+                    [self offsetScrollViewPosition:1 offsetX:offsetX];
+                    
                 }
             }
         }
@@ -1295,7 +1332,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
             NSInvocation *invocation1 = [NSInvocation invocationWithMethodSignature:[UIDevice instanceMethodSignatureForSelector:selector]];
             [invocation1 setSelector:selector];
             [invocation1 setTarget:[UIDevice currentDevice]];
-            int val1 = orientation;
+            int val1 = (int)orientation;
             [invocation1 setArgument:&val1 atIndex:2];
             [invocation1 invoke];
             
@@ -1307,7 +1344,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 - (void)setSlideRange:(NSUInteger)slideRange
 {
     _slideRange = slideRange;
-    _callDataSource = (_slideRange < self.images.count / 2);
+    _callDataSource = (_slideRange < self.images.count / 2.0);
     self.callLeftSlideDataSource = _callDataSource;
     self.callRightSlideDataSource = _callDataSource;
 }
