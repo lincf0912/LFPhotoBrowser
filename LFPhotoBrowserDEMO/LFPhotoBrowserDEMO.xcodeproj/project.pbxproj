@@ -11,7 +11,7 @@
 		6F148D151DB89A7C0011BAE6 /* LFPhotoBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D061DB89A7C0011BAE6 /* LFPhotoBrowser.m */; };
 		6F148D161DB89A7C0011BAE6 /* LFPhotoView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D081DB89A7C0011BAE6 /* LFPhotoView.m */; };
 		6F148D1A1DB89A7C0011BAE6 /* LFPhotoInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D121DB89A7C0011BAE6 /* LFPhotoInfo.m */; };
-		6F148D631DB8C9450011BAE6 /* MyHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D5F1DB8C9450011BAE6 /* MyHeaderView.m */; };
+		6F148D631DB8C9450011BAE6 /* PhotoHeadView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D5F1DB8C9450011BAE6 /* PhotoHeadView.m */; };
 		6F148D641DB8C9450011BAE6 /* XLPlainFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D621DB8C9450011BAE6 /* XLPlainFlowLayout.m */; };
 		6F148D671DB8C9730011BAE6 /* PhotoCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F148D661DB8C9730011BAE6 /* PhotoCollectionViewCell.m */; };
 		6F19F0851DB5EF9500BC6149 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 6F19F0841DB5EF9500BC6149 /* main.m */; };
@@ -94,7 +94,7 @@
 		6F148D121DB89A7C0011BAE6 /* LFPhotoInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LFPhotoInfo.m; sourceTree = "<group>"; };
 		6F148D141DB89A7C0011BAE6 /* PhotoViewType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoViewType.h; sourceTree = "<group>"; };
 		6F148D5E1DB8C9450011BAE6 /* PhotoHeadView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoHeadView.h; sourceTree = "<group>"; };
-		6F148D5F1DB8C9450011BAE6 /* MyHeaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyHeaderView.m; sourceTree = "<group>"; };
+		6F148D5F1DB8C9450011BAE6 /* PhotoHeadView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PhotoHeadView.m; sourceTree = "<group>"; };
 		6F148D611DB8C9450011BAE6 /* XLPlainFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XLPlainFlowLayout.h; sourceTree = "<group>"; };
 		6F148D621DB8C9450011BAE6 /* XLPlainFlowLayout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XLPlainFlowLayout.m; sourceTree = "<group>"; };
 		6F148D651DB8C9720011BAE6 /* PhotoCollectionViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoCollectionViewCell.h; sourceTree = "<group>"; };
@@ -252,7 +252,7 @@
 			isa = PBXGroup;
 			children = (
 				6F148D5E1DB8C9450011BAE6 /* PhotoHeadView.h */,
-				6F148D5F1DB8C9450011BAE6 /* MyHeaderView.m */,
+				6F148D5F1DB8C9450011BAE6 /* PhotoHeadView.m */,
 			);
 			path = PhotoHeadView;
 			sourceTree = "<group>";
@@ -579,6 +579,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -717,7 +718,7 @@
 				6F5BA4BD1DE3D2AE00F26951 /* LFPhotoScrollView.m in Sources */,
 				6F5BA4C31DE4368500F26951 /* DownLoadManager.m in Sources */,
 				6F19F0A21DB5F13C00BC6149 /* PhotoTableViewController.m in Sources */,
-				6F148D631DB8C9450011BAE6 /* MyHeaderView.m in Sources */,
+				6F148D631DB8C9450011BAE6 /* PhotoHeadView.m in Sources */,
 				6FA36E6F1EBB34F00009E2DE /* LFPlayer.m in Sources */,
 				6FA36E6A1EBB34F00009E2DE /* NSString+LFActionSheetAttributed.m in Sources */,
 				6FA36E831EBB363F0009E2DE /* LFVideoProgressView.m in Sources */,

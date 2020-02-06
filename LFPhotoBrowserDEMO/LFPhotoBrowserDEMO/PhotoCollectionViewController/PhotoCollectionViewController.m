@@ -63,26 +63,28 @@ static NSString * const reuseIdentifier = @"Cell";
     UIEdgeInsets safeAreaInsets = UIEdgeInsetsZero;
     if (@available(iOS 11.0, *)) {
         safeAreaInsets = self.view.safeAreaInsets;
+    } else {
+        CGFloat naviHeight = CGRectGetMaxY(self.navigationController.navigationBar.frame);
+        UIEdgeInsets insets = self.collectionView.contentInset;
+        UIEdgeInsets offsets = UIEdgeInsetsZero;
+        
+        CGFloat diff = naviHeight - insets.top + offsets.top;
+        
+        insets.top = naviHeight + offsets.top;
+        
+        CGFloat targetBottom = offsets.bottom;
+        if (@available(iOS 11.0, *)) {
+            targetBottom += safeAreaInsets.bottom;
+        }
+        diff += (targetBottom - insets.bottom);
+        insets.bottom = targetBottom;
+        insets.left = offsets.left;
+        insets.right = offsets.right;
+        safeAreaInsets = insets;
     }
-    CGFloat naviHeight = CGRectGetMaxY(self.navigationController.navigationBar.frame);
-    UIEdgeInsets insets = self.collectionView.contentInset;
-    UIEdgeInsets offsets = UIEdgeInsetsZero;
     
-    CGFloat diff = naviHeight - insets.top + offsets.top;
-    
-    insets.top = naviHeight + offsets.top;
-    
-    CGFloat targetBottom = offsets.bottom;
-    if (@available(iOS 11.0, *)) {
-        targetBottom += safeAreaInsets.bottom;
-    }
-    diff += (targetBottom - insets.bottom);
-    insets.bottom = targetBottom;
-    insets.left = offsets.left;
-    insets.right = offsets.right;
-    
-    self.collectionView.contentInset = insets;
-    self.collectionView.scrollIndicatorInsets = insets;
+    self.collectionView.contentInset = safeAreaInsets;
+    self.collectionView.scrollIndicatorInsets = safeAreaInsets;
 
 }
 
@@ -301,6 +303,14 @@ static NSString * const reuseIdentifier = @"Cell";
 - (void)photoBrowserWillBeginShow:(LFPhotoBrowser *)photoBrowser
 {
     self.showPhotoBrowser = YES;
+}
+- (void)photoBrowserDidBeginShow:(LFPhotoBrowser *)photoBrowser
+{
+    
+}
+- (void)photoBrowserWillEndShow:(LFPhotoBrowser *)photoBrowser
+{
+    
 }
 - (void)photoBrowserDidEndShow:(LFPhotoBrowser *)photoBrowser
 {
