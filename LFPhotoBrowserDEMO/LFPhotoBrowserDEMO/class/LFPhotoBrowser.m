@@ -149,6 +149,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         self.coverViewColor = [UIColor clearColor];
         self.maskPosition = MaskPosition_Middle;
         self.slideRange = 2;
+        self.pullDownDistance = 10.0;
         self.batchDLHash = [NSHashTable weakObjectsHashTable];
         _globalSerialQueue = dispatch_queue_create("LFPhotoBrowser.SerialQueue", NULL);
     }
@@ -982,7 +983,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
             if (_isPullBegan && _isPulling) { /** 有触发滑动情况 */
                 _isPullBegan = NO;
                 _isPulling = NO;
-                if(currFrame.size.width > self.currPhotoView.frame.size.width * 0.75)
+                if(self.currPhotoView.frame.size.width - currFrame.size.width < self.pullDownDistance)
                 {
                     _isStatusBarHiden = YES;
                     CGRect currRect = (CGRect){CGPointZero, self.currPhotoView.bounds.size};

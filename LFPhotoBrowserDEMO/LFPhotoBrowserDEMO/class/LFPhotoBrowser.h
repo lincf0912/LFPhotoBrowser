@@ -122,6 +122,8 @@ typedef NS_ENUM(NSInteger, SlideDirection) {
 @property (nonatomic, assign) BOOL isNeedPageControl;
 /** 是否需要下拉动画,default is NO */
 @property (nonatomic, assign) BOOL canPullDown;
+/** 下拉动画距离,default is 10.0 */
+@property (nonatomic, assign) float pullDownDistance;
 /** 是否淡化,default is NO*/
 @property (nonatomic, assign) BOOL isWeaker;
 /** 是否批量下载（数据源所有的对象进行下载,注意：开启后只会批量下载原图,并且只能使用内置下载 不会再调用downloadDelegate的原图下载方法。）,default is NO */
