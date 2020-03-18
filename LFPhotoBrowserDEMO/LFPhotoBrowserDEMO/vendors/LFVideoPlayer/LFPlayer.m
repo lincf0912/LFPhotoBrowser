@@ -221,7 +221,7 @@ static void *LFPlayerCurrentItemObservationContext = &LFPlayerCurrentItemObserva
             NSLog(@"%f", time);
             [self.player seekToTime:CMTimeMakeWithSeconds(time, NSEC_PER_SEC) completionHandler:^(BOOL finished) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    isSeeking = NO;
+                    self->isSeeking = NO;
                 });
             }];
         }

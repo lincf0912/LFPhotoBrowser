@@ -76,7 +76,7 @@
 		6FC387AE1EA998ED00284C74 /* NavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6FC387AD1EA998ED00284C74 /* NavigationController.m */; };
 		B731EC0F634A3745F52C3A15 /* libPods-LFPhotoBrowserDEMO.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5C99D3BE2C4FC1032EABDFDE /* libPods-LFPhotoBrowserDEMO.a */; };
 		C70FDAAC20E35F100053A02C /* 22.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = C70FDAAB20E35F0F0053A02C /* 22.jpeg */; };
-		C773CB021FDE70C10010CAC2 /* LFDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C773CB011FDE70C10010CAC2 /* LFDownloadManager.m */; };
+		C773CB021FDE70C10010CAC2 /* LFPhotoDownloadManager.m in Sources */ = {isa = PBXBuildFile; fileRef = C773CB011FDE70C10010CAC2 /* LFPhotoDownloadManager.m */; };
 		C773CB061FDE7EB10010CAC2 /* UIImageView+LFWebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = C773CB051FDE7EB10010CAC2 /* UIImageView+LFWebCache.m */; };
 /* End PBXBuildFile section */
 
@@ -186,8 +186,8 @@
 		6FC387AC1EA998ED00284C74 /* NavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationController.h; sourceTree = "<group>"; };
 		6FC387AD1EA998ED00284C74 /* NavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationController.m; sourceTree = "<group>"; };
 		C70FDAAB20E35F0F0053A02C /* 22.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = 22.jpeg; sourceTree = "<group>"; };
-		C773CB001FDE70C10010CAC2 /* LFDownloadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LFDownloadManager.h; sourceTree = "<group>"; };
-		C773CB011FDE70C10010CAC2 /* LFDownloadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LFDownloadManager.m; sourceTree = "<group>"; };
+		C773CB001FDE70C10010CAC2 /* LFPhotoDownloadManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LFPhotoDownloadManager.h; sourceTree = "<group>"; };
+		C773CB011FDE70C10010CAC2 /* LFPhotoDownloadManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LFPhotoDownloadManager.m; sourceTree = "<group>"; };
 		C773CB041FDE7EB10010CAC2 /* UIImageView+LFWebCache.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImageView+LFWebCache.h"; sourceTree = "<group>"; };
 		C773CB051FDE7EB10010CAC2 /* UIImageView+LFWebCache.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+LFWebCache.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -443,7 +443,7 @@
 		6FA36E571EBB34F00009E2DE /* vendors */ = {
 			isa = PBXGroup;
 			children = (
-				C773CAFF1FDE70B70010CAC2 /* LFDownloadManager */,
+				C773CAFF1FDE70B70010CAC2 /* LFPhotoDownloadManager */,
 				6FA36E581EBB34F00009E2DE /* LFActionSheet */,
 				6FA36E631EBB34F00009E2DE /* LFVideoPlayer */,
 				6FA36E7B1EBB363F0009E2DE /* LFLoadingView */,
@@ -516,14 +516,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		C773CAFF1FDE70B70010CAC2 /* LFDownloadManager */ = {
+		C773CAFF1FDE70B70010CAC2 /* LFPhotoDownloadManager */ = {
 			isa = PBXGroup;
 			children = (
 				C773CB031FDE7E900010CAC2 /* Category */,
-				C773CB001FDE70C10010CAC2 /* LFDownloadManager.h */,
-				C773CB011FDE70C10010CAC2 /* LFDownloadManager.m */,
+				C773CB001FDE70C10010CAC2 /* LFPhotoDownloadManager.h */,
+				C773CB011FDE70C10010CAC2 /* LFPhotoDownloadManager.m */,
 			);
-			path = LFDownloadManager;
+			path = LFPhotoDownloadManager;
 			sourceTree = "<group>";
 		};
 		C773CB031FDE7E900010CAC2 /* Category */ = {
@@ -726,7 +726,7 @@
 				6FA36E6D1EBB34F00009E2DE /* LFActionSheetCell.m in Sources */,
 				6FA36E6C1EBB34F00009E2DE /* LFActionSheet.m in Sources */,
 				6F148D161DB89A7C0011BAE6 /* LFPhotoView.m in Sources */,
-				C773CB021FDE70C10010CAC2 /* LFDownloadManager.m in Sources */,
+				C773CB021FDE70C10010CAC2 /* LFPhotoDownloadManager.m in Sources */,
 				6F796D7C1EB1E08C00CECB02 /* UIView+LFPB_CornerRadius.m in Sources */,
 				6F148D641DB8C9450011BAE6 /* XLPlainFlowLayout.m in Sources */,
 			);

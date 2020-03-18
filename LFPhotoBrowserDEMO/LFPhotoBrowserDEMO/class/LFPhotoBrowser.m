@@ -11,7 +11,7 @@
 #import "LFActionSheet.h"
 #import "UIViewController+LFPB_Extension.h"
 #import <AVFoundation/AVFoundation.h>
-#import "LFDownloadManager.h"
+#import "LFPhotoDownloadManager.h"
 
 #define kRound(f) (round(f*10)/10)
 
@@ -233,7 +233,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     [super viewWillAppear:animated];
     _navigationBarAlpha = 0;
     [UIView animateWithDuration:self.animatedTime animations:^{
-        [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
+        [self.navigationController.navigationBar setAlpha:self->_navigationBarAlpha];
     } completion:^(BOOL finished) {
         [self.navigationController setNavigationBarHidden:YES];
     }];
@@ -260,7 +260,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
     _navigationBarAlpha = 1;
     [UIView animateWithDuration:self.animatedTime animations:^{
-        [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
+        [self.navigationController.navigationBar setAlpha:self->_navigationBarAlpha];
     }];
 }
 
@@ -327,16 +327,16 @@ dispatch_sync(dispatch_get_main_queue(), block);\
     CGRect currRect = CGRectMake(0, 0, self.currPhotoView.frame.size.width, self.currPhotoView.frame.size.height);
     
     [UIView animateWithDuration:self.animatedTime animations:^{
-        _bgImageView.alpha = 1.f;
+        self->_bgImageView.alpha = 1.f;
     }completion:^(BOOL finished) {
         [self.currPhotoView setMaskImage:nil];
     }];
     
     [UIView animateWithDuration:self.animatedTime delay:0.1f options:UIViewAnimationOptionCurveLinear animations:^{
-        [_currPhotoView calcFrameMaskPosition:MaskPosition_None frame:currRect];
+        [self->_currPhotoView calcFrameMaskPosition:MaskPosition_None frame:currRect];
     } completion:^(BOOL finished) {
         [self setNeedsStatusBarAppearanceUpdate];
-        [_currPhotoView endUpdate];
+        [self->_currPhotoView endUpdate];
         if ([self.delegate respondsToSelector:@selector(photoBrowserDidBeginShow:)]) {
             [self.delegate photoBrowserDidBeginShow:self];
         }
@@ -389,8 +389,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         }
         
     } completion:^(BOOL finished) {
-        [_coverView removeFromSuperview];
-        _coverView = nil;
+        [self->_coverView removeFromSuperview];
+        self->_coverView = nil;
         [self.view removeFromSuperview];
         
         if ([self.delegate respondsToSelector:@selector(photoBrowserDidEndShow:)]) {
@@ -837,16 +837,16 @@ dispatch_sync(dispatch_get_main_queue(), block);\
             if(direction == SlideDirection_Left && self.callLeftSlideDataSource == NO){
                 self.callLeftSlideDataSource = YES;
                 [self.images addObjectsFromArray:dataSource];
-                _pageControl.numberOfPages = self.images.count;
-                _pageControl.currentPage = _curr;
+                self->_pageControl.numberOfPages = self.images.count;
+                self->_pageControl.currentPage = self->_curr;
                 isUseData = YES;
             }else if(direction == SlideDirection_Right && self.callRightSlideDataSource == NO){
                 self.callRightSlideDataSource = YES;
                 [self.images insertObjects:dataSource atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, dataSource.count)]];
-                _pageControl.numberOfPages = self.images.count;
-                _curr += dataSource.count;
-                _scrollIndex += dataSource.count;
-                _pageControl.currentPage = _curr;
+                self->_pageControl.numberOfPages = self.images.count;
+                self->_curr += dataSource.count;
+                self->_scrollIndex += dataSource.count;
+                self->_pageControl.currentPage = self->_curr;
                 isUseData = YES;
             }
             
@@ -874,8 +874,8 @@ dispatch_sync(dispatch_get_main_queue(), block);\
 //                    [self.photoScrollView setContentSize:CGSizeMake(kScrollViewW * 3, 0)];
 //                    [self setScrollViewPosition:1];
 //                }
-                if (_isMTScroll == NO && self.photoScrollView.isDragging) { //手动加载
-                    _isMTScroll = YES;
+                if (self->_isMTScroll == NO && self.photoScrollView.isDragging) { //手动加载
+                    self->_isMTScroll = YES;
                 }
                 /** 修复边缘张才有额外数据源添加的情况 */
                 if (self.currPhotoView.frame.origin.x != kScrollViewW && (self.curr > 0 && self.curr < self.images.count-1)) {
@@ -1232,7 +1232,7 @@ dispatch_sync(dispatch_get_main_queue(), block);\
         _isBatchDLing = YES;
         __weak typeof(self) weakSelf = self;
         
-        [[LFDownloadManager shareLFDownloadManager] lf_downloadURL:[NSURL URLWithString:info.originalImageUrl] progress:nil completion:^(NSData *data, NSError *error, NSURL *URL) {
+        [[LFPhotoDownloadManager shareLFDownloadManager] lf_downloadURL:[NSURL URLWithString:info.originalImageUrl] progress:nil completion:^(NSData *data, NSError *error, NSURL *URL) {
             [weakSelf.batchDLHash removeObject:info];
             weakSelf.isBatchDLing = NO;
             [weakSelf batchDownload];

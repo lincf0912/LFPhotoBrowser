@@ -841,10 +841,10 @@ typedef void(^LFPBCompressImageCompletionBlock)(UIImage *compressImage, BOOL isC
     if (self.photoInfo.photoType == PhotoType_image) {
         //显示加载失败时清空默认图片
         [UIView animateWithDuration:0.2f animations:^{
-            _customView.alpha = 0.f;
+            self->_customView.alpha = 0.f;
         } completion:^(BOOL finished) {
-            [_customView removeFromSuperview];
-            _customView = nil;
+            [self->_customView removeFromSuperview];
+            self->_customView = nil;
             self.imageMaskView = nil;
             [(LFImageProgressView *)self.progressView showFailure];
         }];

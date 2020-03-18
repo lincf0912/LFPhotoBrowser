@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "LFDownloadManager.h"
+#import "LFPhotoDownloadManager.h"
 
 typedef void(^LFWebImageDownloaderProgressBlock)(int64_t receivedSize, int64_t expectedSize, NSURL *imageURL);
 typedef void(^LFWebImageCompletionBlock)(UIImage *image, NSData *data, NSError *error, NSURL *imageURL);

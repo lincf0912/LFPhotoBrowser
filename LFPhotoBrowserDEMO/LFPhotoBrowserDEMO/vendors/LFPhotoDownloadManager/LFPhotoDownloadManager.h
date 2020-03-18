@@ -11,9 +11,9 @@
 typedef void(^lf_progressBlock)(int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite, NSURL *URL);
 typedef void(^lf_completeBlock)(NSData * data, NSError *error, NSURL *URL);
 
-@interface LFDownloadManager : NSObject
+@interface LFPhotoDownloadManager : NSObject
 
-+ (LFDownloadManager *)shareLFDownloadManager;
++ (LFPhotoDownloadManager *)shareLFDownloadManager;
 
 @property (nonatomic, assign) NSUInteger repeatCountWhenDownloadFailed;
 

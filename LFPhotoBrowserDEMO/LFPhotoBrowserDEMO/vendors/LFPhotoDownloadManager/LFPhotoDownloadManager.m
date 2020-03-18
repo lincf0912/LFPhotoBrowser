@@ -6,11 +6,11 @@
 //  Copyright © 2017年 GZMiracle. All rights reserved.
 //
 
-#import "LFDownloadManager.h"
+#import "LFPhotoDownloadManager.h"
 #import <CommonCrypto/CommonDigest.h>
 
-#define LFDownloadManagerDirector [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:NSStringFromClass([LFDownloadManager class])]
-#define LFDownloadManagerDirectorAppending(name) [LFDownloadManagerDirector stringByAppendingPathComponent:name]
+#define LFPhotoDownloadManagerDirector [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:NSStringFromClass([self class])]
+#define LFPhotoDownloadManagerDirectorAppending(name) [LFPhotoDownloadManagerDirector stringByAppendingPathComponent:name]
 
 @interface LFDownloadInfo : NSObject
 
@@ -50,18 +50,18 @@
 
 @end
 
-@interface LFDownloadManager() <NSURLSessionDownloadDelegate>
+@interface LFPhotoDownloadManager() <NSURLSessionDownloadDelegate>
 
 @property (nonatomic, strong) NSURLSession *session;
 @property (nonatomic, strong) NSMutableDictionary *downloadDictionary;
 
 @end
 
-@implementation LFDownloadManager
+@implementation LFPhotoDownloadManager
 
 + (void)initialize {
     
-    NSString *directory = LFDownloadManagerDirector;
+    NSString *directory = LFPhotoDownloadManagerDirector;
     BOOL isDirectory = NO;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     BOOL isExists = [fileManager fileExistsAtPath:directory isDirectory:&isDirectory];
@@ -70,12 +70,12 @@
     }
 }
 
-+ (LFDownloadManager *)shareLFDownloadManager
++ (LFPhotoDownloadManager *)shareLFDownloadManager
 {
-    static LFDownloadManager *share = nil;
+    static LFPhotoDownloadManager *share = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        share = [LFDownloadManager new];
+        share = [LFPhotoDownloadManager new];
     });
     return share;
 }
@@ -100,7 +100,7 @@
 - (NSData *)dataFromSandboxWithURL:(NSURL *)URL {
     
     
-    NSString *path = LFDownloadManagerDirectorAppending([self cachedFileNameForKey:URL.absoluteString]);
+    NSString *path = LFPhotoDownloadManagerDirectorAppending([self cachedFileNameForKey:URL.absoluteString]);
     NSData *data = [NSData dataWithContentsOfFile:path];
     if (data.length > 0 ) {
         return data;
@@ -190,9 +190,9 @@
 + (void)lf_clearCached {
     
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSArray *fileNames = [fileManager contentsOfDirectoryAtPath:LFDownloadManagerDirector error:nil];
+    NSArray *fileNames = [fileManager contentsOfDirectoryAtPath:LFPhotoDownloadManagerDirector error:nil];
     for (NSString *fileName in fileNames) {
-        if (![fileManager removeItemAtPath:[LFDownloadManagerDirector stringByAppendingPathComponent:fileName] error:nil]) {
+        if (![fileManager removeItemAtPath:[LFPhotoDownloadManagerDirector stringByAppendingPathComponent:fileName] error:nil]) {
             NSLog(@"removeItemAtPath Failed!");
         }
     }
@@ -233,7 +233,7 @@
     NSData *data = [NSData dataWithContentsOfURL:location];
     if (info.cacheData) {
         //1、生成的Caches地址
-        NSString *cacepath = LFDownloadManagerDirectorAppending([self cachedFileNameForKey:info.downloadURL.absoluteString]);
+        NSString *cacepath = LFPhotoDownloadManagerDirectorAppending([self cachedFileNameForKey:info.downloadURL.absoluteString]);
         //2、移动图片的存储地址
         NSFileManager *manager = [NSFileManager defaultManager];
         [manager moveItemAtURL:location toURL:[NSURL fileURLWithPath:cacepath] error:nil];

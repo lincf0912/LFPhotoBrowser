@@ -31,10 +31,10 @@ ss.source_files = 'LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/vendors/LFLoadingView/*
 ss.public_header_files = 'LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/vendors/LFLoadingView/*.h'
 end
 
-# LFDownloadManager模块
-s.subspec 'LFDownloadManager' do |ss|
-ss.source_files = 'LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/vendors/LFDownloadManager/*.{h,m}','LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/vendors/LFDownloadManager/**/*.{h,m}','LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/class/category/UIImage/UIImage+LFPB_Format.{h,m}'
-ss.public_header_files = 'LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/vendors/LFDownloadManager/*.h','LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/vendors/LFDownloadManager/**/*.h','LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/class/category/UIImage/UIImage+LFPB_Format.h'
+# LFPhotoDownloadManager模块
+s.subspec 'LFPhotoDownloadManager' do |ss|
+ss.source_files = 'LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/vendors/LFPhotoDownloadManager/*.{h,m}','LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/vendors/LFPhotoDownloadManager/**/*.{h,m}','LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/class/category/UIImage/UIImage+LFPB_Format.{h,m}'
+ss.public_header_files = 'LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/vendors/LFPhotoDownloadManager/*.h','LFPhotoBrowserDEMO/LFPhotoBrowserDEMO/vendors/LFPhotoDownloadManager/**/*.h'
 end
 
 end

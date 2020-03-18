@@ -39,7 +39,7 @@ dispatch_async(dispatch_get_main_queue(), block);\
     }
     
     __weak typeof(self) weakSelf = self;
-    [[LFDownloadManager shareLFDownloadManager] lf_downloadURL:url cacheData:YES progress:^(int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite, NSURL *URL) {
+    [[LFPhotoDownloadManager shareLFDownloadManager] lf_downloadURL:url cacheData:YES progress:^(int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite, NSURL *URL) {
         lf_dispatch_main_async_safe(^{
             if (progressBlock) {
                 progressBlock(totalBytesWritten, totalBytesExpectedToWrite, URL);
