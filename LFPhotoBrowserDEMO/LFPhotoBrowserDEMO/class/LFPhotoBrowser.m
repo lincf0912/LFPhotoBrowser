@@ -990,13 +990,13 @@ dispatch_sync(dispatch_get_main_queue(), block);\
                     _navigationBarAlpha = 0;
                     [UIView animateWithDuration:self.animatedTime animations:^{
                         self.bgImageView.alpha = 1.0f;
-                        [self.navigationController.navigationBar setAlpha:_navigationBarAlpha];
+                        [self.navigationController.navigationBar setAlpha:self->_navigationBarAlpha];
                         [self.currPhotoView setSubControlAlpha:1.f];
                         [self.currPhotoView calcFrameMaskPosition:MaskPosition_None frame:currRect];
                     }completion:^(BOOL finished) {
                         self.movePhotoView.hidden = NO;
-                        [_coverView removeFromSuperview];
-                        _coverView = nil;
+                        [self->_coverView removeFromSuperview];
+                        self->_coverView = nil;
                         [self.navigationController setNavigationBarHidden:YES];
                         [self setNeedsStatusBarAppearanceUpdate];
                     }];
