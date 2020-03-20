@@ -12,7 +12,7 @@
 #define LFPhotoDownloadManagerDirector [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:NSStringFromClass([self class])]
 #define LFPhotoDownloadManagerDirectorAppending(name) [LFPhotoDownloadManagerDirector stringByAppendingPathComponent:name]
 
-@interface LFDownloadInfo : NSObject
+@interface LFPhotoDownloadInfo : NSObject
 
 @property (nonatomic, assign) NSInteger downloadTimes;
 @property (nonatomic, strong) NSURL *downloadURL;
@@ -20,16 +20,16 @@
 @property (nonatomic, assign) BOOL cacheData;
 @property (nonatomic, readonly) BOOL reDownload;
 
-@property (nonatomic, copy) lf_progressBlock progress;
-@property (nonatomic, copy) lf_completeBlock complete;
+@property (nonatomic, copy) lf_photoDownloadProgressBlock progress;
+@property (nonatomic, copy) lf_photoDownloadCompleteBlock complete;
 
 @end
 
-@implementation LFDownloadInfo
+@implementation LFPhotoDownloadInfo
 
-+ (LFDownloadInfo *)lf_downloadInfoWithURL:(NSURL *)downloadURL
++ (LFPhotoDownloadInfo *)lf_downloadInfoWithURL:(NSURL *)downloadURL
 {
-    LFDownloadInfo *info = [[LFDownloadInfo alloc] init];
+    LFPhotoDownloadInfo *info = [[LFPhotoDownloadInfo alloc] init];
     info.downloadURL = downloadURL;
     return info;
 }
@@ -80,7 +80,7 @@
     return share;
 }
 
-- (NSMutableDictionary <NSURL *, LFDownloadInfo *>*)downloadDictionary {
+- (NSMutableDictionary <NSURL *, LFPhotoDownloadInfo *>*)downloadDictionary {
     
     if (!_downloadDictionary) {
         _downloadDictionary = @{}.mutableCopy;
@@ -110,7 +110,7 @@
     return nil;
 }
 
-- (void)lf_requestGetURL:(NSURL *)URL completion:(lf_completeBlock)completion
+- (void)lf_requestGetURL:(NSURL *)URL completion:(lf_photoDownloadCompleteBlock)completion
 {
     //创建请求对象
     //请求对象内部默认已经包含了请求头和请求方法（GET）
@@ -136,14 +136,14 @@
     
 }
 
-- (void)lf_downloadURL:(NSURL *)URL progress:(lf_progressBlock)progress completion:(lf_completeBlock)completion
+- (void)lf_downloadURL:(NSURL *)URL progress:(lf_photoDownloadProgressBlock)progress completion:(lf_photoDownloadCompleteBlock)completion
 {
     [self lf_downloadURL:URL cacheData:NO progress:progress completion:completion];
 }
 
-- (void)lf_downloadURL:(NSURL *)URL cacheData:(BOOL)cacheData progress:(lf_progressBlock)progress completion:(lf_completeBlock)completion
+- (void)lf_downloadURL:(NSURL *)URL cacheData:(BOOL)cacheData progress:(lf_photoDownloadProgressBlock)progress completion:(lf_photoDownloadCompleteBlock)completion
 {
-    LFDownloadInfo *info = [LFDownloadInfo lf_downloadInfoWithURL:URL];
+    LFPhotoDownloadInfo *info = [LFPhotoDownloadInfo lf_downloadInfoWithURL:URL];
     info.cacheData = cacheData;
     info.progress = [progress copy];
     info.complete = [completion copy];
@@ -152,7 +152,7 @@
     [self downloadInfo:info];
 }
 
-- (BOOL)redownloadInfo:(LFDownloadInfo *)info
+- (BOOL)redownloadInfo:(LFPhotoDownloadInfo *)info
 {
     NSInteger downloadTimes = info.downloadTimes;
     if (self.repeatCountWhenDownloadFailed > downloadTimes) {
@@ -163,7 +163,7 @@
     return NO;
 }
 
-- (void)downloadInfo:(LFDownloadInfo *)info
+- (void)downloadInfo:(LFPhotoDownloadInfo *)info
 {
     NSURL *URL = info.downloadURL;
     if (info.cacheData) {
@@ -211,7 +211,7 @@
 //    self.progressView.progress = 1.0 * totalBytesWritten / totalBytesExpectedToWrite;
     NSURL *URL = downloadTask.currentRequest.URL;
     
-    LFDownloadInfo *info = self.downloadDictionary[URL];
+    LFPhotoDownloadInfo *info = self.downloadDictionary[URL];
     if (info.progress) {
         info.progress(totalBytesWritten, totalBytesExpectedToWrite, info.downloadURL);
     }
@@ -229,7 +229,7 @@
     
     NSURL *URL = downloadTask.currentRequest.URL;
     
-    LFDownloadInfo *info = self.downloadDictionary[URL];
+    LFPhotoDownloadInfo *info = self.downloadDictionary[URL];
     NSData *data = [NSData dataWithContentsOfURL:location];
     if (info.cacheData) {
         //1、生成的Caches地址
@@ -257,7 +257,7 @@
     if (error) {
         NSURL *URL = task.currentRequest.URL;
         
-        LFDownloadInfo *info = self.downloadDictionary[URL];
+        LFPhotoDownloadInfo *info = self.downloadDictionary[URL];
         if (![self redownloadInfo:info]) {
             [self.downloadDictionary removeObjectForKey:URL];
             if (info.complete) {

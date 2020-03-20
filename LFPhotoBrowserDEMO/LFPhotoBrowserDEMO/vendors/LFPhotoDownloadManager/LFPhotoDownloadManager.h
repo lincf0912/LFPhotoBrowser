@@ -8,8 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-typedef void(^lf_progressBlock)(int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite, NSURL *URL);
-typedef void(^lf_completeBlock)(NSData * data, NSError *error, NSURL *URL);
+typedef void(^lf_photoDownloadProgressBlock)(int64_t totalBytesWritten, int64_t totalBytesExpectedToWrite, NSURL *URL);
+typedef void(^lf_photoDownloadCompleteBlock)(NSData * data, NSError *error, NSURL *URL);
 
 @interface LFPhotoDownloadManager : NSObject
 
@@ -17,10 +17,10 @@ typedef void(^lf_completeBlock)(NSData * data, NSError *error, NSURL *URL);
 
 @property (nonatomic, assign) NSUInteger repeatCountWhenDownloadFailed;
 
-- (void)lf_requestGetURL:(NSURL *)URL completion:(lf_completeBlock)completion;
+- (void)lf_requestGetURL:(NSURL *)URL completion:(lf_photoDownloadCompleteBlock)completion;
 
-- (void)lf_downloadURL:(NSURL *)URL progress:(lf_progressBlock)progress completion:(lf_completeBlock)completion;
-- (void)lf_downloadURL:(NSURL *)URL cacheData:(BOOL)cacheData progress:(lf_progressBlock)progress completion:(lf_completeBlock)completion;
+- (void)lf_downloadURL:(NSURL *)URL progress:(lf_photoDownloadProgressBlock)progress completion:(lf_photoDownloadCompleteBlock)completion;
+- (void)lf_downloadURL:(NSURL *)URL cacheData:(BOOL)cacheData progress:(lf_photoDownloadProgressBlock)progress completion:(lf_photoDownloadCompleteBlock)completion;
 
 + (void)lf_clearCached;
 
